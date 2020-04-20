@@ -19,7 +19,7 @@ work_dir = dirname(__file__)
 def clear_url(url):
     
     if match('^(?![a-z]+://)', url):
-        url = 'http://'+url
+        url = 'http://' + url
     
     domain_name = urlsplit(url).netloc
     
@@ -60,6 +60,7 @@ def clear_url(url):
                                 url = sub('(%26|&|%23|#|%3F|%3f|\?)+'+referral_marketing_rule+'(\=[^&]*)', '\g<1>', url)
                             for raw_rule in rules['providers'][provider_name]['rawRules']:
                                 url = sub(raw_rule, '', url)
+                            original_url = url
     
     for rules_file in [ 'rules/special_rules.json' ]:
         with open(join(work_dir,  rules_file)) as rules_file:
