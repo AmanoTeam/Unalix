@@ -54,10 +54,11 @@ def clear_url(url):
                                 url = sub(redirection_rule+'.*', '\g<1>', url)
                             if url != original_url:
                                 url = unquote(url)
+                                url = requote_uri(url)
                             for common_rule in rules['providers'][provider_name]['rules']:
-                                url = sub('(%26|&|%23|#|%3F|%3f|\?)+'+common_rule+'(\=[^&]*)', '\g<1>', url)
+                                url = sub('(%26|&|%23|#|%3F|%3f|\?)'+common_rule+'(\=[^&]*)', '\g<1>', url)
                             for referral_marketing_rule in rules['providers'][provider_name]['referralMarketing']:
-                                url = sub('(%26|&|%23|#|%3F|%3f|\?)+'+referral_marketing_rule+'(\=[^&]*)', '\g<1>', url)
+                                url = sub('(%26|&|%23|#|%3F|%3f|\?)'+referral_marketing_rule+'(\=[^&]*)', '\g<1>', url)
                             for raw_rule in rules['providers'][provider_name]['rawRules']:
                                 url = sub(raw_rule, '', url)
                             original_url = url
@@ -71,8 +72,6 @@ def clear_url(url):
                     pattern = sub('^(.*)\s<\->\s.*$', '\g<1>', special_rule)
                     replace = sub('^.*\s<\->\s(.*)$', '\g<1>', special_rule)
                     url = sub(pattern, replace, url)
-    
-    url = requote_uri(url)
-    
+        
     return url
 
