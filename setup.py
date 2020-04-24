@@ -5,7 +5,7 @@ with open('README.md', 'r') as readme_file:
 
 setup(
     name='Unalix',
-    version='0.2',
+    version='0.3',
     author='Amano Team',
     author_email='contact@amanoteam.com',
     description='A simple module that removes tracking fields from URLs.',
