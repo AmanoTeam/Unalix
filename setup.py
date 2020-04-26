@@ -15,6 +15,11 @@ setup(
     install_requires=[ 'requests' ],
     packages=[ 'unalix' ],
     include_package_data=True,
+    entry_points={
+        'console_scripts': [
+            'unalix = unalix.cmd:cmd',
+        ],
+    },
     classifiers=[
         'Programming Language :: Python',
         'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
@@ -23,4 +28,3 @@ setup(
     ],
     python_requires='>=3.6',
 )
-

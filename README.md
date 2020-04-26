@@ -7,35 +7,53 @@ Unalix also transform YouTube, Twitter and Instagram links into Invidious, Nitte
 ### Installation
 
 ```
-pip install --upgrade 'unalix'
+pip3 install --upgrade 'unalix'
 ```
 or
 ```
-pip install --upgrade 'git+https://github.com/SnwMds/Unalix'
+pip3 install --upgrade 'git+https://github.com/SnwMds/Unalix'
 ```
+
+The git repository will always have the most recent changes, so it is recommended that you install/update the module through it.
 
 ### Usage:
 
 Let's see some examples:
 
+**On a Python3 console:**
+
 ```python
 >>> from unalix import clear_url
 >>> 
->>> clear_url('http://example.com/index.html?utm_source=amp&__twitter_impression=true') # URL with some tracking parameters from Google Analytics and Twitter
+>>> clear_url('http://example.com/?utm_source=amp&__twitter_impression=true')
 'http://example.com/index.html'
 >>> 
->>> clear_url('http://goo.gl/ko4LWp') # A shortened URL
+>>> clear_url('http://goo.gl/ko4LWp')
 'https://forum.xda-developers.com/android/apps-games/app-youtube-vanced-edition-t3758757'
 >>> 
->>> clear_url('https://youtu.be/o5DnSWi06b8') # YouTube video link
+>>> clear_url('https://youtu.be/o5DnSWi06b8')
 'https://invidio.us/watch?v=o5DnSWi06b8'
 >>> 
->>> clear_url('https://twitter.com/funimation') # Twitter profile link
+>>> clear_url('https://twitter.com/funimation')
 'https://nitter.net/funimation'
 >>> 
->>> clear_url('https://www.instagram.com/p/B89TWTdlEXf/') # Instagram post link
+>>> clear_url('https://www.instagram.com/p/B89TWTdlEXf/')
 'https://bibliogram.pussthecat.org/p/B89TWTdlEXf/'
 >>>
+```
+
+**On a bash terminal:**
+
+```bash
+$ unalix --url 'http://example.com/?utm_source=amp&__twitter_impression=true'
+http://example.com/index.html
+$
+$ unalix --url 'http://goo.gl/ko4LWp'
+https://forum.xda-developers.com/android/apps-games/app-youtube-vanced-edition-t3758757
+$
+$ unalix --url  'https://twitter.com/funimation'
+https://nitter.net/funimation
+$
 ```
 
 ### Limitations
