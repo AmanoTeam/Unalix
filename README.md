@@ -66,7 +66,7 @@ Unalix only follows the URLs/paths provided by the `Location` header (see [RFC 7
 
 ### Contact
 
-Want to say something? Need some help? [Open a issue](https://github.com/SnwMds/Unalix/issues) or [send a email](http://scr.im/SnwMds).
+Want to say something? Need some help? [Open a issue](https://github.com/SnwMds/Unalix/issues) or [send a email](https://spamty.eu/show.php?version=v6&email=26&key=d7967f0e625c5f19c9c655b8).
 
 ### License
 

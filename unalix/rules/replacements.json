@@ -15,13 +15,13 @@
     "instagram_user": {
       "urlPattern": "https?://(m\\.|www\\.)?instagram.com(?!/p/).*",
       "replacements": [
-        "(m\\.|www\\.)?instagram.com/", "bibliogram.pussthecat.org/u/"
+        "(m\\.|www\\.)?instagram.com/", "bibliogram.art/u/"
       ]
     },
     "instagram_post": {
       "urlPattern": "https?://(m\\.|www\\.)?instagram.com/p/.*",
       "rules": [
-        "(m\\.|www\\.)?instagram.com", "bibliogram.pussthecat.org"
+        "(m\\.|www\\.)?instagram.com", "bibliogram.art"
       ]
     },
     "kabum": {
