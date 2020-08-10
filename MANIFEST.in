@@ -1,1 +1,4 @@
-include unalix/rules/*.json
+include json_files/custom-data.min.json
+include json_files/data.min.json
+include json_files/language_codes.json
+include json_files/user_agents.json

@@ -6,11 +6,11 @@ Unalix also transform YouTube, Twitter and Instagram links into Invidious, Nitte
 
 ### Installation
 
-```
+```bash
 pip3 install --upgrade 'unalix'
 ```
 or
-```
+```bash
 pip3 install --upgrade 'git+https://github.com/SnwMds/Unalix'
 ```
 
@@ -23,46 +23,49 @@ Let's see some examples:
 **On a Python3 console:**
 
 ```python
->>> from unalix import clear_url
->>> 
->>> clear_url('http://example.com/?utm_source=amp&__twitter_impression=true')
-'http://example.com/index.html'
->>> 
->>> clear_url('http://goo.gl/ko4LWp')
-'https://forum.xda-developers.com/android/apps-games/app-youtube-vanced-edition-t3758757'
->>> 
->>> clear_url('https://youtu.be/o5DnSWi06b8')
-'https://invidio.us/watch?v=o5DnSWi06b8'
->>> 
->>> clear_url('https://twitter.com/funimation')
-'https://nitter.net/funimation'
->>> 
->>> clear_url('https://www.instagram.com/p/B89TWTdlEXf/')
-'https://bibliogram.pussthecat.org/p/B89TWTdlEXf/'
->>>
+from unalix import clear_url
+
+url = 'http://example.com/?utm_source=google'
+result = clear_url(url)
+ 
+print(result)
+ 
+url = 'http://goo.gl/ko4LWp'
+result = clear_url(url)
+
+print(result)
+
 ```
 
-**On a bash terminal:**
+Unalix also has an asynchronous version inside the `unalix.asynchronous` module:
+
+```python
+import asyncio
+from unalix.asynchronous import clear_url
+	
+url = 'http://example.com/?utm_source=google'
+result = asyncio.run(clear_url(url))
+ 	
+print(result)
+ 
+url = 'http://goo.gl/ko4LWp'
+result = asyncio.run(clear_url(url))
+
+print(result)
+
+```
+
+Output:
 
 ```bash
-$ unalix --url 'http://example.com/?utm_source=amp&__twitter_impression=true'
-http://example.com/index.html
-$
-$ unalix --url 'http://goo.gl/ko4LWp'
+http://example.com/
 https://forum.xda-developers.com/android/apps-games/app-youtube-vanced-edition-t3758757
-$
-$ unalix --url  'https://twitter.com/funimation'
-https://nitter.net/funimation
-$
 ```
-
 ### Limitations
 
-Unalix has some limitations related to link processing, see them below:
+- Getting direct links from URL shorteners
 
-#### Getting direct links from URL shorteners
-
-Unalix only follows the URLs/paths provided by the `Location` header (see [RFC 7231, section 7.1.2: Location](https://tools.ietf.org/html/rfc7231#section-7.1.2)). It means that Unalix cannot obtain direct links from URL shorteners that require user interaction (e.g clicking a button or resolving CAPTCHA) to redirect or that uses JavaScript code to redirect.
+  - Unalix only follows the URLs/paths provided by the `Location` header (see [RFC 7231, section 7.1.2: Location](https://tools.ietf.org/html/rfc7231#section-7.1.2)). It means that Unalix cannot obtain direct links from URL shorteners that require user interaction (e.g clicking a button or resolving CAPTCHA) to redirect or that uses JavaScript code to redirect.
 
 ### Contact
 

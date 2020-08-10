@@ -1,9 +1,9 @@
 from . import http_clients
 from . import patches
-from . import settings
+from .. import settings
 from . import utils
 
-from .settings import (
+from ..settings import (
 	__title__,
 	__description__,
 	__version__,
