@@ -2,12 +2,6 @@ from setuptools import setup
 
 long_description = open('README.md', 'r').read()
 
-entry_points = {
-    'console_scripts': [
-        'unalix = unalix.command_line',
-    ]
-}
-
 package_data = {
     'unalix': [
         'json_files/custom-data.min.json',
@@ -30,7 +24,6 @@ setup(
     packages=['unalix'],
     include_package_data=True,
     package_data=package_data,
-    entry_points=entry_points,
     classifiers=[
         'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
         'Operating System :: Unix',
