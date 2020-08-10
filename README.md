@@ -2,8 +2,6 @@
 
 In addition to removing tracking fields from URLs, Unalix also try to gets the direct link from shortened URLs.
 
-Unalix also transform YouTube, Twitter and Instagram links into Invidious, Nitter and Bibliogram links.
-
 ### Installation
 
 ```bash
@@ -64,7 +62,6 @@ https://forum.xda-developers.com/android/apps-games/app-youtube-vanced-edition-t
 ### Limitations
 
 - Getting direct links from URL shorteners
-
   - Unalix only follows the URLs/paths provided by the `Location` header (see [RFC 7231, section 7.1.2: Location](https://tools.ietf.org/html/rfc7231#section-7.1.2)). It means that Unalix cannot obtain direct links from URL shorteners that require user interaction (e.g clicking a button or resolving CAPTCHA) to redirect or that uses JavaScript code to redirect.
 
 ### Contact
