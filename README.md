@@ -9,7 +9,7 @@ pip3 install --upgrade 'unalix'
 ```
 or
 ```bash
-pip3 install --upgrade 'git+https://github.com/SnwMds/Unalix'
+pip3 install --upgrade 'git+https://github.com/AmanoTeam/Unalix'
 ```
 
 The git repository will always have the most recent changes, so it is recommended that you install/update the module through it.
@@ -66,7 +66,7 @@ https://forum.xda-developers.com/android/apps-games/app-youtube-vanced-edition-t
 
 ### Contact
 
-Want to say something? Need some help? [Open a issue](https://github.com/SnwMds/Unalix/issues) or [send a email](https://spamty.eu/show.php?version=v6&email=26&key=d7967f0e625c5f19c9c655b8).
+Want to say something? Need some help? [Open a issue](https://github.com/AmanoTeam/Unalix/issues) or [send a email](https://spamty.eu/show.php?key=d7967f0e625c5f19c9c655b8).
 
 ### License
 
