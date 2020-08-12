@@ -20,7 +20,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/AmanoTeam/Unalix',
-    install_requires=['httpx[http2]==0.14.0', 'rfc3986==1.4.0', 'idna==2.10'],
+    install_requires=['httpx[http2]==0.14.1', 'rfc3986==1.4.0', 'idna==2.10'],
     packages=['unalix'],
     include_package_data=True,
     package_data=package_data,
