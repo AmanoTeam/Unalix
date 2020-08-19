@@ -1,8 +1,8 @@
-import idna
 import re
-import rfc3986
-
 from urllib.parse import unquote, quote
+
+import idna
+import rfc3986
 
 from unalix.http_clients import client
 from unalix.settings import rules, replacements

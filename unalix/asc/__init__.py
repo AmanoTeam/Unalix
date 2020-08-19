@@ -1,7 +1,7 @@
-from . import http_clients
-from . import patches
-from .. import settings
-from . import utils
+from unalix.asc import http_clients
+from unalix.asc import patches
+from unalix import settings
+from unalix.asc import utils
 
 from ..settings import (
 	__title__,
@@ -10,4 +10,4 @@ from ..settings import (
 	__all__
 )
 
-from .utils import clear_url
+from unalix.asc.utils import clear_url

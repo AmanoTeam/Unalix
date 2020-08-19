@@ -1,13 +1,13 @@
-from . import http_clients
-from . import patches
-from . import settings
-from . import utils
+from unalix import http_clients
+from unalix import patches
+from unalix import settings
+from unalix import utils
 
-from .settings import (
+from unalix.settings import (
 	__title__,
 	__description__,
 	__version__,
 	__all__
 )
 
-from .utils import clear_url
+from unalix.utils import clear_url

@@ -1,11 +1,11 @@
-import idna
 import re
-import rfc3986
-
 from urllib.parse import unquote, quote
 
-from .http_clients import client
-from ..settings import rules, replacements
+import idna
+import rfc3986
+
+from unalix.asc.http_clients import client
+from unalix.settings import rules, replacements
 
 UNRESERVED_SET = frozenset(
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")

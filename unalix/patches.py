@@ -2,10 +2,6 @@ import functools
 import random
 import typing
 
-from unalix.http_clients import client
-from unalix.settings import user_agents, languages
-from unalix.utils import parse_regex_rules
-
 from httpx._auth import Auth
 from httpx._config import Timeout, UNSET, UnsetType
 from httpx._exceptions import (
@@ -28,6 +24,10 @@ from httpx._types import (
 	VerifyTypes,
 )
 from httpx._utils import get_logger
+
+from unalix.http_clients import client
+from unalix.settings import user_agents, languages
+from unalix.utils import parse_regex_rules
 
 logger = get_logger(__name__)
 
