@@ -15,9 +15,12 @@ languages = json.loads(languages)
 
 rules = []
 
+# https://gitlab.com/KevinRoebert/ClearUrls/-/blob/master/data/data.min.json
+# https://github.com/AmanoTeam/Unalix/blob/master/unalix/json_files/custom-data.min.json
 for filename in ['data.min.json',  'custom-data.min.json']:
 	rules += [json.loads(open(os.path.join(json_files_dir, filename), 'r').read())]
 
+# format: (r'pattern', r'replacement')
 replacements = [
 	(r'(%26)+', r'%26'),
 	(r'&+', r'&'),

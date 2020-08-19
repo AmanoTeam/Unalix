@@ -10,6 +10,7 @@ from unalix.settings import rules, replacements
 UNRESERVED_SET = frozenset(
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
 
+# https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L570
 async def unquote_unreserved(uri):
 	"""Un-escape any percent-escape sequences in a URI that are unreserved
 	characters. This leaves all reserved, illegal and non-ASCII bytes encoded.
@@ -27,6 +28,7 @@ async def unquote_unreserved(uri):
 			parts[i] = '%' + parts[i]
 	return ''.join(parts)
 
+# https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L594
 async def requote_uri(uri):
 	"""Re-quote the given URI.
 
@@ -88,6 +90,7 @@ async def parse_regex_rules(url):
 	original_url = url
 	skip_provider = False
 	
+	# https://gitlab.com/KevinRoebert/ClearUrls/-/wikis/Technical-details/Rules-file#datajson
 	for rule in rules:
 		for provider in rule['providers'].keys():
 			if not rule['providers'][provider]['completeProvider']:

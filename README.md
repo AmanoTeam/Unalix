@@ -80,3 +80,8 @@ Unalix includes some third party software. See them below:
   - Author: Kevin Röbert ([KevinRoebert](https://gitlab.com/KevinRoebert))
   - Repository: [KevinRoebert/ClearUrls](https://gitlab.com/KevinRoebert/ClearUrls)
   - License: [GNU Lesser General Public License v3.0](https://gitlab.com/KevinRoebert/ClearUrls/blob/master/LICENSE)
+
+- **Requests**
+  - Author: Kenneth Reitz ([kennethreitz.org](https://kennethreitz.org/))
+  - Repository: [psf/requests](https://github.com/psf/requests)
+  - License: [Apache v2.0](https://github.com/psf/requests/blob/master/LICENSE)
