@@ -35,11 +35,11 @@ print(result)
 
 ```
 
-Unalix also has an asynchronous version inside the `unalix.asynchronous` module:
+Unalix also has an asynchronous version inside the `unalix.asc` module:
 
 ```python
 import asyncio
-from unalix.asynchronous import clear_url
+from unalix.asc import clear_url
 	
 url = 'http://example.com/?utm_source=google'
 result = asyncio.run(clear_url(url))
