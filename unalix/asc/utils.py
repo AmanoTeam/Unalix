@@ -49,7 +49,7 @@ async def requote_uri(uri):
 		return quote(uri, safe=safe_without_percent)
 	
 async def clear_url(url, unshort=True):
-	"""Clear and unshort the URL
+	"""Clear and unshort the :url:
 	
 	Usage:
 	
@@ -57,14 +57,13 @@ async def clear_url(url, unshort=True):
 	  >>> clear_url('http://g.co/?utm_source=google')
 	  'https://g.co/'
 	"""
+	# If the specified URL does not have a protocol defined, it will be set to 'http'
+	if url.startswith('http://') or url.startswith('https://'):
+		url = rfc3986.urlparse(url)
+	else:
+		url = rfc3986.urlparse(f'http://{url}')
 	
-	url = rfc3986.urlparse(url)
-	
-	if url.scheme not in ['http', 'https']:
-		raise ValueError(f'Unsupported URL protocol: "{url.scheme}"')
-	
-	# If the specified URL has a domain name in non-Latin alphabet,
-	# we must encode it according to IDNA
+	# If the specified URL has a domain name in non-Latin alphabet, encode it according to IDNA
 	try:
 		idna.encode(url.host, strict=True, std3_rules=True)
 	except idna.core.InvalidCodepoint:
