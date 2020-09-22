@@ -21,7 +21,7 @@ Let's see some examples:
 **On a Python3 console:**
 
 ```python
-from unalix import clear_url
+from unalix import clear_url, unshort_url
 
 url = 'http://example.com/?utm_source=google'
 result = clear_url(url)
@@ -29,25 +29,7 @@ result = clear_url(url)
 print(result)
  
 url = 'http://goo.gl/ko4LWp'
-result = clear_url(url)
-
-print(result)
-
-```
-
-Unalix also has an asynchronous version inside the `unalix.asc` module:
-
-```python
-import asyncio
-from unalix.asc import clear_url
-	
-url = 'http://example.com/?utm_source=google'
-result = asyncio.run(clear_url(url))
- 	
-print(result)
- 
-url = 'http://goo.gl/ko4LWp'
-result = asyncio.run(clear_url(url))
+result = unshort_url(url)
 
 print(result)
 
@@ -81,7 +63,7 @@ Unalix includes some third party software. See them below:
   - Repository: [KevinRoebert/ClearUrls](https://gitlab.com/KevinRoebert/ClearUrls)
   - License: [GNU Lesser General Public License v3.0](https://gitlab.com/KevinRoebert/ClearUrls/blob/master/LICENSE)
 
-- **Requests**
-  - Author: Kenneth Reitz ([kennethreitz.org](https://kennethreitz.org/))
+- **python-requests**
+  - Author: Kenneth Reitz
   - Repository: [psf/requests](https://github.com/psf/requests)
   - License: [Apache v2.0](https://github.com/psf/requests/blob/master/LICENSE)

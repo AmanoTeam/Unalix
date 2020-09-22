@@ -1,15 +1,36 @@
 from setuptools import setup
 
-long_description = open('README.md', 'r').read()
+with open('README.md', 'r') as file_object:
+    long_description = file_object.read()
 
 package_data = {
     'unalix': [
-        'json_files/custom-data.min.json',
-        'json_files/data.min.json',
-        'json_files/language_codes.json',
-        'json_files/user_agents.json'
+        'package_data/custom-data.min.json',
+        'package_data/data.min.json',
+        'package_data/language_codes.json',
+        'package_data/user_agents.json'
     ]
 }
+
+classifiers = [
+    'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
+    'Operating System :: Unix',
+    'Topic :: Internet :: WWW/HTTP',
+    'Topic :: Security',
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'Natural Language :: English',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9'
+]
+
+requirements = [
+    'httpx==0.14.3',
+    'rfc3986==1.4.0',
+    'idna==2.10'
+]
 
 setup(
     name='Unalix',
@@ -17,24 +38,14 @@ setup(
     author='Amano Team',
     author_email='contact@amanoteam.com',
     description='A simple module that removes tracking fields from URLs.',
+    license='LGPL-3.0',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/AmanoTeam/Unalix',
-    install_requires=['httpx[http2]==0.14.1', 'rfc3986==1.4.0', 'idna==2.10'],
+    install_requires=requirements,
     packages=['unalix'],
     include_package_data=True,
     package_data=package_data,
-    classifiers=[
-        'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
-        'Operating System :: Unix',
-        'Topic :: Internet',
-        'Topic :: Security',
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9'
-    ],
+    classifiers=classifiers,
     python_requires='>=3.6',
 )

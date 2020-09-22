@@ -1,5 +1,11 @@
 from httpx import Client
 
-headers = { 'Cache-Control' :'no-cache' }
+headers = { 
+	'Accept': 'text/html',
+	'Accept-Encoding': 'gzip, deflate',
+	'Cache-Control' :'no-cache, no-store'
+}
 
-client = Client(http2=True, headers=headers)
+client = Client(
+	headers=headers
+)

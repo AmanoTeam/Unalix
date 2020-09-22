@@ -5,8 +5,10 @@ import idna
 import rfc3986
 
 from unalix.http_clients import client
-from unalix.settings import rules, replacements
+from unalix.settings import replacements
+from unalix.files import rules
 
+# https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L566
 UNRESERVED_SET = frozenset(
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
 
@@ -48,20 +50,20 @@ def requote_uri(uri):
 		# properly quoted so they do not cause issues elsewhere.
 		return quote(uri, safe=safe_without_percent)
 	
-def clear_url(url, unshort=True):
-	"""Clear and unshort the :url:
+def parse_url(url):
+	"""Parse a url
 	
 	Usage:
 	
-	  >>> from unalix import clear_url
-	  >>> clear_url('http://g.co/?utm_source=google')
-	  'https://g.co/'
+	  >>> from unalix import parse_url
+	  >>> clear_url('i❤️.ws')
+	  'http://xn--i-7iq.ws/'
 	"""
 	# If the specified URL does not have a protocol defined, it will be set to 'http'
 	if url.startswith('http://') or url.startswith('https://'):
 		url = rfc3986.urlparse(url)
 	else:
-		url = rfc3986.urlparse(f'http://{url}')
+		url = rfc3986.urlparse('http://' + url + '/')
 	
 	# If the specified URL has a domain name in non-Latin alphabet, encode it according to IDNA
 	try:
@@ -70,14 +72,42 @@ def clear_url(url, unshort=True):
 		url = url.copy_with(host=url.host.encode('idna'))
 	
 	url = url.geturl()
-	url = parse_regex_rules(url)
-	
-	if unshort:
-		with client.stream('GET', url) as response:
-			url = str(response.url)
 	
 	return url
 	
+def clear_url(url):
+	"""Remove tracking fields from the url
+	
+	Usage:
+	
+	  >>> from unalix import clear_url
+	  >>> clear_url('http://g.co/?utm_source=google')
+	  'http://g.co/'
+	"""
+	
+	url = parse_url(url)
+	url = parse_regex_rules(url)
+	
+	return url
+	
+def unshort_url(url):
+	"""Try to unshort the url (follow 3xx redirects)
+	
+	The `clear_url()` function is called for each link
+	accessed through the `client.stream()` method.
+	
+	Usage:
+	
+	  >>> from unalix import unshort_url
+	  >>> unshort_url('https://bitly.is/Pricing-Pop-Up')
+	"""
+	url = parse_url(url)
+	
+	with client.stream('GET', url) as response:
+		url = str(response.url)
+	
+	return url
+
 def parse_regex_rules(url):
 	"""Process regex rules from rules/*.json
 	
@@ -107,9 +137,9 @@ def parse_regex_rules(url):
 								url = unquote(url)
 								url = requote_uri(url)
 							for common in rule['providers'][provider]['rules']:
-								url = re.sub(rf'(%26|&|%23|#|%3F|%3f|\?){common}(\=[^&]*)', '\g<1>', url)
+								url = re.sub(rf'(%26|&|%23|#|%3F|%3f|\?){common}((\=|%3D|%3d)[^&]*)', '\g<1>', url)
 							for referral in rule['providers'][provider]['referralMarketing']:
-								url = re.sub(rf'(%26|&|%23|#|%3F|%3f|\?){referral}(\=[^&]*)', '\g<1>', url)
+								url = re.sub(rf'(%26|&|%23|#|%3F|%3f|\?){referral}((\=|%3D|%3d)[^&]*)', '\g<1>', url)
 							for raw in rule['providers'][provider]['rawRules']:
 								url = re.sub(raw, '', url)
 							original_url = url
