@@ -10,11 +10,6 @@ with open(os.path.join(package_data, 'user_agents.json')) as file_object:
 	file_content = file_object.read()
 	user_agents = json.loads(file_content)
 
-# https://github.com/soimort/translate-shell/wiki/Languages
-with open(os.path.join(package_data, 'language_codes.json')) as file_object:
-	file_content = file_object.read()
-	languages = json.loads(file_content)
-
 # https://gitlab.com/KevinRoebert/ClearUrls/-/blob/master/data/data.min.json
 # https://github.com/AmanoTeam/Unalix/blob/master/unalix/json_files/custom-data.min.json
 rules = []

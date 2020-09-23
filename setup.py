@@ -27,9 +27,7 @@ classifiers = [
 ]
 
 requirements = [
-    'httpx==0.14.3',
-    'rfc3986==1.4.0',
-    'idna==2.10'
+    'httpx[http2]==0.15.1'
 ]
 
 setup(
@@ -37,7 +35,7 @@ setup(
     version='0.5',
     author='Amano Team',
     author_email='contact@amanoteam.com',
-    description='A simple module that removes tracking fields from URLs.',
+    description='A simple module that removes tracking fields from URLs and unshort shortened URLs.',
     license='LGPL-3.0',
     long_description=long_description,
     long_description_content_type='text/markdown',

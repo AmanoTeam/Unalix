@@ -1,6 +1,7 @@
 import functools
 import random
 import typing
+import datetime
 
 from httpx._auth import Auth
 from httpx._config import Timeout, UNSET, UnsetType
@@ -26,8 +27,8 @@ from httpx._types import (
 from httpx._utils import get_logger, Timer
 
 from unalix.http_clients import client
-from unalix.files import user_agents, languages
-from unalix.utils import parse_regex_rules
+from unalix.files import user_agents
+from unalix.utils import parse_rules
 
 logger = get_logger(__name__)
 
@@ -58,12 +59,10 @@ def send(
 
 	auth = client._build_request_auth(request, auth)
 
-	url = parse_regex_rules(str(request.url))
+	url = parse_rules(str(request.url))
 	request.url = URL(url)
 
 	request.headers.update({
-		'Accept-Language': random.choice(languages),
-		'Referer': str(request.url),
 		'User-Agent': random.choice(user_agents)
 	})
 
@@ -79,6 +78,8 @@ def send(
 		allow_redirects=allow_redirects,
 		history=[],
 	)
+	
+	response.raise_for_status()
 
 	if not stream:
 		try:
@@ -107,8 +108,27 @@ def _send_handling_redirects(
 				"Exceeded maximum allowed redirects.", request=request
 			)
 
+		url = parse_rules(str(request.url))
+		request.url = URL(url)
+
+		request.headers.update({
+			'User-Agent': random.choice(user_agents),
+		})
+
+		if request.url.scheme == 'http':
+			request.headers.update({
+				'Upgrade-Insecure-Requests': '1'
+			})
+		else:
+			try:
+				del request.headers['Upgrade-Insecure-Requests']
+			except KeyError:
+				pass
+
 		response = client._send_single_request(request, timeout)
 		response.history = list(history)
+
+		response.raise_for_status()
 
 		if not response.is_redirect:
 			return response
@@ -117,20 +137,6 @@ def _send_handling_redirects(
 			response.read()
 		request = client._build_redirect_request(request, response)
 		history = history + [response]
-
-		url = parse_regex_rules(str(request.url))
-		request.url = URL(url)
-
-		request.headers.update({
-			'Accept-Language': random.choice(languages),
-			'Referer': url,
-			'User-Agent': random.choice(user_agents),
-		})
-
-		if request.url.scheme == 'http':
-			request.headers.update({
-				'Upgrade-Insecure-Requests': '1'
-			})
 
 		if not allow_redirects:
 			response.call_next = functools.partial(
@@ -151,31 +157,33 @@ def _send_single_request(request: Request, timeout: Timeout) -> Response:
 	timer.sync_start()
 
 	with map_exceptions(HTTPCORE_EXC_MAP, request=request):
-		(
-			http_version,
-			status_code,
-			reason_phrase,
-			headers,
-			stream,
-		) = transport.request(
+		(status_code, headers, stream, ext) = transport.request(
 			request.method.encode(),
 			request.url.raw,
 			headers=request.headers.raw,
-			stream=request.stream,
-			timeout=timeout.as_dict(),
+			stream=request.stream,  # type: ignore
+			ext={"timeout": timeout.as_dict()},
 		)
+
+	def on_close(response: Response) -> None:
+		response.elapsed = datetime.timedelta(timer.sync_elapsed())
+		if hasattr(stream, "close"):
+			stream.close()
+
 	response = Response(
 		status_code,
-		http_version=http_version.decode("ascii"),
 		headers=headers,
 		stream=stream,  # type: ignore
+		ext=ext,
 		request=request,
-		elapsed_func=timer.sync_elapsed,
+		on_close=on_close,
 	)
 
 	status = f"{response.status_code} {response.reason_phrase}"
 	response_line = f"{response.http_version} {status}"
 	logger.debug(f'HTTP Request: {request.method} {request.url} "{response_line}"')
+
+	response.raise_for_status()
 
 	return response
 

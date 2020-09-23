@@ -2,10 +2,11 @@ from httpx import Client
 
 headers = { 
 	'Accept': 'text/html',
-	'Accept-Encoding': 'gzip, deflate',
-	'Cache-Control' :'no-cache, no-store'
+	'Connection': 'close',
+	'Accept-Encoding': 'gzip, deflate'
 }
 
 client = Client(
+	http2=True,
 	headers=headers
 )
