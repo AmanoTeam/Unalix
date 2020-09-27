@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 requirements = [
-    'httpx[http2]==0.15.1'
+    'httpx[http2]==0.15.4'
 ]
 
 setup(

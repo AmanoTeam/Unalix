@@ -78,8 +78,6 @@ def send(
 		allow_redirects=allow_redirects,
 		history=[],
 	)
-	
-	response.raise_for_status()
 
 	if not stream:
 		try:
@@ -128,8 +126,6 @@ def _send_handling_redirects(
 		response = client._send_single_request(request, timeout)
 		response.history = list(history)
 
-		response.raise_for_status()
-
 		if not response.is_redirect:
 			return response
 
@@ -166,7 +162,7 @@ def _send_single_request(request: Request, timeout: Timeout) -> Response:
 		)
 
 	def on_close(response: Response) -> None:
-		response.elapsed = datetime.timedelta(timer.sync_elapsed())
+		response.elapsed = datetime.timedelta(seconds=timer.sync_elapsed())
 		if hasattr(stream, "close"):
 			stream.close()
 
@@ -182,8 +178,6 @@ def _send_single_request(request: Request, timeout: Timeout) -> Response:
 	status = f"{response.status_code} {response.reason_phrase}"
 	response_line = f"{response.http_version} {status}"
 	logger.debug(f'HTTP Request: {request.method} {request.url} "{response_line}"')
-
-	response.raise_for_status()
 
 	return response
 
