@@ -1,6 +1,3 @@
-import json
-import os
-
 # format: (r'pattern', r'replacement')
 replacements = [
 	(r'(%26)+', r'%26'),

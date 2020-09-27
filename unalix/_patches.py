@@ -3,7 +3,6 @@ import random
 import typing
 import datetime
 
-from httpx._auth import Auth
 from httpx._config import Timeout, UNSET, UnsetType
 from httpx._exceptions import (
 	TooManyRedirects,
@@ -11,19 +10,7 @@ from httpx._exceptions import (
 	HTTPCORE_EXC_MAP
 )
 from httpx._models import URL, Request, Response
-from httpx._types import (
-	AuthTypes,
-	CertTypes,
-	CookieTypes,
-	HeaderTypes,
-	ProxiesTypes,
-	QueryParamTypes,
-	RequestData,
-	RequestFiles,
-	TimeoutTypes,
-	URLTypes,
-	VerifyTypes,
-)
+from httpx._types import AuthTypes, TimeoutTypes
 from httpx._utils import get_logger, Timer
 
 from unalix._http_clients import client
