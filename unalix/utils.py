@@ -159,30 +159,29 @@ def parse_rules(
 	for rule in rules:
 		for provider in rule['providers'].keys():
 			if not rule['providers'][provider]['completeProvider']:
-				for pattern in [rule['providers'][provider]['urlPattern']]:
-					if re.match(pattern, url):
-						if not ignore_exceptions:
-							for exception in rule['providers'][provider]['exceptions']:
-								if re.match(exception, url):
-									skip_provider = True
-									break
-						if not skip_provider:
-							if not ignore_redirections:
-								for redirection in rule['providers'][provider]['redirections']:
-									url = re.sub(rf'{redirection}.*', '\g<1>', url)
-								if url != original_url:
-									url = unquote(url)
-									url = requote_uri(url)
-							if not ignore_rules:
-								for common in rule['providers'][provider]['rules']:
-									url = re.sub(rf'(%26|&|%23|#|%3F|%3f|\?){common}((\=|%3D|%3d)[^&]*)', '\g<1>', url)
-							if not allow_referral:
-								for referral in rule['providers'][provider]['referralMarketing']:
-									url = re.sub(rf'(%26|&|%23|#|%3F|%3f|\?){referral}((\=|%3D|%3d)[^&]*)', '\g<1>', url)
-							if not ignore_raw:
-								for raw in rule['providers'][provider]['rawRules']:
-									url = re.sub(raw, '', url)
-							original_url = url
+				if re.match(rule['providers'][provider]['urlPattern'], url):
+					if not ignore_exceptions:
+						for exception in rule['providers'][provider]['exceptions']:
+							if re.match(rf'{exception}', url):
+								skip_provider = True
+								break
+					if not skip_provider:
+						if not ignore_redirections:
+							for redirection in rule['providers'][provider]['redirections']:
+								url = re.sub(rf'{redirection}.*', '\g<1>', url)
+							if url != original_url:
+								url = unquote(url)
+								url = requote_uri(url)
+						if not ignore_rules:
+							for common in rule['providers'][provider]['rules']:
+								url = re.sub(rf'(%26|&|%23|#|%3F|%3f|\?){common}((\=|%3D|%3d)[^&]*)', '\g<1>', url)
+						if not allow_referral:
+							for referral in rule['providers'][provider]['referralMarketing']:
+								url = re.sub(rf'(%26|&|%23|#|%3F|%3f|\?){referral}((\=|%3D|%3d)[^&]*)', '\g<1>', url)
+						if not ignore_raw:
+							for raw in rule['providers'][provider]['rawRules']:
+								url = re.sub(raw, '', url)
+						original_url = url
 	
 	for pattern, replacement in replacements:
 		url = re.sub(pattern, replacement, url)
