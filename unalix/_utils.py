@@ -3,9 +3,9 @@ from urllib.parse import unquote, quote
 
 from httpx._models import URL
 
-from unalix.http_clients import client
-from unalix.settings import replacements
-from unalix.files import rules
+from unalix._http_clients import client
+from unalix._settings import replacements
+from unalix._files import rules
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L566
 UNRESERVED_SET = frozenset(

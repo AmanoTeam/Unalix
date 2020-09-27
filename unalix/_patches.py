@@ -26,9 +26,9 @@ from httpx._types import (
 )
 from httpx._utils import get_logger, Timer
 
-from unalix.http_clients import client
-from unalix.files import user_agents
-from unalix.utils import parse_rules
+from unalix._http_clients import client
+from unalix._files import user_agents
+from unalix._utils import parse_rules
 
 logger = get_logger(__name__)
 

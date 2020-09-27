@@ -1,2 +1,2 @@
-import unalix.patches
-from unalix.utils import clear_url, unshort_url
+import unalix._patches
+from unalix._utils import clear_url, unshort_url
