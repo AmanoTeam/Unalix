@@ -99,13 +99,14 @@ def clear_url(url: str, **kwargs) -> str:
 	return url
 	
 def unshort_url(url: str) -> str:
-	"""Try to unshort the given url
+	"""Try to unshort the given URL (follow any 3xx http redirects)
 	
-	Unshortening is done by following 3xx redirects and removing
+	Unshortening is done by following any 3xx http redirect and removing
 	tracking fields from the URL before making the request.
 	
-	The `parse_rules()` function is called for each link
-	accessed through the `client.stream()` method.
+	Since the `parse_rules()` function is already called for each link
+	accessed through the `client.stream()` method, your don't need
+	to call it manually.
 	
 	:param url: URL to be processed.
 	:return: :class:`str`
@@ -132,7 +133,7 @@ def parse_rules(
 	ignore_redirections: bool = False
 ) -> str:
 	"""Parse regex rules from "data.min.json" and "custom-data.min.json"
-	files.
+	files for the given URL
 	
 	Take a look at https://github.com/ClearURLs/Addon/wiki/Rules to
 	understand how these rules are processed.
