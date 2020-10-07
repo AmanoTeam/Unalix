@@ -1,0 +1,103 @@
+[
+    {
+        "args": [
+            "-u",
+            "--url"
+        ],
+        "options": {
+            "help": "Specify one or more URLs to be processed.",
+            "action": "append",
+            "required": true
+        }
+    },
+    {
+        "args": [
+            "--unshort"
+        ],
+        "options": {
+            "help": "Try to unshort the given URL. Only takes effect when -u/--url is used.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--parse-documents"
+        ],
+        "options": {
+            "help": "Try to obtain the unshortened URL from the response's body (HTML page). Only takes effect when --unshort is used.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--launch-in-browser"
+        ],
+        "options": {
+            "help": "Launch cleaned/unshortened URL in default web browser instead of printing it to stdout.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--allow-referral"
+        ],
+        "options": {
+            "help": "Avoid removing marketing fields from the given URL.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--ignore-rules"
+        ],
+        "options": {
+            "help": "Do not parse rules for the given URL.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--ignore-exceptions"
+        ],
+        "options": {
+            "help": "Do not parse exception rules for the given URL.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--ignore-raw"
+        ],
+        "options": {
+            "help": "Do not parse raw rules for the given URL.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--ignore-redirections"
+        ],
+        "options": {
+            "help": "Do not parse redirection rules for the given URL.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--skip-blocked"
+        ],
+        "options": {
+            "help": "Skip/Ignore regex rules for blocked domains.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--skip-local"
+        ],
+        "options": {
+            "help": "Skip/Ignore URLs on local hosts (e.g 127.0.0.1, 0.0.0.0, localhost).",
+            "action": "store_true"
+        }
+    }
+]

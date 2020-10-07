@@ -1,67 +1,80 @@
-### What it does?
+Unalix is a simple code library written in Python. It implements the same regex rule processing mechanism used by the [ClearURLs](https://github.com/ClearURLs/Addon) addon.
 
-In addition to removing tracking fields from URLs, Unalix also try to gets the direct link from shortened URLs.
+#### Features
 
-### Installation
+- **Sync and Async**: Unalix supports both sync and async calls, fit for all usage needs.
+- **Type-hinted**: All methods are type-hinted, enabling excellent editor support.
+- **Simple**: No extra dependence is required to use this library.
+
+#### Installation
+
+Install using `pip`:
 
 ```bash
-pip3 install --upgrade 'unalix'
-```
-or
-```bash
-pip3 install --upgrade 'git+https://github.com/AmanoTeam/Unalix'
+pip3 install --force-reinstall \
+    --disable-pip-version-check \
+    --upgrade 'unalix'
 ```
 
-The git repository will always have the most recent changes, so it is recommended that you install/update the module through it.
+_**Note**: Unalix requires Python 3.6 or higher._
 
-### Usage:
+#### Usage:
 
-Let's see some examples:
-
-**On a Python3 console:**
+Removing tracking fields:
 
 ```python
-from unalix import clear_url, unshort_url
+from unalix import clear_url
 
-url = 'http://example.com/?utm_source=google'
-result = clear_url(url)
- 
-print(result)
- 
-url = 'http://goo.gl/ko4LWp'
-result = unshort_url(url)
+with_tracking_field = 'https://deezer.com/track/891177062?utm_source=deezer'
+without_tracking_field = clear_url(with_tracking_field)
 
-print(result)
-
+print(without_tracking_field)
 ```
 
-Output:
+Unshortening a shortened URL:
+
+```python
+from unalix import unshort_url
+
+shortened_url = 'https://bitly.is/Pricing-Pop-Up'
+unshortened_url = unshort_url(shortened_url)
+
+print(unshortened_url)
+```
+
+Output from both examples:
 
 ```bash
-http://example.com/
-https://forum.xda-developers.com/android/apps-games/app-youtube-vanced-edition-t3758757
+https://deezer.com/track/891177062
+https://bitly.com/pages/pricing
 ```
-### Limitations
+
+_**Note**: Unalix also has a command line tool called `clear_url`._
+
+#### Limitations
 
 - Getting direct links from URL shorteners
   - Unalix only follows the URLs/paths provided by the `Location` header (see [RFC 7231, section 7.1.2: Location](https://tools.ietf.org/html/rfc7231#section-7.1.2)). It means that Unalix cannot obtain direct links from URL shorteners that require user interaction (e.g clicking a button or resolving CAPTCHA) to redirect or that uses JavaScript code to redirect.
 
-### Contact
+#### Contributing
 
-Want to say something? Need some help? [Open a issue](https://github.com/AmanoTeam/Unalix/issues) or [send a email](https://spamty.eu/show.php?key=d7967f0e625c5f19c9c655b8).
+If you have discovered a bug in this library and know how to fix it, fork this repository and open a Pull Request. Otherwise, open a issue to report it.
 
-### License
+If you found a URL that was not fully cleaned by Unalix (e.g some tracking fields still remains), report it here or in the [ClearURLs addon repository](https://github.com/ClearURLs/Addon/issues). We use the list of regex rules maintained by the ClearURLs maintainers, but we also have our [own list](https://github.com/AmanoTeam/Unalix/blob/master/unalix/package_data/unalix-data.min.json).
 
-Unalix in licensed under the [GNU Lesser General Public License v3.0](https://github.com/AmanoTeam/Unalix/blob/master/LICENSE).
-
-### Third party software
+#### Third party software
 
 Unalix includes some third party software. See them below:
 
 - **ClearURLs**
-  - Author: Kevin Röbert ([KevinRoebert](https://gitlab.com/KevinRoebert))
-  - Repository: [KevinRoebert/ClearUrls](https://gitlab.com/KevinRoebert/ClearUrls)
-  - License: [GNU Lesser General Public License v3.0](https://gitlab.com/KevinRoebert/ClearUrls/blob/master/LICENSE)
+  - Author: Kevin Röbert
+  - Repository: [ClearURLs/Addon](https://github.com/ClearURLs/Addon)
+  - License: [GNU Lesser General Public License v3.0](https://gitlab.com/ClearURLs/Addon/blob/master/LICENSE)
+
+- **Pyrogram**
+  - Author: Dan
+  - Repository: [pyrogram/pyrogram](https://github.com/pyrogram/pyrogram)
+  - License: [GNU Lesser General Public License v3.0](https://github.com/pyrogram/pyrogram/blob/master/COPYING)
 
 - **python-requests**
   - Author: Kenneth Reitz

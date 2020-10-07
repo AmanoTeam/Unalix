@@ -1,4 +1,0 @@
-include package_data/custom-data.min.json
-include package_data/data.min.json
-include package_data/language_codes.json
-include package_data/user_agents.json

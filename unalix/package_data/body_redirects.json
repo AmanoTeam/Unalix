@@ -1,0 +1,9 @@
+[
+	{
+		"name": "AWS Email Marketing",
+		"pattern": "^https?:\\/\\/email\\.awscloud\\.com",
+		"redirects": [
+			"redirecturl\\s=\\s'(https?:\\/\\/.+)'"
+		]
+	}
+]
