@@ -25,10 +25,10 @@ Removing tracking fields:
 ```python
 from unalix import clear_url
 
-with_tracking_field = 'https://deezer.com/track/891177062?utm_source=deezer'
-without_tracking_field = clear_url(with_tracking_field)
+url = 'https://deezer.com/track/891177062?utm_source=deezer'
+result = clear_url(url)
 
-print(without_tracking_field)
+print(result)
 ```
 
 Unshortening a shortened URL:
@@ -36,10 +36,10 @@ Unshortening a shortened URL:
 ```python
 from unalix import unshort_url
 
-shortened_url = 'https://bitly.is/Pricing-Pop-Up'
-unshortened_url = unshort_url(shortened_url)
+url = 'https://bitly.is/Pricing-Pop-Up'
+result = unshort_url(url)
 
-print(unshortened_url)
+print(result)
 ```
 
 Output from both examples:
@@ -51,16 +51,11 @@ https://bitly.com/pages/pricing
 
 _**Note**: Unalix also has a command line tool called `clear_url`._
 
-#### Limitations
-
-- Getting direct links from URL shorteners
-  - Unalix only follows the URLs/paths provided by the `Location` header (see [RFC 7231, section 7.1.2: Location](https://tools.ietf.org/html/rfc7231#section-7.1.2)). It means that Unalix cannot obtain direct links from URL shorteners that require user interaction (e.g clicking a button or resolving CAPTCHA) to redirect or that uses JavaScript code to redirect.
-
 #### Contributing
 
-If you have discovered a bug in this library and know how to fix it, fork this repository and open a Pull Request. Otherwise, open a issue to report it.
+If you have discovered a bug in this library and know how to fix it, fork this repository and open a Pull Request.
 
-If you found a URL that was not fully cleaned by Unalix (e.g some tracking fields still remains), report it here or in the [ClearURLs addon repository](https://github.com/ClearURLs/Addon/issues). We use the list of regex rules maintained by the ClearURLs maintainers, but we also have our [own list](https://github.com/AmanoTeam/Unalix/blob/master/unalix/package_data/unalix-data.min.json).
+If you found a URL that was not fully cleaned by Unalix (e.g some tracking fields still remains), report them here or in the [ClearURLs addon repository](https://github.com/ClearURLs/Addon/issues). We use the list of regex rules maintained by the ClearURLs maintainers, but we also have our [own list](https://github.com/AmanoTeam/Unalix/blob/master/unalix/package_data/unalix-data.min.json).
 
 #### Third party software
 
