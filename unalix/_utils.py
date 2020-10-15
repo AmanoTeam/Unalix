@@ -1,12 +1,12 @@
 import asyncio
-import http.client
-import ipaddress
+from http.client import HTTPResponse, HTTPConnection, HTTPSConnection
+from ipaddress import ip_address
 import json
 import os
 import re
 import ssl
-import typing
-import urllib.parse
+from typing import List, Tuple, Any, Union
+from urllib.parse import quote, unquote, urlparse, urlunparse
 
 from ._config import (
     allowed_schemes,
@@ -63,19 +63,19 @@ async def requote_uri(uri: str) -> str:
         # Unquote only the unreserved characters
         # Then quote only illegal characters (do not quote reserved,
         # unreserved, or '%')
-        return urllib.parse.quote(await unquote_unreserved(uri), safe=safe_with_percent)
+        return quote(await unquote_unreserved(uri), safe=safe_with_percent)
     except ValueError:
         # We couldn't unquote the given URI, so let"s try quoting it, but
         # there may be unquoted "%"s in the URI. We need to make sure they're
         # properly quoted so they do not cause issues elsewhere.
-        return urllib.parse.quote(uri, safe=safe_without_percent)
+        return quote(uri, safe=safe_without_percent)
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L894
 async def prepend_scheme_if_needed(url: str, new_scheme: str) -> str:
     """Given a URL that may or may not have a scheme, prepend the given scheme.
     Does not replace a present scheme with the one provided as an argument.
     """
-    scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(url, new_scheme)
+    scheme, netloc, path, params, query, fragment = urlparse(url, new_scheme)
 
     # urlparse is a finicky beast, and sometimes decides that there isn't a
     # netloc present. Assume that it's being over-cautious, and switch netloc
@@ -83,12 +83,12 @@ async def prepend_scheme_if_needed(url: str, new_scheme: str) -> str:
     if not netloc:
         netloc, path = path, netloc
 
-    return urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
+    return urlunparse((scheme, netloc, path, params, query, fragment))
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L953
 async def urldefragauth(url: str) -> str:
     """Given a url remove the fragment and the authentication part."""
-    scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(url)
+    scheme, netloc, path, params, query, fragment = urlparse(url)
 
     # see func:`prepend_scheme_if_needed`
     if not netloc:
@@ -96,7 +96,7 @@ async def urldefragauth(url: str) -> str:
 
     netloc = netloc.rsplit("@", 1)[-1]
 
-    return urllib.parse.urlunparse((scheme, netloc, path, params, query, ''))
+    return urlunparse((scheme, netloc, path, params, query, ''))
 
 async def is_private(url: str) -> bool:
     """This function checks if the URL's netloc belongs to a local/private network.
@@ -106,10 +106,10 @@ async def is_private(url: str) -> bool:
       >>> is_private("http://0.0.0.0/")
       True
     """
-    netloc = urllib.parse.urlparse(url).netloc
+    netloc = urlparse(url).netloc
     
     try:
-        address = ipaddress.ip_address(netloc)
+        address = ip_address(netloc)
     except ValueError:
         return (netloc in local_domains)
     else:
@@ -118,12 +118,12 @@ async def is_private(url: str) -> bool:
 # This function is based on:
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L98
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L151
-async def creat_ssl_context() -> ssl.SSLContext:
-    """This function creats the default SSL context for HTTPS connections.
+async def create_ssl_context() -> ssl.SSLContext:
+    """This function creates the default SSL context for HTTPS connections.
 
     Usage:
-      >>> from unalix._utils import creat_ssl_context
-      >>> creat_ssl_context()
+      >>> from unalix._utils import create_ssl_context
+      >>> create_ssl_context()
       <ssl.SSLContext object at 0xad6a9070>
     """
     context = ssl.SSLContext(ssl.PROTOCOL_TLS)
@@ -154,8 +154,8 @@ async def creat_ssl_context() -> ssl.SSLContext:
 
     return context
 
-async def creat_connection(scheme: str, netloc: str) -> typing.Union[http.client.HTTPConnection, http.client.HTTPSConnection]: # type: ignore
-    """This function is used to creat HTTP and HTTPS connections.
+async def create_connection(scheme: str, netloc: str) -> Union[HTTPConnection, HTTPSConnection]: # type: ignore
+    """This function is used to create HTTP and HTTPS connections.
     
     Parameters:
         scheme (``str``):
@@ -168,14 +168,14 @@ async def creat_connection(scheme: str, netloc: str) -> typing.Union[http.client
         InvalidScheme: In case the provided *scheme* is not valid.
 
     Usage:
-      >>> from unalix._utils import creat_connection
-      >>> creat_connection("http", "example.com")
+      >>> from unalix._utils import create_connection
+      >>> create_connection("http", "example.com")
       <http.client.HTTPConnection object at 0xad219bb0>
     """
     if scheme == "http":
-        connection = http.client.HTTPConnection(netloc, timeout=timeout)
+        connection = HTTPConnection(netloc, timeout=timeout)
     elif scheme == "https":
-        connection = http.client.HTTPSConnection(netloc, context=context, timeout=timeout)
+        connection = HTTPSConnection(netloc, context=context, timeout=timeout)
     else:
         raise InvalidScheme(f"Expecting 'http' or 'https', but got: {scheme}")
         
@@ -213,7 +213,7 @@ async def parse_url(url: str) -> str:
     # Remove the fragment and the authentication part (e.g 'user:pass@') from the URL.
     url = await urldefragauth(url)
 
-    scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(url)
+    scheme, netloc, path, params, query, fragment = urlparse(url)
     
     # We don't want to process URLs with protocols other than those
     if not scheme in allowed_schemes:
@@ -222,7 +222,7 @@ async def parse_url(url: str) -> str:
     # Encode domain name according to IDNA.
     netloc = netloc.encode("idna").decode('utf-8')
 
-    url = urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
+    url = urlunparse((scheme, netloc, path, params, query, fragment))
 
     return url
 
@@ -251,14 +251,14 @@ async def clear_url(url: str, **kwargs) -> str:
 
     return cleaned_url
 
-async def extract_url(response: http.client.HTTPResponse, url: str, **kwargs) -> typing.Union[str, None]:
+async def extract_url(response: HTTPResponse, url: str, **kwargs) -> Union[str, None]:
     """This function is used to extract redirect links from HTML pages."""
     for redirect_rule in redirects:
         if redirect_rule["pattern"].match(url):
             if not response.isclosed():
                 content = response.read()
-                response.close()
                 document = content.decode()
+                response.close()
             for redirect in redirect_rule["redirects"]:
                 result = redirect.match(document) # type: ignore
                 try:
@@ -295,11 +295,11 @@ async def unshort_url(url: str, parse_documents: bool = False, **kwargs) -> str:
     """
     formated_url = await parse_url(url)
     cleaned_url = await parse_rules(formated_url, **kwargs)
-    parsed_url = urllib.parse.urlparse(cleaned_url)
+    parsed_url = urlparse(cleaned_url)
 
     while True:
         scheme, netloc, path, params, query, fragment = parsed_url
-        connection = await creat_connection(scheme, netloc)
+        connection = await create_connection(scheme, netloc)
 
         if query:
             path = f"{path}?{query}"
@@ -316,23 +316,23 @@ async def unshort_url(url: str, parse_documents: bool = False, **kwargs) -> str:
             location = response.headers.get("Location")
             if location.startswith("http://") or location.startswith("https://"):
                 cleaned_url = await parse_rules(location, **kwargs)
-                parsed_url = urllib.parse.urlparse(cleaned_url)
+                parsed_url = urlparse(cleaned_url)
             elif location.startswith("/"):
-                redirect_url = urllib.parse.urlunparse((scheme, netloc, location, "", "", ""))
+                redirect_url = urlunparse((scheme, netloc, location, "", "", ""))
                 cleaned_url = await parse_rules(redirect_url, **kwargs)
-                parsed_url = urllib.parse.urlparse(cleaned_url)
+                parsed_url = urlparse(cleaned_url)
             else:
                 path = os.path.join(os.path.dirname(path), location)
-                redirect_url = urllib.parse.urlunparse((scheme, netloc, path, "", "", ""))
+                redirect_url = urlunparse((scheme, netloc, path, "", "", ""))
                 cleaned_url = await parse_rules(redirect_url, **kwargs)
-                parsed_url = urllib.parse.urlparse(cleaned_url)
+                parsed_url = urlparse(cleaned_url)
         elif parse_documents and mime.match(content_type): # type: ignore
             try:
                 extracted_url # type: ignore
             except NameError:
                 extracted_url = await extract_url(response, parsed_url.geturl(), **kwargs)
                 if not extracted_url is None:
-                    parsed_url = urllib.parse.urlparse(extracted_url)
+                    parsed_url = urlparse(extracted_url)
                     continue
             else:
                 break
@@ -345,10 +345,10 @@ async def unshort_url(url: str, parse_documents: bool = False, **kwargs) -> str:
     return parsed_url.geturl()
 
 async def compile_patterns(
-    data: list[str],
-    replacements: list[tuple[str, str]],
-    redirects: list[str]
-) -> tuple[list[typing.Any], list[typing.Any], list[typing.Any]]:
+    data: List[str],
+    replacements: List[Tuple[str, str]],
+    redirects: List[str]
+) -> Tuple[List[Any], List[Any], List[Any]]:
     """Compile raw regex patterns into `re.Pattern` instances.
 
     Parameters:
@@ -486,7 +486,7 @@ async def parse_rules(
                 for redirection in pattern["redirections"]:
                     url = redirection.sub(r"\g<1>", url)
                 if url != original_url:
-                    url = urllib.parse.unquote(url)
+                    url = unquote(url)
                     url = await requote_uri(url)
             if not ignore_rules:
                 for rule in pattern["rules"]:
@@ -505,4 +505,4 @@ async def parse_rules(
     return url
 
 (patterns, replacements, redirects) = loop.run_until_complete(compile_patterns(paths_data, replacements, paths_redirects))
-context = loop.run_until_complete(creat_ssl_context())
+context = loop.run_until_complete(create_ssl_context())
