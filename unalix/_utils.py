@@ -53,7 +53,7 @@ async def requote_uri(uri: str) -> str:
         # Unquote only the unreserved characters
         # Then quote only illegal characters (do not quote reserved,
         # unreserved, or '%')
-        return quote(unquote_unreserved(uri), safe=safe_with_percent)
+        return quote(await unquote_unreserved(uri), safe=safe_with_percent)
     except ValueError:
         # We couldn't unquote the given URI, so let"s try quoting it, but
         # there may be unquoted "%"s in the URI. We need to make sure they're
@@ -194,7 +194,7 @@ async def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
     if content_type is None:
         return url
     
-    body = get_encoded_content(response)
+    body = await get_encoded_content(response)
 
     for rule in redirects:
         if rule["pattern"].match(url.geturl()):
@@ -264,7 +264,7 @@ async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = Fals
         if parse_documents:
             extracted_url = await extract_url(parsed_url, response)
             requoted_uri = urlparse(await requote_uri(extracted_url.geturl()))
-            if extracted_url != await parsed_url:
+            if extracted_url != parsed_url:
                 parsed_url = await clear_url(requoted_uri)
                 continue
 
