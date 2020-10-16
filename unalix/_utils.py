@@ -255,15 +255,17 @@ async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = Fals
         response = connection.getresponse()
 
         redirect_url = await handle_redirects(parsed_url, response)
+        requoted_uri = urlparse(await requote_uri(redirect_url.geturl()))
 
-        if redirect_url != parsed_url:
-            parsed_url = await clear_url(redirect_url, **kwargs)
+        if requoted_uri != parsed_url:
+            parsed_url = await clear_url(requoted_uri, **kwargs)
             continue
 
         if parse_documents:
             extracted_url = await extract_url(parsed_url, response)
+            requoted_uri = urlparse(await requote_uri(extracted_url.geturl()))
             if extracted_url != await parsed_url:
-                parsed_url = await clear_url(extracted_url)
+                parsed_url = await clear_url(requoted_uri)
                 continue
 
         break
