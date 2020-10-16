@@ -1,5 +1,8 @@
+import asyncio
 import os
 import ssl
+
+loop = asyncio.get_event_loop()
 
 # Path to directory containing the package data (JSON files)
 data = os.path.join(os.path.dirname(__file__), "package_data")
@@ -27,10 +30,6 @@ replacements = [
     (r"(?:%(?:3[fF]|26))", r"%3f")
 ]
 
-# HTTP redirect codes. It is used to check if an incoming HTTP
-# response is trying to redirect to another URI
-redirect_codes = [300, 301, 302, 303, 307, 308]
-
 # Default timeout for HTTP requests
 timeout = 15
 
@@ -45,10 +44,21 @@ local_domains = [
 # List of allowed schemes
 allowed_schemes = ["http", "https"]
 
+# List of allowed mime types
+allowed_mimes = [
+	"application/mathml-content+xml",
+	"application/mathml-presentation+xml",
+	"application/vnd.dtg.local.html",
+	"application/vnd.pwg-xhtml-print+xml",
+	"application/xhtml+xml",
+	"text/html",
+	"text/javascript"
+]
+
 # Default headers for HTTP requests
 headers = {
-    "Accept": "text/html, application/xhtml, text/javascript",
-    "Accept-Encoding": "identity",
+    "Accept": ", ".join(allowed_mimes),
+    "Accept-Encoding": "gzip, deflate",
     "Connection": "close",
     "Cache-Control": "no-cache, no-store",
     "User-Agent": "Unalix/0.6 (+https://github.com/AmanoTeam/Unalix)"

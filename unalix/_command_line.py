@@ -1,7 +1,5 @@
 from argparse import ArgumentParser
-from subprocess import (
-    call, DEVNULL, getoutput
-)
+from subprocess import call, DEVNULL, getoutput
 import webbrowser
 
 from . import clear_url, unshort_url
@@ -61,4 +59,3 @@ def main():
     else:
         for url in ouput_urls:
             print(url)
-    

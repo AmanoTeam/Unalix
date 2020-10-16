@@ -1,36 +1,26 @@
-import asyncio
-from http.client import HTTPResponse, HTTPConnection, HTTPSConnection
+from http.client import HTTPResponse
 from ipaddress import ip_address
 import json
-import os
 import re
-import ssl
 from typing import List, Tuple, Any, Union
-from urllib.parse import quote, unquote, urlparse, urlunparse
+from urllib.parse import quote, unquote, urlparse, urlunparse, ParseResult
 
 from ._config import (
+    allowed_mimes,
     allowed_schemes,
-    cafile,
-    capath,
     headers,
     local_domains,
     paths_data,
     paths_redirects,
-    redirect_codes,
     replacements,
-    ssl_ciphers,
-    ssl_options,
-    ssl_verify_flags,
-    timeout
+    loop
 )
 from ._exceptions import InvalidURL, InvalidScheme, InvalidList
-from ._regex import mime
-
-loop = asyncio.get_event_loop()
+from ._http import create_connection, handle_redirects, get_encoded_content
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L566
 UNRESERVED_SET = frozenset(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
+    "ABCasync defGHIJKLMNOPQRSTUVWXYZabcasync defghijklmnopqrstuvwxyz" + "0123456789-._~")
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L570
 async def unquote_unreserved(uri: str) -> str:
@@ -63,7 +53,7 @@ async def requote_uri(uri: str) -> str:
         # Unquote only the unreserved characters
         # Then quote only illegal characters (do not quote reserved,
         # unreserved, or '%')
-        return quote(await unquote_unreserved(uri), safe=safe_with_percent)
+        return quote(unquote_unreserved(uri), safe=safe_with_percent)
     except ValueError:
         # We couldn't unquote the given URI, so let"s try quoting it, but
         # there may be unquoted "%"s in the URI. We need to make sure they're
@@ -115,83 +105,17 @@ async def is_private(url: str) -> bool:
     else:
         return address.is_private
 
-# This function is based on:
-# https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L98
-# https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L151
-async def create_ssl_context() -> ssl.SSLContext:
-    """This function creates the default SSL context for HTTPS connections.
-
-    Usage:
-      >>> from unalix._utils import create_ssl_context
-      >>> create_ssl_context()
-      <ssl.SSLContext object at 0xad6a9070>
-    """
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-    context.options = ssl_options
-    context.verify_flags = ssl_verify_flags
-    context.set_ciphers(ssl_ciphers)
-
-    if ssl.HAS_ALPN:
-        context.set_alpn_protocols(["http/1.1"])
-
-    context.verify_mode = ssl.CERT_REQUIRED
-    context.check_hostname = True
-    context.load_verify_locations(cafile=cafile, capath=capath)
-
-    # Signal to server support for PHA in TLS 1.3. Raises an
-    # AttributeError if only read-only access is implemented.
-    try:
-        context.post_handshake_auth = True
-    except AttributeError:
-        pass
-
-    # Disable using 'commonName' for SSLContext.check_hostname
-    # when the 'subjectAltName' extension isn't available.
-    try:
-        context.hostname_checks_common_name = False
-    except AttributeError:
-        pass
-
-    return context
-
-async def create_connection(scheme: str, netloc: str) -> Union[HTTPConnection, HTTPSConnection]: # type: ignore
-    """This function is used to create HTTP and HTTPS connections.
-    
-    Parameters:
-        scheme (``str``):
-            Scheme (must be 'http' or 'https').
-
-        netloc (``str``):
-            Netloc or hostname.
-
-    Raises:
-        InvalidScheme: In case the provided *scheme* is not valid.
-
-    Usage:
-      >>> from unalix._utils import create_connection
-      >>> create_connection("http", "example.com")
-      <http.client.HTTPConnection object at 0xad219bb0>
-    """
-    if scheme == "http":
-        connection = HTTPConnection(netloc, timeout=timeout)
-    elif scheme == "https":
-        connection = HTTPSConnection(netloc, context=context, timeout=timeout)
-    else:
-        raise InvalidScheme(f"Expecting 'http' or 'https', but got: {scheme}")
-        
-    return connection
-
 async def parse_url(url: str) -> str:
     """Parse and format the given URL.
 
     This function has three purposes:
 
-    - Add the "http://" prefix if the *url* provided does not have a defined scheme.
+    - Add the "http://" prefix if the *url* provided does not have a async defined scheme.
     - Convert domain names in non-Latin alphabet to punycode.
     - Remove the fragment and the authentication part (e.g 'user:pass@') from the URL.
 
     Parameters:
-        url (``str``):
+        url (`str`):
             Full URL or hostname.
 
     Raises:
@@ -207,7 +131,7 @@ async def parse_url(url: str) -> str:
     if not isinstance(url, str) or not url:
         raise InvalidURL("This is not a valid URL")
 
-    # If the specified URL does not have a scheme defined, it will be set to 'http'.
+    # If the specified URL does not have a scheme async defined, it will be set to 'http'.
     url = await prepend_scheme_if_needed(url, "http")
 
     # Remove the fragment and the authentication part (e.g 'user:pass@') from the URL.
@@ -222,65 +146,80 @@ async def parse_url(url: str) -> str:
     # Encode domain name according to IDNA.
     netloc = netloc.encode("idna").decode('utf-8')
 
-    url = urlunparse((scheme, netloc, path, params, query, fragment))
+    return urlunparse((scheme, netloc, path, params, query, fragment))
 
-    return url
-
-async def clear_url(url: str, **kwargs) -> str:
+async def clear_url(url: Union[str, ParseResult], **kwargs) ->  Union[str, ParseResult]:
     """Remove tracking fields from the given URL.
 
     Parameters:
-        url (``str``):
+        url (`str` | `ParseResult`):
             Some URL with tracking fields.
 
-        **kwargs (``bool``, *optional*):
+        **kwargs (`bool`, *optional*):
             Optional arguments that `parse_rules` takes.
 
     Raises:
         InvalidURL: In case the provided *url* is not a valid URL or hostname.
 
         InvalidScheme: In case the provided *url* has a invalid or unknown scheme.
+
+    Notes:
+        URL formatting will not be performed for instances of `ParseResult`. In that case,
+        "InvalidURL" and "InvalidScheme" will not be raised, even if the *url* has a invalid formatting.
 
     Usage:
       >>> from unalix import clear_url
       >>> clear_url("https://deezer.com/track/891177062?utm_source=deezer")
       'https://deezer.com/track/891177062'
     """
+    if isinstance(url, ParseResult):
+        cleaned_url = await parse_rules(url.geturl())
+        return urlparse(cleaned_url)
+
     formated_url = await parse_url(url)
     cleaned_url = await parse_rules(formated_url, **kwargs)
 
     return cleaned_url
 
-async def extract_url(response: HTTPResponse, url: str, **kwargs) -> Union[str, None]:
+async def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
     """This function is used to extract redirect links from HTML pages."""
-    for redirect_rule in redirects:
-        if redirect_rule["pattern"].match(url):
-            if not response.isclosed():
-                content = response.read()
-                document = content.decode()
-                response.close()
-            for redirect in redirect_rule["redirects"]:
-                result = redirect.match(document) # type: ignore
+
+    content_type = response.headers.get("Content-Type")
+
+    for allowed_mime in allowed_mimes:
+        if allowed_mime in content_type: break
+    else:
+        return url
+    
+    if content_type is None:
+        return url
+    
+    body = get_encoded_content(response)
+
+    for rule in redirects:
+        if rule["pattern"].match(url.geturl()):
+            for redirect in rule["redirects"]:
                 try:
+                    result = redirect.match(body) # type: ignore
                     extracted_url = result.group(1)
                 except AttributeError:
                     continue
                 else:
-                    return await parse_rules(extracted_url, **kwargs)
+                    return urlparse(extracted_url)
 
-    return None
+    return url
 
-async def unshort_url(url: str, parse_documents: bool = False, **kwargs) -> str:
+async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = False, **kwargs) -> Union[str, ParseResult]:
     """Try to unshort the given URL (follow http redirects).
 
     Parameters:
-        url (``str``):
+        url (`str`| `ParseResult`):
             Shortened URL.
 
-        parse_documents (``bool``, *optional*):
+        parse_documents (`bool`, *optional*):
             If True, Unalix will also try to obtain the unshortened URL from the response's body.
 
-        **kwargs (``bool``, *optional*):
+        **kwargs (`bool`, *optional*):
             Optional arguments that `parse_rules` takes.
 
     Raises:
@@ -288,61 +227,54 @@ async def unshort_url(url: str, parse_documents: bool = False, **kwargs) -> str:
 
         InvalidScheme: In case the provided *url* has a invalid or unknown scheme.
 
+        InvalidContentEncoding: In case the HTTP response has a invalid "Content-Enconding" header.
+
+    Notes:
+        URL formatting will not be performed for instances of `ParseResult`. In that case,
+        "InvalidURL" and "InvalidScheme" will not be raised, even if the *url* has a invalid formatting.
+
     Usage:
       >>> from unalix import unshort_url
       >>> unshort_url("https://bitly.is/Pricing-Pop-Up")
       'https://bitly.com/pages/pricing'
     """
-    formated_url = await parse_url(url)
-    cleaned_url = await parse_rules(formated_url, **kwargs)
-    parsed_url = urlparse(cleaned_url)
+    cleaned_url = await clear_url(url, **kwargs)
+
+    if isinstance(cleaned_url, ParseResult):
+        parsed_url = cleaned_url
+    else:
+        parsed_url = urlparse(cleaned_url)
 
     while True:
         scheme, netloc, path, params, query, fragment = parsed_url
         connection = await create_connection(scheme, netloc)
 
-        if query:
-            path = f"{path}?{query}"
+        if query: path = f"{path}?{query}"
 
         connection.request("GET", path, headers=headers)
         response = connection.getresponse()
-        
+
+        redirect_url = await handle_redirects(parsed_url, response)
+
+        if redirect_url != parsed_url:
+            parsed_url = await clear_url(redirect_url, **kwargs)
+            continue
+
         if parse_documents:
-            content_type = response.headers.get("Content-Type")
-        else:
-            response.close()
-        
-        if response.status in redirect_codes:
-            location = response.headers.get("Location")
-            if location.startswith("http://") or location.startswith("https://"):
-                cleaned_url = await parse_rules(location, **kwargs)
-                parsed_url = urlparse(cleaned_url)
-            elif location.startswith("/"):
-                redirect_url = urlunparse((scheme, netloc, location, "", "", ""))
-                cleaned_url = await parse_rules(redirect_url, **kwargs)
-                parsed_url = urlparse(cleaned_url)
-            else:
-                path = os.path.join(os.path.dirname(path), location)
-                redirect_url = urlunparse((scheme, netloc, path, "", "", ""))
-                cleaned_url = await parse_rules(redirect_url, **kwargs)
-                parsed_url = urlparse(cleaned_url)
-        elif parse_documents and mime.match(content_type): # type: ignore
-            try:
-                extracted_url # type: ignore
-            except NameError:
-                extracted_url = await extract_url(response, parsed_url.geturl(), **kwargs)
-                if not extracted_url is None:
-                    parsed_url = urlparse(extracted_url)
-                    continue
-            else:
-                break
-        else:
-            break
+            extracted_url = await extract_url(parsed_url, response)
+            if extracted_url != await parsed_url:
+                parsed_url = await clear_url(extracted_url)
+                continue
+
+        break
 
     if not response.isclosed():
         response.close()
 
-    return parsed_url.geturl()
+    if isinstance(url, ParseResult):
+        return parsed_url
+    else:
+        return parsed_url.geturl()
 
 async def compile_patterns(
     data: List[str],
@@ -352,13 +284,13 @@ async def compile_patterns(
     """Compile raw regex patterns into `re.Pattern` instances.
 
     Parameters:
-        data (``list``):
+        data (`list`):
             List containing one or more paths to "data.min.json" files.
 
-        replacements (``list``):
+        replacements (`list`):
             List containing one or more tuples of raw regex patterns.
 
-        redirects (``list``):
+        redirects (`list`):
             List containing one or more paths to "body_redirects.json" files.
 
     Raises:
@@ -433,34 +365,35 @@ async def parse_rules(
         https://github.com/ClearURLs/Addon/wiki/Rules
     to understand how these rules are processed.
 
-    Note that most of the regex patterns contained in the
-    "urlPattern", "redirections" and "exceptions" keys expects
-    all given URLs to starts with the prefixe "http://" or "https://".
-
     Parameters:
-        url (``str``):
+        url (`str`):
             Some URL with tracking fields.
 
-        allow_referral (``bool``, *optional*):
+        allow_referral (`bool`, *optional*):
             Pass True to ignore regex rules targeting marketing fields.
 
-        ignore_rules (``bool``, *optional*):
+        ignore_rules (`bool`, *optional*):
             Pass True to ignore regex rules from "rules" keys.
 
-        ignore_exceptions (``bool``, *optional*):
+        ignore_exceptions (`bool`, *optional*):
             Pass True to ignore regex rules from "exceptions" keys.
 
-        ignore_raw (``bool``, *optional*):
+        ignore_raw (`bool`, *optional*):
             Pass True to ignore regex rules from "rawRules" keys.
 
-        ignore_redirections (``bool``, *optional*):
+        ignore_redirections (`bool`, *optional*):
             Pass True to ignore regex rules from "redirections" keys.
 
-        skip_blocked (``bool``, *optional*):
+        skip_blocked (`bool`, *optional*):
             Pass True to skip/ignore regex rules for blocked domains.
 
-        skip_local (``bool``, *optional*):
+        skip_local (`bool`, *optional*):
             Pass True to skip URLs on local/private hosts (e.g 127.0.0.1, 0.0.0.0, localhost).
+
+    Notes:
+        Note that most of the regex patterns contained in the
+        "urlPattern", "redirections" and "exceptions" keys expects
+        all given URLs to starts with the prefixe "http://" or "https://".
 
     Usage:
       >>> from unalix._utils import parse_rules
@@ -505,4 +438,3 @@ async def parse_rules(
     return url
 
 (patterns, replacements, redirects) = loop.run_until_complete(compile_patterns(paths_data, replacements, paths_redirects))
-context = loop.run_until_complete(create_ssl_context())

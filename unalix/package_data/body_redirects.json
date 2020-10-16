@@ -5,5 +5,12 @@
 		"redirects": [
 			"redirecturl\\s=\\s'(https?:\\/\\/.+)'"
 		]
+	},
+	{
+		"name": "Digital Ocean Email Marketing",
+		"pattern": "^https?:\\/\\/pages\\.news\\.digitalocean.com",
+		"redirects": [
+			"redirecturl\\s=\\s'(https?:\\/\\/.+)'"
+		]
 	}
 ]
