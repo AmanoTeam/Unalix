@@ -60,7 +60,7 @@
             "--ignore-exceptions"
         ],
         "options": {
-            "help": "Do not parse exception rules for the given URL.",
+            "help": "Do not parse exceptions rules for the given URL.",
             "action": "store_true"
         }
     },
