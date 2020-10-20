@@ -42,7 +42,7 @@
             "--allow-referral"
         ],
         "options": {
-            "help": "Avoid removing marketing fields from the given URL.",
+            "help": "Avoid removing marketing fields.",
             "action": "store_true"
         }
     },
@@ -51,7 +51,7 @@
             "--ignore-rules"
         ],
         "options": {
-            "help": "Do not parse rules for the given URL.",
+            "help": "Do not parse rules.",
             "action": "store_true"
         }
     },
@@ -60,7 +60,7 @@
             "--ignore-exceptions"
         ],
         "options": {
-            "help": "Do not parse exceptions rules for the given URL.",
+            "help": "Do not parse exceptions rules.",
             "action": "store_true"
         }
     },
@@ -69,7 +69,7 @@
             "--ignore-raw"
         ],
         "options": {
-            "help": "Do not parse raw rules for the given URL.",
+            "help": "Do not parse raw rules.",
             "action": "store_true"
         }
     },
@@ -78,7 +78,7 @@
             "--ignore-redirections"
         ],
         "options": {
-            "help": "Do not parse redirection rules for the given URL.",
+            "help": "Do not parse redirection rules.",
             "action": "store_true"
         }
     },
@@ -87,7 +87,7 @@
             "--skip-blocked"
         ],
         "options": {
-            "help": "Skip/Ignore regex rules for blocked domains.",
+            "help": "Ignore regex rules for blocked domains.",
             "action": "store_true"
         }
     },
@@ -96,7 +96,7 @@
             "--skip-local"
         ],
         "options": {
-            "help": "Skip/Ignore URLs on local hosts (e.g 127.0.0.1, 0.0.0.0, localhost).",
+            "help": "Skip URLs on local hosts (e.g 127.0.0.1, 0.0.0.0, localhost).",
             "action": "store_true"
         }
     }
