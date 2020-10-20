@@ -21,7 +21,7 @@ import functools
 import inspect
 import threading
 
-from . import _utils
+from . import _utils, _http
 
 def async_to_sync(obj, name):
     function = getattr(obj, name)
@@ -68,4 +68,5 @@ def wrap(source):
 
 
 # Wrap all relevant methods
-wrap(_utils)
+for package in [_utils, _http]:
+    wrap(package)
