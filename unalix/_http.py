@@ -18,7 +18,7 @@ from ._config import (
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_decoders.py#L36
 async def decode_from_deflate(content: bytes) -> bytes:
-	"""This function is used to decode deflate responses."""
+    """This function is used to decode deflate responses."""
     try:
         return zlib.decompressobj.decompress(content)
     except zlib.error:
@@ -26,7 +26,7 @@ async def decode_from_deflate(content: bytes) -> bytes:
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_decoders.py#L65
 async def decode_from_gzip(content: bytes) -> bytes:
-	"""This function is used to decode gzip responses."""
+    """This function is used to decode gzip responses."""
     return zlib.decompressobj(zlib.MAX_WBITS|16).decompress(content)
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L98
@@ -95,7 +95,7 @@ async def create_connection(scheme: str, netloc: str) -> Union[HTTPConnection, H
     return connection
 
 async def handle_redirects(url: ParseResult, response: HTTPResponse) -> ParseResult:
-	"""This function is used to handle HTTP redirects. It parses the value of the "Location" header."""
+    """This function is used to handle HTTP redirects. It parses the value of the "Location" header."""
     location = response.headers.get("Location")
 
     if location is None:
@@ -116,17 +116,20 @@ async def handle_redirects(url: ParseResult, response: HTTPResponse) -> ParseRes
     return urlparse(redirect_url)
 
 async def get_encoded_content(response: HTTPResponse) -> str:
-	"""This function is used to decode gzip and deflate responses. It also parses unencoded/plain text responses."""
+    """This function is used to decode gzip and deflate responses. It also parses unencoded/plain text responses."""
     content_encoding = response.headers.get("Content-Encoding")
 
     if content_encoding is None:
+        content_encoding = "identity"
+
+    if content_encoding == "identity":
         content_as_bytes = response.read()
     elif content_encoding == "gzip":
         content_as_bytes = await decode_from_gzip(response.read())
     elif content_encoding == "deflate":
         content_as_bytes = await decode_from_deflate(response.read())
     else:
-        raise InvalidContentEncoding(f"Expected 'gzip' or 'deflate', but got: {content_encoding}")
+        raise InvalidContentEncoding(f"Expected 'identity', 'gzip' or 'deflate', but got: {content_encoding}")
 
     return content_as_bytes.decode()
 
