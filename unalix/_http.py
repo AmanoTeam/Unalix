@@ -1,6 +1,6 @@
 from http.client import HTTPResponse, HTTPConnection, HTTPSConnection
 import os
-from ._exceptions import InvalidScheme
+from ._exceptions import InvalidScheme, InvalidContentEncoding
 import ssl
 from typing import Union
 from urllib.parse import urlparse, urlunparse, ParseResult
