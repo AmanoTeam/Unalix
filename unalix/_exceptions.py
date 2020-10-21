@@ -9,14 +9,11 @@ class InvalidScheme(Exception):
         super().__init__(message)
 
 class InvalidList(Exception):
-    """This is not a valid list.
-
-    It probably has no items or is not actually an object of the 'list' class.
-    """
+    """It probably has no items or is not actually an object of the 'list' class."""
     def __init__(self, message: str) -> None:
         super().__init__(message)
 
 class InvalidContentEncoding(Exception):
-
+    """The 'Content-Encoding' header has an invalid/unknown value."""
     def __init__(self, message: str) -> None:
         super().__init__(message)
