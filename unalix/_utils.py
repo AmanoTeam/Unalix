@@ -19,8 +19,9 @@ from ._exceptions import InvalidURL, InvalidScheme, InvalidList
 from ._http import create_connection, handle_redirects, get_encoded_content
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L566
+# The unreserved URI characters (RFC 3986)
 UNRESERVED_SET = frozenset(
-    "ABCasync defGHIJKLMNOPQRSTUVWXYZabcasync defghijklmnopqrstuvwxyz" + "0123456789-._~")
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L570
 async def unquote_unreserved(uri: str) -> str:
@@ -110,7 +111,7 @@ async def parse_url(url: str) -> str:
 
     This function has three purposes:
 
-    - Add the "http://" prefix if the *url* provided does not have a async defined scheme.
+    - Add the "http://" prefix if the *url* provided does not have a defined scheme.
     - Convert domain names in non-Latin alphabet to punycode.
     - Remove the fragment and the authentication part (e.g 'user:pass@') from the URL.
 
@@ -131,7 +132,7 @@ async def parse_url(url: str) -> str:
     if not isinstance(url, str) or not url:
         raise InvalidURL("This is not a valid URL")
 
-    # If the specified URL does not have a scheme async defined, it will be set to 'http'.
+    # If the specified URL does not have a scheme defined, it will be set to 'http'.
     url = await prepend_scheme_if_needed(url, "http")
 
     # Remove the fragment and the authentication part (e.g 'user:pass@') from the URL.
@@ -185,13 +186,13 @@ async def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
     """This function is used to extract redirect links from HTML pages."""
 
     content_type = response.headers.get("Content-Type")
+    
+    if content_type is None:
+        return url
 
     for allowed_mime in allowed_mimes:
         if allowed_mime in content_type: break
     else:
-        return url
-    
-    if content_type is None:
         return url
     
     body = await get_encoded_content(response)
