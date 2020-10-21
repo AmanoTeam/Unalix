@@ -12,10 +12,10 @@ connection = create_connection(scheme, netloc)
 
 print(f"Fetching data from {ca_url}...")
 
-connection.request("GET", path, headers=headers)
-response = connection.getresponse()
+connection.request("GET", path, headers=headers) # type: ignore
+response = connection.getresponse() # type: ignore
 
 content = get_encoded_content(response)
 
 with open(ca_path, mode="w+", encoding="utf-8") as file_object:
-    file_object.write(content)
+    file_object.write(content) # type: ignore

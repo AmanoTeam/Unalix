@@ -182,26 +182,29 @@ async def clear_url(url: Union[str, ParseResult], **kwargs) ->  Union[str, Parse
 
     return cleaned_url
 
+async def strip_parameters(value: str) -> str:
+    """This function is used strip parameters from header values."""
+    return value.rsplit(";", 1)[0].rstrip(" ")
+
 async def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
     """This function is used to extract redirect links from HTML pages."""
-
     content_type = response.headers.get("Content-Type")
-    
+
     if content_type is None:
         return url
 
-    for allowed_mime in allowed_mimes:
-        if allowed_mime in content_type: break
-    else:
+    mime = await strip_parameters(content_type)
+
+    if not mime in allowed_mimes:
         return url
-    
+
     body = await get_encoded_content(response)
 
     for rule in redirects:
         if rule["pattern"].match(url.geturl()):
             for redirect in rule["redirects"]:
                 try:
-                    result = redirect.match(body) # type: ignore
+                    result = redirect.match(body)
                     extracted_url = result.group(1)
                 except AttributeError:
                     continue
@@ -255,15 +258,15 @@ async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = Fals
         connection.request("GET", path, headers=headers)
         response = connection.getresponse()
 
-        redirect_url = await handle_redirects(parsed_url, response)
-        requoted_uri = urlparse(await requote_uri(redirect_url.geturl()))
+        redirect_url = await handle_redirects(parsed_url, response) # type: ignore
+        requoted_uri = urlparse(await requote_uri(urlunparse(redirect_url)))
 
         if requoted_uri != parsed_url:
             parsed_url = await clear_url(requoted_uri, **kwargs)
             continue
 
         if parse_documents:
-            extracted_url = await extract_url(parsed_url, response)
+            extracted_url = await extract_url(parsed_url, response) # type: ignore
             requoted_uri = urlparse(await requote_uri(extracted_url.geturl()))
             if extracted_url != parsed_url:
                 parsed_url = await clear_url(requoted_uri)
@@ -277,7 +280,7 @@ async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = Fals
     if isinstance(url, ParseResult):
         return parsed_url
     else:
-        return parsed_url.geturl()
+        return urlunparse(parsed_url)
 
 async def compile_patterns(
     data: List[str],

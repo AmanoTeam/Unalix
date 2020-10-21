@@ -12,10 +12,10 @@ connection = create_connection(scheme, netloc)
 
 print(f"Fetching data from {rules_url}...")
 
-connection.request("GET", path, headers=headers)
-response = connection.getresponse()
+connection.request("GET", path, headers=headers) # type: ignore
+response = connection.getresponse() # type: ignore
 
-rules = json.loads(get_encoded_content(response))
+rules = json.loads(get_encoded_content(response)) # type: ignore
 
 with open(rules_path, mode="w+", encoding="utf-8") as file_object:
     file_object.write(json.dumps(rules, indent=4))
