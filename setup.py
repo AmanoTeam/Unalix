@@ -2,7 +2,7 @@ import os
 import json
 from setuptools import setup
 
-with open("README.md", "r") as file_object:
+with open("README.md", mode="r", encoding="utf-8") as file_object:
     long_description = file_object.read()
 
 package_data = {
@@ -19,10 +19,11 @@ classifiers = [
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Operating System :: Unix",
     "Operating System :: Android",
-    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet",
     "Topic :: Security",
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
@@ -56,7 +57,7 @@ setup(
     name="Unalix",
     version="0.6",
     author="SnwMds",
-    author_email="snwmds@tutanota.com",
+    author_email="snwmds@amanoteam.com",
     description="A simple module that removes tracking fields from URLs and unshort shortened URLs.",
     license="LGPL-3.0",
     long_description=long_description,
