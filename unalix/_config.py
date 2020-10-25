@@ -56,7 +56,7 @@ allowed_mimes = [
 ]
 
 # Default headers for HTTP requests
-headers = {
+default_headers = {
     "Accept": ", ".join(allowed_mimes),
     "Accept-Encoding": "gzip, deflate",
     "Connection": "close",

@@ -1,14 +1,16 @@
 from http.client import HTTPResponse
+from http.cookiejar import CookieJar
 from ipaddress import ip_address
 import json
 import re
 from typing import List, Tuple, Any, Union
 from urllib.parse import quote, unquote, urlparse, urlunparse, ParseResult
 
+from ._cookie import default_policy
 from ._config import (
     allowed_mimes,
     allowed_schemes,
-    headers,
+    default_headers,
     local_domains,
     paths_data,
     paths_redirects,
@@ -16,7 +18,7 @@ from ._config import (
     loop
 )
 from ._exceptions import InvalidURL, InvalidScheme, InvalidList
-from ._http import create_connection, handle_redirects, get_encoded_content
+from ._http import add_missing_attributes, create_connection, handle_redirects, get_encoded_content
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L566
 # The unreserved URI characters (RFC 3986)
@@ -213,7 +215,7 @@ async def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
 
     return url
 
-async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = False, **kwargs) -> Union[str, ParseResult]:
+async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = False, headers: dict = default_headers, **kwargs) -> Union[str, ParseResult]:
     """Try to unshort the given URL (follow http redirects).
 
     Parameters:
@@ -249,14 +251,23 @@ async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = Fals
     else:
         parsed_url = urlparse(cleaned_url)
 
+    cookies = CookieJar()
+    cookies.set_policy(default_policy)
+
     while True:
         scheme, netloc, path, params, query, fragment = parsed_url
         connection = await create_connection(scheme, netloc)
 
+        await add_missing_attributes(parsed_url, headers, connection)
+
         if query: path = f"{path}?{query}"
+
+        cookies.add_cookie_header(connection)
 
         connection.request("GET", path, headers=headers)
         response = connection.getresponse()
+
+        cookies.extract_cookies(response, connection)
 
         redirect_url = await handle_redirects(parsed_url, response) # type: ignore
         requoted_uri = urlparse(await requote_uri(urlunparse(redirect_url)))

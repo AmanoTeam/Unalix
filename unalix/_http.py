@@ -47,24 +47,7 @@ async def create_ssl_context() -> ssl.SSLContext:
     if ssl.HAS_ALPN:
         context.set_alpn_protocols(["http/1.1"])
 
-    context.verify_mode = ssl.CERT_REQUIRED
-    context.check_hostname = True
-    context.load_verify_locations(cafile=cafile, capath=capath)
-
-    # Signal to server support for PHA in TLS 1.3. Raises an
-    # AttributeError if only read-only access is implemented.
-    try:
-        context.post_handshake_auth = True
-    except AttributeError:
-        pass
-
-    # Disable using 'commonName' for SSLContext.check_hostname
-    # when the 'subjectAltName' extension isn't available.
-    try:
-        context.hostname_checks_common_name = False
-    except AttributeError:
-        pass
-
+    context.verify_mode = ssl.CERT_NONE
     return context
 
 async def create_connection(scheme: str, netloc: str) -> Union[HTTPConnection, HTTPSConnection]: # type: ignore
@@ -132,5 +115,18 @@ async def get_encoded_content(response: HTTPResponse) -> str:
         raise InvalidContentEncoding(f"Expected 'identity', 'gzip' or 'deflate', but got: {content_encoding}")
 
     return content_as_bytes.decode()
+
+async def add_missing_attributes(url: ParseResult, headers: dict, connection: Union[HTTPConnection, HTTPSConnection]):
+
+    def add_unredirected_header(key: str, val: str) -> None:
+        connection.headers.update({key: val})
+
+    connection.has_header = lambda header_name: False
+    connection.add_unredirected_header = add_unredirected_header
+    connection.get_full_url = lambda: urlunparse(url)
+
+    connection.unverifiable = True    
+    connection.headers = headers
+    connection.origin_req_host = url.netloc
 
 context = loop.run_until_complete(create_ssl_context())
