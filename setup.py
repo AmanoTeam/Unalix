@@ -11,7 +11,8 @@ package_data = {
         "package_data/data.min.json",
         "package_data/arguments.json",
         "package_data/ca-bundle.crt",
-        "package_data/body_redirects.json"
+        "package_data/body_redirects.json",
+        "package_data/cookies_required.json"
     ]
 }
 

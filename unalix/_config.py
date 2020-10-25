@@ -1,4 +1,6 @@
 import asyncio
+from http.cookiejar import DefaultCookiePolicy
+import json
 import os
 import ssl
 
@@ -108,6 +110,26 @@ cafile = f"{data}/ca-bundle.crt"
 
 # CA certs path for server certificate validation
 capath = os.path.dirname(cafile)
+
+# Load "arguments.json" and "cookies_required.json" as dicts
+with (
+    open(f"{data}/arguments.json", mode="r", encoding="utf-8") as arguments,
+    open(f"{data}/cookies_required.json", mode="r", encoding="utf-8") as cookies_required
+):
+    arguments = json.loads(arguments.read())
+    allowed_cookies = json.loads(cookies_required.read())
+
+# Default policy for cookies: allow all
+allow_all_cookies = DefaultCookiePolicy()
+allow_all_cookies.set_ok = lambda cookie, request: True
+
+# Default policy for cookies: deny all
+deny_all_cookies = DefaultCookiePolicy()
+deny_all_cookies.set_ok = lambda cookie, request: False
+
+# Default policy for cookies: allow if needed
+allow_cookies_if_needed = DefaultCookiePolicy()
+allow_cookies_if_needed.set_ok = lambda cookie, request: (cookie.domain in allowed_cookies)
 
 # Description for command-line script
 description = "Remove tracking fields from the given URL and/or unshort it (follow http redirects)."

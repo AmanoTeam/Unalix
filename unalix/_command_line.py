@@ -3,8 +3,7 @@ from subprocess import call, DEVNULL, getoutput
 import webbrowser
 
 from . import clear_url, unshort_url
-from ._config import description
-from ._files import arguments
+from ._config import arguments, description
 
 parser = ArgumentParser(description=description)
 

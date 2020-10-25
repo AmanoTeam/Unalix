@@ -6,8 +6,10 @@ import re
 from typing import List, Tuple, Any, Union
 from urllib.parse import quote, unquote, urlparse, urlunparse, ParseResult
 
-from ._cookie import default_policy
 from ._config import (
+	allow_all_cookies,
+	deny_all_cookies,
+	allow_cookies_if_needed,
     allowed_mimes,
     allowed_schemes,
     default_headers,
@@ -215,7 +217,13 @@ async def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
 
     return url
 
-async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = False, headers: dict = default_headers, **kwargs) -> Union[str, ParseResult]:
+async def unshort_url(
+    url: Union[str, ParseResult],
+    parse_documents: bool = False,
+    enable_cookies: Union[bool, None] = None,
+    headers: dict = default_headers,
+    **kwargs
+) -> Union[str, ParseResult]:
     """Try to unshort the given URL (follow http redirects).
 
     Parameters:
@@ -225,8 +233,22 @@ async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = Fals
         parse_documents (`bool`, *optional*):
             If True, Unalix will also try to obtain the unshortened URL from the response's body.
 
+        enable_cookies (`bool`, *optional*):
+            True: Unalix will handle cookies for all requests.
+            False: Unalix will not handle cookies.
+            None (default): Unalix will handle cookies only if needed.
+
+            In most cases, cookies returned in HTTP responses are useless. They do not need to be stored
+            or sent back to the server. However, there are some cases where they are still required.
+
+            Keeping this as "None" should be enough for you. Only set this parameter to True if you get stuck
+            at some redirect loop due to missing cookies.
+
+        headers (`dict`, *optional*):
+            Default headers for HTTP requests.
+
         **kwargs (`bool`, *optional*):
-            Optional arguments that `parse_rules` takes.
+            Optional arguments that `clear_url` takes.
 
     Raises:
         InvalidURL: In case the provided *url* is not a valid URL or hostname.
@@ -252,7 +274,13 @@ async def unshort_url(url: Union[str, ParseResult], parse_documents: bool = Fals
         parsed_url = urlparse(cleaned_url)
 
     cookies = CookieJar()
-    cookies.set_policy(default_policy)
+
+    if enable_cookies == None:
+        cookies.set_policy(allow_cookies_if_needed)
+    elif enable_cookies == True:
+        cookies.set_policy(allow_all_cookies)
+    elif enable_cookies == False:
+        cookies.set_policy(allow_all_cookies)
 
     while True:
         scheme, netloc, path, params, query, fragment = parsed_url
