@@ -12,7 +12,7 @@ connection = create_connection(scheme, netloc)
 
 print(f"Fetching data from {rules_url}...")
 
-connection.request("GET", path, timeout=timeout, headers=default_headers) # type: ignore
+connection.request("GET", path, headers=default_headers) # type: ignore
 response = connection.getresponse() # type: ignore
 
 rules = json.loads(get_encoded_content(response)) # type: ignore

@@ -133,7 +133,7 @@ async def get_encoded_content(response: HTTPResponse) -> str:
 
     return content_as_bytes.decode()
 
-async def add_missing_attributes(url: ParseResult, headers: dict, connection: Connection):
+async def add_missing_attributes(url: ParseResult, headers: dict, connection: Connection) -> None:
 
     def add_unredirected_header(key: str, val: str) -> None:
         connection.headers.update({key: val}) # type: ignore

@@ -17,6 +17,7 @@ from ._config import (
     paths_data,
     paths_redirects,
     replacements,
+    timeout,
     loop
 )
 from ._exceptions import InvalidURL, InvalidScheme, InvalidList

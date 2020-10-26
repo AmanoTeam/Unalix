@@ -37,7 +37,7 @@ replacements = [
 ]
 
 # Default timeout for HTTP requests
-timeout = 15
+timeout = 8
 
 # Domain names that points to a local address
 local_domains = [
