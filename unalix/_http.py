@@ -33,7 +33,6 @@ async def decode_from_gzip(content: bytes) -> bytes:
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L151
 async def create_ssl_context() -> ssl.SSLContext:
     """This function creates the default SSL context for HTTPS connections.
-
     Usage:
       >>> from unalix._http import create_ssl_context
       >>> create_ssl_context()
@@ -47,7 +46,24 @@ async def create_ssl_context() -> ssl.SSLContext:
     if ssl.HAS_ALPN:
         context.set_alpn_protocols(["http/1.1"])
 
-    context.verify_mode = ssl.CERT_NONE
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.check_hostname = True
+    context.load_verify_locations(cafile=cafile, capath=capath)
+
+    # Signal to server support for PHA in TLS 1.3. Raises an
+    # AttributeError if only read-only access is implemented.
+    try:
+        context.post_handshake_auth = True
+    except AttributeError:
+        pass
+
+    # Disable using 'commonName' for SSLContext.check_hostname
+    # when the 'subjectAltName' extension isn't available.
+    try:
+        context.hostname_checks_common_name = False
+    except AttributeError:
+        pass
+
     return context
 
 async def create_connection(scheme: str, netloc: str) -> Union[HTTPConnection, HTTPSConnection]: # type: ignore

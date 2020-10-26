@@ -280,7 +280,7 @@ async def unshort_url(
     elif enable_cookies == True:
         cookies.set_policy(allow_all_cookies)
     elif enable_cookies == False:
-        cookies.set_policy(allow_all_cookies)
+        cookies.set_policy(deny_all_cookies)
 
     while True:
         scheme, netloc, path, params, query, fragment = parsed_url
