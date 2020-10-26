@@ -115,11 +115,10 @@ cafile = f"{data}/ca-bundle.crt"
 capath = os.path.dirname(cafile)
 
 # Load "arguments.json" and "cookies_required.json" as dicts
-with (
-    open(f"{data}/arguments.json", mode="r", encoding="utf-8") as arguments,
-    open(f"{data}/cookies_required.json", mode="r", encoding="utf-8") as cookies_required
-):
+with open(f"{data}/arguments.json", mode="r", encoding="utf-8") as arguments:
     arguments = json.loads(arguments.read())
+
+with open(f"{data}/cookies_required.json", mode="r", encoding="utf-8") as cookies_required:
     allowed_cookies = json.loads(cookies_required.read())
 
 # Default policy for cookies: allow all
