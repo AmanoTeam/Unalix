@@ -3,7 +3,7 @@ from http.cookiejar import CookieJar
 from ipaddress import ip_address
 import json
 import re
-from typing import List, Tuple, Any, Union
+from typing import Union
 from urllib.parse import quote, unquote, urlparse, urlunparse, ParseResult
 
 from ._config import (
@@ -22,6 +22,7 @@ from ._config import (
 )
 from ._exceptions import InvalidURL, InvalidScheme, InvalidList, TooManyRedirects
 from ._http import add_missing_attributes, create_connection, handle_redirects, get_encoded_content
+from ._types import CompiledPatterns, Rules, Redirects, Replacements, URL
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L566
 # The unreserved URI characters (RFC 3986)
@@ -154,7 +155,7 @@ async def parse_url(url: str) -> str:
 
     return urlunparse((scheme, netloc, path, params, query, fragment))
 
-async def clear_url(url: Union[str, ParseResult], **kwargs) ->  Union[str, ParseResult]:
+async def clear_url(url: URL, **kwargs) ->  URL:
     """Remove tracking fields from the given URL.
 
     Parameters:
@@ -219,12 +220,12 @@ async def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
     return url
 
 async def unshort_url(
-    url: Union[str, ParseResult],
+    url: URL,
     parse_documents: bool = False,
     enable_cookies: Union[bool, None] = None,
     headers: dict = default_headers,
     **kwargs
-) -> Union[str, ParseResult]:
+) -> URL:
     """Try to unshort the given URL (follow http redirects).
 
     Parameters:
@@ -294,16 +295,16 @@ async def unshort_url(
         scheme, netloc, path, params, query, fragment = parsed_url
         connection = await create_connection(scheme, netloc)
 
-        await add_missing_attributes(parsed_url, headers, connection)
+        await add_missing_attributes(parsed_url, headers, connection)  # type: ignore
 
         if query: path = f"{path}?{query}"
 
-        cookies.add_cookie_header(connection)
+        cookies.add_cookie_header(connection) # type: ignore
 
         connection.request("GET", path, headers=headers)
         response = connection.getresponse()
 
-        cookies.extract_cookies(response, connection)
+        cookies.extract_cookies(response, connection) # type: ignore
 
         redirect_url = await handle_redirects(parsed_url, response) # type: ignore
         requoted_uri = urlparse(await requote_uri(urlunparse(redirect_url)))
@@ -330,11 +331,7 @@ async def unshort_url(
     else:
         return urlunparse(parsed_url)
 
-async def compile_patterns(
-    data: List[str],
-    replacements: List[Tuple[str, str]],
-    redirects: List[str]
-) -> Tuple[List[Any], List[Any], List[Any]]:
+async def compile_patterns(data: Rules, replacements: Replacements, redirects: Redirects) -> CompiledPatterns:
     """Compile raw regex patterns into `re.Pattern` instances.
 
     Parameters:

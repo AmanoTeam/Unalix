@@ -22,7 +22,7 @@ paths_data = [
 # JSON files containing regex patterns for extracting redirect URLs
 # from HTML documents (full paths)
 paths_redirects = [
-	f"{data}/body_redirects.json"
+    f"{data}/body_redirects.json"
 ]
 
 # Some of these fields may remain in the URL after tracking"s fields
@@ -55,13 +55,13 @@ allowed_schemes = ["http", "https"]
 
 # List of allowed mime types
 allowed_mimes = [
-	"application/mathml-content+xml",
-	"application/mathml-presentation+xml",
-	"application/vnd.dtg.local.html",
-	"application/vnd.pwg-xhtml-print+xml",
-	"application/xhtml+xml",
-	"text/html",
-	"text/javascript"
+    "application/mathml-content+xml",
+    "application/mathml-presentation+xml",
+    "application/vnd.dtg.local.html",
+    "application/vnd.pwg-xhtml-print+xml",
+    "application/xhtml+xml",
+    "text/html",
+    "text/javascript"
 ]
 
 # Default headers for HTTP requests
@@ -93,26 +93,31 @@ ssl_ciphers = ":".join([
 
 # Default options for SSL contexts
 ssl_options = (
-	ssl.OP_ALL \
-	| ssl.OP_NO_SSLv2 \
-	| ssl.OP_NO_SSLv3 \
-    | ssl.OP_NO_TLSv1 \
-	| ssl.OP_NO_TLSv1_1 \
-	| ssl.OP_NO_TICKET \
-	| ssl.OP_NO_COMPRESSION \
-	| ssl.OP_SINGLE_DH_USE \
-	| ssl.OP_SINGLE_ECDH_USE
+    ssl.OP_ALL \
+    | ssl.OP_NO_TLSv1_1 \
+    | ssl.OP_NO_COMPRESSION \
+    | ssl.OP_SINGLE_DH_USE \
+    | ssl.OP_SINGLE_ECDH_USE
 )
 
+# These options are deprecated since Python 3.7
+if python_version <= 3.6:
+    ssl_options |= (
+        ssl.OP_NO_SSLv2 \
+        | ssl.OP_NO_SSLv3 \
+        | ssl.OP_NO_TLSv1 \
+        | ssl.OP_NO_TICKET
+    )
+
 # ssl.OP_NO_RENEGOTIATION is not available on Python versions bellow 3.7
-if python_version > 3.6:
+if python_version >= 3.7:
     ssl_options |= ssl.OP_NO_RENEGOTIATION
 
 # Default verify flags for SSL contexts
 ssl_verify_flags = (
-	ssl.VERIFY_X509_STRICT \
-	| ssl.VERIFY_X509_TRUSTED_FIRST \
-	| ssl.VERIFY_DEFAULT
+    ssl.VERIFY_X509_STRICT \
+    | ssl.VERIFY_X509_TRUSTED_FIRST \
+    | ssl.VERIFY_DEFAULT
 )
 
 # CA bundle for server certificate validation
