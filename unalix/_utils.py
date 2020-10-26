@@ -7,9 +7,9 @@ from typing import Union
 from urllib.parse import quote, unquote, urlparse, urlunparse, ParseResult
 
 from ._config import (
-	allow_all_cookies,
-	deny_all_cookies,
-	allow_cookies_if_needed,
+    allow_all_cookies,
+    deny_all_cookies,
+    allow_cookies_if_needed,
     allowed_mimes,
     allowed_schemes,
     default_headers,
