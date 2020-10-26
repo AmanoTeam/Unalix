@@ -7,20 +7,19 @@ from typing import Union
 from urllib.parse import quote, unquote, urlparse, urlunparse, ParseResult
 
 from ._config import (
-    allow_all_cookies,
-    deny_all_cookies,
-    allow_cookies_if_needed,
+	allow_all_cookies,
+	deny_all_cookies,
+	allow_cookies_if_needed,
     allowed_mimes,
     allowed_schemes,
     default_headers,
     local_domains,
-    max_redirects,
     paths_data,
     paths_redirects,
     replacements,
     loop
 )
-from ._exceptions import InvalidURL, InvalidScheme, InvalidList, TooManyRedirects
+from ._exceptions import InvalidURL, InvalidScheme, InvalidList
 from ._http import add_missing_attributes, create_connection, handle_redirects, get_encoded_content
 from ._types import CompiledPatterns, Rules, Redirects, Replacements, URL
 
@@ -171,8 +170,8 @@ async def clear_url(url: URL, **kwargs) ->  URL:
         InvalidScheme: In case the provided *url* has a invalid or unknown scheme.
 
     Notes:
-        URL formatting will not be performed  if the provided *url* is a instance of `ParseResult`. In that case,
-        "InvalidURL" and "InvalidScheme" will not be raised, even if the *url* has a invalid value.
+        URL formatting will not be performed for instances of `ParseResult`. In that case,
+        "InvalidURL" and "InvalidScheme" will not be raised, even if the *url* has a invalid formatting.
 
     Usage:
       >>> from unalix import clear_url
@@ -259,11 +258,9 @@ async def unshort_url(
 
         InvalidContentEncoding: In case the HTTP response has a invalid "Content-Enconding" header.
 
-        TooManyRedirects: In case some request exceeds the maximum number of allowed redirects.
-
     Notes:
-        URL formatting will not be performed  if the provided *url* is a instance of `ParseResult`. In that case,
-        "InvalidURL" and "InvalidScheme" will not be raised, even if the *url* has a invalid value.
+        URL formatting will not be performed for instances of `ParseResult`. In that case,
+        "InvalidURL" and "InvalidScheme" will not be raised, even if the *url* has a invalid formatting.
 
     Usage:
       >>> from unalix import unshort_url
@@ -286,12 +283,7 @@ async def unshort_url(
     elif enable_cookies == False:
         cookies.set_policy(deny_all_cookies)
 
-    total_redirects = 0
-
     while True:
-        if total_redirects >= max_redirects:
-            raise TooManyRedirects("Exceeded maximum allowed redirects.")
-        
         scheme, netloc, path, params, query, fragment = parsed_url
         connection = await create_connection(scheme, netloc)
 
@@ -310,7 +302,6 @@ async def unshort_url(
         requoted_uri = urlparse(await requote_uri(urlunparse(redirect_url)))
 
         if requoted_uri != parsed_url:
-            total_redirects = total_redirects + 1
             parsed_url = await clear_url(requoted_uri, **kwargs)
             continue
 
