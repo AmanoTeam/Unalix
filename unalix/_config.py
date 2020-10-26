@@ -2,7 +2,11 @@ import asyncio
 from http.cookiejar import DefaultCookiePolicy
 import json
 import os
+import platform
 import ssl
+
+major, minor, micro = platform.python_version_tuple()
+python_version = float(f"{major}.{minor}")
 
 loop = asyncio.get_event_loop()
 
@@ -96,10 +100,13 @@ ssl_options = (
 	| ssl.OP_NO_TLSv1_1 \
 	| ssl.OP_NO_TICKET \
 	| ssl.OP_NO_COMPRESSION \
-	| ssl.OP_NO_RENEGOTIATION \
 	| ssl.OP_SINGLE_DH_USE \
 	| ssl.OP_SINGLE_ECDH_USE
 )
+
+# ssl.OP_NO_RENEGOTIATION is not available on Python versions bellow 3.7
+if python_version > 3.6:
+    ssl_options |= ssl.OP_NO_RENEGOTIATION
 
 # Default verify flags for SSL contexts
 ssl_verify_flags = (
