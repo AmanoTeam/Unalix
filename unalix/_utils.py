@@ -454,7 +454,7 @@ async def parse_rules(
       >>> parse_rules("http://g.co/?utm_source=google")
       'http://g.co/'
     """
-    if skip_local and is_private(url):
+    if skip_local and await is_private(url):
         return url
 
     for pattern in patterns:
