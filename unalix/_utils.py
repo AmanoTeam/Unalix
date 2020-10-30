@@ -446,6 +446,9 @@ async def parse_rules(
     if skip_local and await is_private(url):
         return url
 
+    kwargs = locals()
+    del kwargs["url"]
+
     for pattern in patterns:
         if skip_blocked and pattern["complete"]:
             continue
@@ -462,8 +465,8 @@ async def parse_rules(
                 for redirection in pattern["redirections"]:
                     url = redirection.sub(r"\g<1>", url)
                 if url != original_url:
-                    url = unquote(url)
-                    url = await requote_uri(url)
+                    url = await requote_uri(unquote(url))
+                    return await parse_rules(url, **kwargs)
             if not ignore_rules:
                 for rule in pattern["rules"]:
                     url = rule.sub(r"\g<1>", url)
