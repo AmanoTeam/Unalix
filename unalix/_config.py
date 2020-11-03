@@ -1,4 +1,3 @@
-import asyncio
 from http.cookiejar import DefaultCookiePolicy
 import json
 import os
@@ -7,8 +6,6 @@ import ssl
 
 major, minor, micro = platform.python_version_tuple()
 python_version = float(f"{major}.{minor}")
-
-loop = asyncio.get_event_loop()
 
 # Path to directory containing the package data (JSON files)
 data = os.path.join(os.path.dirname(__file__), "package_data")

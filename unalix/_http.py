@@ -12,13 +12,12 @@ from ._config import (
     ssl_ciphers,
     ssl_options,
     ssl_verify_flags,
-    timeout,
-    loop
+    timeout
 )
 from ._types import Connection
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_decoders.py#L36
-async def decode_from_deflate(content: bytes) -> bytes:
+def decode_from_deflate(content: bytes) -> bytes:
     """This function is used to decode deflate responses."""
     try:
         return zlib.decompressobj.decompress(content)
@@ -26,13 +25,13 @@ async def decode_from_deflate(content: bytes) -> bytes:
         return zlib.decompressobj(-zlib.MAX_WBITS).decompress(content)
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_decoders.py#L65
-async def decode_from_gzip(content: bytes) -> bytes:
+def decode_from_gzip(content: bytes) -> bytes:
     """This function is used to decode gzip responses."""
     return zlib.decompressobj(zlib.MAX_WBITS|16).decompress(content)
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L98
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L151
-async def create_ssl_context() -> ssl.SSLContext:
+def create_ssl_context() -> ssl.SSLContext:
     """This function creates the default SSL context for HTTPS connections.
 
     Usage:
@@ -67,7 +66,7 @@ async def create_ssl_context() -> ssl.SSLContext:
 
     return context
 
-async def create_connection(scheme: str, netloc: str) -> Connection: # type: ignore
+def create_connection(scheme: str, netloc: str) -> Connection: # type: ignore
     """This function is used to create HTTP and HTTPS connections.
     
     Parameters:
@@ -94,7 +93,7 @@ async def create_connection(scheme: str, netloc: str) -> Connection: # type: ign
 
     return connection
 
-async def handle_redirects(url: ParseResult, response: HTTPResponse) -> ParseResult:
+def handle_redirects(url: ParseResult, response: HTTPResponse) -> ParseResult:
     """This function is used to handle HTTP redirects. It parses the value of the "Location" header."""
     location = response.headers.get("Location")
 
@@ -115,7 +114,7 @@ async def handle_redirects(url: ParseResult, response: HTTPResponse) -> ParseRes
 
     return urlparse(redirect_url)
 
-async def get_encoded_content(response: HTTPResponse) -> str:
+def get_encoded_content(response: HTTPResponse) -> str:
     """This function is used to decode gzip and deflate responses. It also parses unencoded/plain text responses."""
     content_encoding = response.headers.get("Content-Encoding")
 
@@ -125,15 +124,15 @@ async def get_encoded_content(response: HTTPResponse) -> str:
     if content_encoding == "identity":
         content_as_bytes = response.read()
     elif content_encoding == "gzip":
-        content_as_bytes = await decode_from_gzip(response.read())
+        content_as_bytes = decode_from_gzip(response.read())
     elif content_encoding == "deflate":
-        content_as_bytes = await decode_from_deflate(response.read())
+        content_as_bytes = decode_from_deflate(response.read())
     else:
         raise InvalidContentEncoding(f"Expected 'identity', 'gzip' or 'deflate', but got: {content_encoding}")
 
     return content_as_bytes.decode()
 
-async def add_missing_attributes(url: ParseResult, headers: dict, connection: Connection) -> None:
+def add_missing_attributes(url: ParseResult, headers: dict, connection: Connection) -> None:
 
     def add_unredirected_header(key: str, val: str) -> None:
         connection.headers.update({key: val}) # type: ignore
@@ -146,4 +145,4 @@ async def add_missing_attributes(url: ParseResult, headers: dict, connection: Co
     connection.headers = headers # type: ignore
     connection.origin_req_host = url.netloc # type: ignore
 
-context = loop.run_until_complete(create_ssl_context())
+context = create_ssl_context()

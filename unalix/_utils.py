@@ -17,8 +17,7 @@ from ._config import (
     paths_data,
     paths_redirects,
     replacements,
-    timeout,
-    loop
+    timeout
 )
 from ._exceptions import InvalidURL, InvalidScheme, InvalidList
 from ._http import add_missing_attributes, create_connection, handle_redirects, get_encoded_content
@@ -30,7 +29,7 @@ UNRESERVED_SET = frozenset(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L570
-async def unquote_unreserved(uri: str) -> str:
+def unquote_unreserved(uri: str) -> str:
     """Un-escape any percent-escape sequences in a URI that are unreserved
     characters. This leaves all reserved, illegal and non-ASCII bytes encoded.
     """
@@ -48,7 +47,7 @@ async def unquote_unreserved(uri: str) -> str:
     return "".join(parts)
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L594
-async def requote_uri(uri: str) -> str:
+def requote_uri(uri: str) -> str:
     """Re-quote the given URI.
 
     This function passes the given URI through an unquote/quote cycle to
@@ -60,7 +59,7 @@ async def requote_uri(uri: str) -> str:
         # Unquote only the unreserved characters
         # Then quote only illegal characters (do not quote reserved,
         # unreserved, or '%')
-        return quote(await unquote_unreserved(uri), safe=safe_with_percent)
+        return quote(unquote_unreserved(uri), safe=safe_with_percent)
     except ValueError:
         # We couldn't unquote the given URI, so let"s try quoting it, but
         # there may be unquoted "%"s in the URI. We need to make sure they're
@@ -68,7 +67,7 @@ async def requote_uri(uri: str) -> str:
         return quote(uri, safe=safe_without_percent)
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L894
-async def prepend_scheme_if_needed(url: str, new_scheme: str) -> str:
+def prepend_scheme_if_needed(url: str, new_scheme: str) -> str:
     """Given a URL that may or may not have a scheme, prepend the given scheme.
     Does not replace a present scheme with the one provided as an argument.
     """
@@ -83,7 +82,7 @@ async def prepend_scheme_if_needed(url: str, new_scheme: str) -> str:
     return urlunparse((scheme, netloc, path, params, query, fragment))
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L953
-async def urldefragauth(url: str) -> str:
+def urldefragauth(url: str) -> str:
     """Given a url remove the fragment and the authentication part."""
     scheme, netloc, path, params, query, fragment = urlparse(url)
 
@@ -95,7 +94,7 @@ async def urldefragauth(url: str) -> str:
 
     return urlunparse((scheme, netloc, path, params, query, ''))
 
-async def is_private(url: str) -> bool:
+def is_private(url: str) -> bool:
     """This function checks if the URL's netloc belongs to a local/private network.
 
     Usage:
@@ -112,7 +111,7 @@ async def is_private(url: str) -> bool:
     else:
         return address.is_private
 
-async def parse_url(url: str) -> str:
+def parse_url(url: str) -> str:
     """Parse and format the given URL.
 
     This function has three purposes:
@@ -139,10 +138,10 @@ async def parse_url(url: str) -> str:
         raise InvalidURL("This is not a valid URL")
 
     # If the specified URL does not have a scheme defined, it will be set to 'http'.
-    url = await prepend_scheme_if_needed(url, "http")
+    url = prepend_scheme_if_needed(url, "http")
 
     # Remove the fragment and the authentication part (e.g 'user:pass@') from the URL.
-    url = await urldefragauth(url)
+    url = urldefragauth(url)
 
     scheme, netloc, path, params, query, fragment = urlparse(url)
     
@@ -155,7 +154,7 @@ async def parse_url(url: str) -> str:
 
     return urlunparse((scheme, netloc, path, params, query, fragment))
 
-async def clear_url(url: URL, **kwargs) ->  URL:
+def clear_url(url: URL, **kwargs) ->  URL:
     """Remove tracking fields from the given URL.
 
     Parameters:
@@ -180,31 +179,31 @@ async def clear_url(url: URL, **kwargs) ->  URL:
       'https://deezer.com/track/891177062'
     """
     if isinstance(url, ParseResult):
-        cleaned_url = await parse_rules(url.geturl())
+        cleaned_url = parse_rules(url.geturl())
         return urlparse(cleaned_url)
 
-    formated_url = await parse_url(url)
-    cleaned_url = await parse_rules(formated_url, **kwargs)
+    formated_url = parse_url(url)
+    cleaned_url = parse_rules(formated_url, **kwargs)
 
     return cleaned_url
 
-async def strip_parameters(value: str) -> str:
+def strip_parameters(value: str) -> str:
     """This function is used strip parameters from header values."""
     return value.rsplit(";", 1)[0].rstrip(" ")
 
-async def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
+def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
     """This function is used to extract redirect links from HTML pages."""
     content_type = response.headers.get("Content-Type")
 
     if content_type is None:
         return url
 
-    mime = await strip_parameters(content_type)
+    mime = strip_parameters(content_type)
 
     if not mime in allowed_mimes:
         return url
 
-    body = await get_encoded_content(response)
+    body = get_encoded_content(response)
 
     for rule in redirects:
         if rule["pattern"].match(url.geturl()):
@@ -219,7 +218,7 @@ async def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
 
     return url
 
-async def unshort_url(
+def unshort_url(
     url: URL,
     parse_documents: bool = False,
     enable_cookies: Union[bool, None] = None,
@@ -268,7 +267,7 @@ async def unshort_url(
       >>> unshort_url("https://bitly.is/Pricing-Pop-Up")
       'https://bitly.com/pages/pricing'
     """
-    cleaned_url = await clear_url(url, **kwargs)
+    cleaned_url = clear_url(url, **kwargs)
 
     if isinstance(cleaned_url, ParseResult):
         parsed_url = cleaned_url
@@ -286,9 +285,9 @@ async def unshort_url(
 
     while True:
         scheme, netloc, path, params, query, fragment = parsed_url
-        connection = await create_connection(scheme, netloc)
+        connection = create_connection(scheme, netloc)
 
-        await add_missing_attributes(parsed_url, headers, connection)  # type: ignore
+        add_missing_attributes(parsed_url, headers, connection)  # type: ignore
 
         if query: path = f"{path}?{query}"
 
@@ -299,18 +298,18 @@ async def unshort_url(
 
         cookies.extract_cookies(response, connection) # type: ignore
 
-        redirect_url = await handle_redirects(parsed_url, response) # type: ignore
-        requoted_uri = urlparse(await requote_uri(urlunparse(redirect_url)))
+        redirect_url = handle_redirects(parsed_url, response) # type: ignore
+        requoted_uri = urlparse(requote_uri(urlunparse(redirect_url)))
 
         if requoted_uri != parsed_url:
-            parsed_url = await clear_url(requoted_uri, **kwargs)
+            parsed_url = clear_url(requoted_uri, **kwargs)
             continue
 
         if parse_documents:
-            extracted_url = await extract_url(parsed_url, response) # type: ignore
-            requoted_uri = urlparse(await requote_uri(extracted_url.geturl()))
+            extracted_url = extract_url(parsed_url, response) # type: ignore
+            requoted_uri = urlparse(requote_uri(extracted_url.geturl()))
             if extracted_url != parsed_url:
-                parsed_url = await clear_url(requoted_uri)
+                parsed_url = clear_url(requoted_uri)
                 continue
 
         break
@@ -323,7 +322,7 @@ async def unshort_url(
     else:
         return urlunparse(parsed_url)
 
-async def compile_patterns(data: Rules, replacements: Replacements, redirects: Redirects) -> CompiledPatterns:
+def compile_patterns(data: Rules, replacements: Replacements, redirects: Redirects) -> CompiledPatterns:
     """Compile raw regex patterns into `re.Pattern` instances.
 
     Parameters:
@@ -392,7 +391,7 @@ async def compile_patterns(data: Rules, replacements: Replacements, redirects: R
 
     return (compiled_data, compiled_replacements, compiled_redirects)
 
-async def parse_rules(
+def parse_rules(
     url: str,
     allow_referral: bool = False,
     ignore_rules: bool = False,
@@ -443,7 +442,7 @@ async def parse_rules(
       >>> parse_rules("http://g.co/?utm_source=google")
       'http://g.co/'
     """
-    if skip_local and await is_private(url):
+    if skip_local and is_private(url):
         return url
 
     kwargs = locals()
@@ -465,8 +464,8 @@ async def parse_rules(
                 for redirection in pattern["redirections"]:
                     url = redirection.sub(r"\g<1>", url)
                 if url != original_url:
-                    url = await requote_uri(unquote(url))
-                    return await parse_rules(url, **kwargs)
+                    url = requote_uri(unquote(url))
+                    return parse_rules(url, **kwargs)
             if not ignore_rules:
                 for rule in pattern["rules"]:
                     url = rule.sub(r"\g<1>", url)
@@ -483,4 +482,4 @@ async def parse_rules(
 
     return url
 
-(patterns, replacements, redirects) = loop.run_until_complete(compile_patterns(paths_data, replacements, paths_redirects))
+(patterns, replacements, redirects) = compile_patterns(paths_data, replacements, paths_redirects)
