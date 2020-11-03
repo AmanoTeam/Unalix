@@ -100,6 +100,9 @@ def handle_redirects(url: ParseResult, response: HTTPResponse) -> ParseResult:
     if location is None:
         return url
 
+    # https://stackoverflow.com/a/27357138
+    location = location.encode("latin1").decode()
+
     if location.startswith("http://") or location.startswith("https://"):
         return urlparse(location)
 
