@@ -4,20 +4,7 @@
         "pattern": ".*",
         "redirects": [
             "<meta\\shttp-equiv\\=\"refresh\"\\scontent\\=\"[0-9]+;\\s?url\\=(https?://.+)/\">",
-            "sonload\\=\"window\\.location\\s\\=\\s'(https?://.+)'\">"
-        ]
-    },
-    {
-        "name": "AWS Email Marketing",
-        "pattern": "^https?:\\/\\/email\\.awscloud\\.com",
-        "redirects": [
-            "redirecturl\\s=\\s'(https?:\\/\\/.+)'"
-        ]
-    },
-    {
-        "name": "Digital Ocean Email Marketing",
-        "pattern": "^https?:\\/\\/pages\\.news\\.digitalocean.com",
-        "redirects": [
+            "sonload\\=\"window\\.location\\s\\=\\s'(https?://.+)'\">",
             "redirecturl\\s=\\s'(https?:\\/\\/.+)'"
         ]
     }
