@@ -2,7 +2,6 @@ Unalix is a simple code library written in Python. It implements the same regex 
 
 #### Features
 
-- **Sync and Async**: Unalix supports both sync and async calls, fit for all usage needs.
 - **Type-hinted**: All methods are type-hinted, enabling excellent editor support.
 - **Simple**: No extra dependence is required to use this library.
 
