@@ -197,12 +197,12 @@ def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
     content_type = response.headers.get("Content-Type")
 
     if content_type is None:
-        return url
+        return None
 
     mime = strip_parameters(content_type)
 
     if not mime in allowed_mimes:
-        return url
+        return None
 
     body = get_encoded_content(response)
 
@@ -217,7 +217,7 @@ def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
                 else:
                     return urlparse(extracted_url)
 
-    return url
+    return None
 
 def unshort_url(
     url: URL,
@@ -315,9 +315,9 @@ def unshort_url(
 
         if parse_documents:
             extracted_url = extract_url(parsed_url, response) # type: ignore
-            requoted_uri = urlparse(requote_uri(extracted_url.geturl()))
-            if extracted_url != parsed_url:
-                parsed_url = clear_url(requoted_uri)
+            if isinstance(extracted_url, ParseResult):
+                requoted_uri = urlparse(requote_uri(urlunparse(extracted_url)))
+                parsed_url = clear_url(requoted_uri, **kwargs)
                 continue
 
         break
