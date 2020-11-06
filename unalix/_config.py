@@ -36,6 +36,9 @@ replacements = [
 # Default timeout for HTTP requests
 timeout = 8
 
+# Maximum number of HTTP redirections allowed by default
+max_redirects = 13
+
 # Domain names that points to a local address
 local_domains = [
     "localhost",

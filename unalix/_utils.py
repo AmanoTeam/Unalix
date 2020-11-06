@@ -13,13 +13,14 @@ from ._config import (
     allowed_mimes,
     allowed_schemes,
     default_headers,
+    max_redirects,
     local_domains,
     paths_data,
     paths_redirects,
     replacements,
     timeout
 )
-from ._exceptions import InvalidURL, InvalidScheme, InvalidList
+from ._exceptions import InvalidURL, InvalidScheme, InvalidList, TooManyRedirects
 from ._http import add_missing_attributes, create_connection, handle_redirects, get_encoded_content
 from ._types import CompiledPatterns, Rules, Redirects, Replacements, URL
 
@@ -283,7 +284,13 @@ def unshort_url(
     elif enable_cookies == False:
         cookies.set_policy(deny_all_cookies)
 
+    total_redirects = 0
+
     while True:
+
+        if total_redirects > max_redirects:
+            raise TooManyRedirects("The request exceeded maximum allowed redirects")
+
         scheme, netloc, path, params, query, fragment = parsed_url
         connection = create_connection(scheme, netloc)
 
@@ -299,9 +306,10 @@ def unshort_url(
         cookies.extract_cookies(response, connection) # type: ignore
 
         redirect_url = handle_redirects(parsed_url, response) # type: ignore
-        requoted_uri = urlparse(requote_uri(urlunparse(redirect_url)))
 
-        if requoted_uri != parsed_url:
+        if isinstance(redirect_url, ParseResult):
+            total_redirects = total_redirects + 1
+            requoted_uri = urlparse(requote_uri(urlunparse(redirect_url)))
             parsed_url = clear_url(requoted_uri, **kwargs)
             continue
 

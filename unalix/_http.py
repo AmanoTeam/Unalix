@@ -98,7 +98,7 @@ def handle_redirects(url: ParseResult, response: HTTPResponse) -> ParseResult:
     location = response.headers.get("Location")
 
     if location is None:
-        return url
+        return None
 
     # https://stackoverflow.com/a/27357138
     location = location.encode("latin1").decode()
