@@ -1,6 +1,6 @@
 from http.client import HTTPResponse
 from http.cookiejar import CookieJar
-from ipaddress import ip_address
+import ipaddress
 import json
 import re
 from typing import Union
@@ -106,7 +106,7 @@ def is_private(url: str) -> bool:
     netloc = urlparse(url).netloc
     
     try:
-        address = ip_address(netloc)
+        address = ipaddress.ip_address(netloc)
     except ValueError:
         return (netloc in local_domains)
     else:
@@ -192,7 +192,7 @@ def strip_parameters(value: str) -> str:
     """This function is used strip parameters from header values."""
     return value.rsplit(";", 1)[0].rstrip(" ")
 
-def extract_url(url: ParseResult, response: HTTPResponse) -> ParseResult:
+def extract_url(url: ParseResult, response: HTTPResponse) -> Union[ParseResult, None]:
     """This function is used to extract redirect links from HTML pages."""
     content_type = response.headers.get("Content-Type")
 
@@ -223,7 +223,6 @@ def unshort_url(
     url: URL,
     parse_documents: bool = False,
     enable_cookies: Union[bool, None] = None,
-    headers: dict = default_headers,
     **kwargs
 ) -> URL:
     """Try to unshort the given URL (follow http redirects).
@@ -245,9 +244,6 @@ def unshort_url(
 
             Keeping this as "None" should be enough for you. Only set this parameter to True if you get stuck
             at some redirect loop due to missing cookies.
-
-        headers (`dict`, *optional*):
-            Default headers for HTTP requests.
 
         **kwargs (`bool`, *optional*):
             Optional arguments that `clear_url` takes.
@@ -294,11 +290,14 @@ def unshort_url(
         scheme, netloc, path, params, query, fragment = parsed_url
         connection = create_connection(scheme, netloc)
 
-        add_missing_attributes(parsed_url, headers, connection)  # type: ignore
+        add_missing_attributes(parsed_url, connection)  # type: ignore
 
         if query: path = f"{path}?{query}"
 
         cookies.add_cookie_header(connection) # type: ignore
+
+        headers = connection.headers # type: ignore
+        headers.update(default_headers)
 
         connection.request("GET", path, headers=headers)
         response = connection.getresponse()

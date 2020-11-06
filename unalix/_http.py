@@ -2,6 +2,7 @@ from http.client import HTTPResponse, HTTPConnection, HTTPSConnection
 import os
 from ._exceptions import InvalidScheme, InvalidContentEncoding
 import ssl
+from typing import Union
 from urllib.parse import urlparse, urlunparse, ParseResult
 import zlib
 
@@ -93,7 +94,7 @@ def create_connection(scheme: str, netloc: str) -> Connection: # type: ignore
 
     return connection
 
-def handle_redirects(url: ParseResult, response: HTTPResponse) -> ParseResult:
+def handle_redirects(url: ParseResult, response: HTTPResponse) -> Union[ParseResult, None]:
     """This function is used to handle HTTP redirects. It parses the value of the "Location" header."""
     location = response.headers.get("Location")
 
@@ -135,7 +136,12 @@ def get_encoded_content(response: HTTPResponse) -> str:
 
     return content_as_bytes.decode()
 
-def add_missing_attributes(url: ParseResult, headers: dict, connection: Connection) -> None:
+def add_missing_attributes(url: ParseResult, connection: Connection) -> None:
+
+    try:
+        connection.cookies # type: ignore
+    except AttributeError:
+        connection.cookies = {} # type: ignore
 
     def add_unredirected_header(key: str, val: str) -> None:
         connection.headers.update({key: val}) # type: ignore
@@ -144,8 +150,8 @@ def add_missing_attributes(url: ParseResult, headers: dict, connection: Connecti
     connection.add_unredirected_header = add_unredirected_header # type: ignore
     connection.get_full_url = lambda: urlunparse(url) # type: ignore
 
-    connection.unverifiable = True  # type: ignore
-    connection.headers = headers # type: ignore
+    connection.unverifiable = True # type: ignore
+    connection.headers = {} # type: ignore
     connection.origin_req_host = url.netloc # type: ignore
 
 context = create_ssl_context()
