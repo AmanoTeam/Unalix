@@ -3,9 +3,9 @@
         "name": "Global",
         "pattern": ".*",
         "redirects": [
-            "<meta\\shttp-equiv\\=\"refresh\"\\scontent\\=\"[0-9]+;\\s?url\\=(https?://.+)/\">",
+            "<meta\\shttp-equiv\\=\"refresh\"\\scontent\\=\"[0-9]+;\\s?url\\=(https?:\\/\\/.+)\">",
             "sonload\\=\"window\\.location\\s\\=\\s'(https?://.+)'\">",
-            "redirecturl\\s=\\s'(https?:\\/\\/.+)'"
+            "redirecturl\\s\\=\\s'(https?:\\/\\/.+)'"
         ]
     }
 ]

@@ -207,7 +207,7 @@ def extract_url(url: ParseResult, response: HTTPResponse) -> Union[ParseResult, 
     body = get_encoded_content(response)
 
     for rule in redirects:
-        if rule["pattern"].match(url.geturl()):
+        if rule["pattern"].match(urlunparse(url)):
             for redirect in rule["redirects"]:
                 try:
                     result = redirect.match(body)
