@@ -20,7 +20,7 @@ from ._config import (
     replacements,
     timeout
 )
-from ._exceptions import InvalidURL, InvalidScheme, InvalidList, TooManyRedirects
+from ._exceptions import ConnectionError, InvalidURL, InvalidScheme, InvalidList, TooManyRedirects
 from ._http import add_missing_attributes, create_connection, handle_redirects, get_encoded_content
 from ._types import CompiledPatterns, Rules, Redirects, Replacements, URL
 
@@ -136,7 +136,7 @@ def parse_url(url: str) -> str:
       'http://xn--i-7iq.ws/'
     """
     if not isinstance(url, str) or not url:
-        raise InvalidURL("This is not a valid URL")
+        raise InvalidURL("This is not a valid URL", url)
 
     # If the specified URL does not have a scheme defined, it will be set to 'http'.
     url = prepend_scheme_if_needed(url, "http")
@@ -148,7 +148,7 @@ def parse_url(url: str) -> str:
     
     # We don't want to process URLs with protocols other than those
     if not scheme in allowed_schemes:
-        raise InvalidScheme(f"Expecting 'http' or 'https', but got: {scheme}")
+        raise InvalidScheme(f"Expecting 'http' or 'https', but got: {scheme}", url)
 
     # Encode domain name according to IDNA.
     netloc = netloc.encode("idna").decode('utf-8')
@@ -249,6 +249,10 @@ def unshort_url(
             Optional arguments that `clear_url` takes.
 
     Raises:
+        ConnectionError: In case some error occurred during the request.
+
+        TooManyRedirects: In case the request exceeded maximum allowed redirects.
+
         InvalidURL: In case the provided *url* is not a valid URL or hostname.
 
         InvalidScheme: In case the provided *url* has a invalid or unknown scheme.
@@ -285,7 +289,7 @@ def unshort_url(
     while True:
 
         if total_redirects > max_redirects:
-            raise TooManyRedirects("The request exceeded maximum allowed redirects")
+            raise TooManyRedirects("The request exceeded maximum allowed redirects", urlunparse(parsed_url))
 
         scheme, netloc, path, params, query, fragment = parsed_url
         connection = create_connection(scheme, netloc)
@@ -299,8 +303,11 @@ def unshort_url(
         headers = connection.headers # type: ignore
         headers.update(default_headers)
 
-        connection.request("GET", path, headers=headers)
-        response = connection.getresponse()
+        try:
+            connection.request("GET", path, headers=headers)
+            response = connection.getresponse()
+        except Exception as exception:
+            raise ConnectionError("Can't connect to remote host", exception, urlunparse(parsed_url))
 
         cookies.extract_cookies(response, connection) # type: ignore
 
