@@ -65,11 +65,6 @@ Unalix includes some third party software. See them below:
   - Repository: [ClearURLs/Rules](https://github.com/ClearURLs/Rules)
   - License: [GNU Lesser General Public License v3.0](https://gitlab.com/ClearURLs/Rules/blob/master/LICENSE)
 
-- **Pyrogram**
-  - Author: Dan
-  - Repository: [pyrogram/pyrogram](https://github.com/pyrogram/pyrogram)
-  - License: [GNU Lesser General Public License v3.0](https://github.com/pyrogram/pyrogram/blob/master/COPYING)
-
 - **python-requests**
   - Author: Kenneth Reitz
   - Repository: [psf/requests](https://github.com/psf/requests)
