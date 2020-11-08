@@ -232,7 +232,7 @@ def remove_invalid_parameters(url: str) -> str:
         scheme, netloc, path, params, "&".join(new_query), fragment
     )
 
-    return urlunparse(new_url)
+    return urlunparse(new_url).rstrip("?")
 
 def extract_url(url: ParseResult, response: HTTPResponse) -> Union[ParseResult, None]:
     """This function is used to extract redirect links from HTML pages."""
