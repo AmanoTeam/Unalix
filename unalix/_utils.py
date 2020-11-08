@@ -95,16 +95,14 @@ def urldefragauth(url: str) -> str:
 
     return urlunparse((scheme, netloc, path, params, query, ''))
 
-def is_private(url: str) -> bool:
+def is_private(netloc: str) -> bool:
     """This function checks if the URL's netloc belongs to a local/private network.
 
     Usage:
       >>> from unalix._utils import is_private
-      >>> is_private("http://0.0.0.0/")
+      >>> is_private("0.0.0.0")
       True
     """
-    netloc = urlparse(url).netloc
-    
     try:
         address = ipaddress.ip_address(netloc)
     except ValueError:
@@ -153,7 +151,9 @@ def parse_url(url: str) -> str:
     # Encode domain name according to IDNA.
     netloc = netloc.encode("idna").decode('utf-8')
 
-    return urlunparse((scheme, netloc, path, params, query, fragment))
+    return urlunparse((
+		scheme, netloc, path, params, query, fragment
+	))
 
 def clear_url(url: URL, **kwargs) ->  URL:
     """Remove tracking fields from the given URL.
@@ -180,7 +180,7 @@ def clear_url(url: URL, **kwargs) ->  URL:
       'https://deezer.com/track/891177062'
     """
     if isinstance(url, ParseResult):
-        cleaned_url = parse_rules(url.geturl())
+        cleaned_url = parse_rules(urlunparse(url))
         return urlparse(cleaned_url)
 
     formated_url = parse_url(url)
@@ -215,7 +215,10 @@ def remove_invalid_parameters(url: str) -> str:
     """
     scheme, netloc, path, params, query, fragment = urlparse(url)
 
-    if not query: return url
+    if not query:
+        return urlunparse((
+	        scheme, netloc, path, params, query, fragment
+	    ))
 
     new_query = []
 
@@ -228,11 +231,9 @@ def remove_invalid_parameters(url: str) -> str:
             if value:
                 new_query += [param]
 
-    new_url = (
+    return urlunparse((
         scheme, netloc, path, params, "&".join(new_query), fragment
-    )
-
-    return urlunparse(new_url).rstrip("?")
+    ))
 
 def extract_url(url: ParseResult, response: HTTPResponse) -> Union[ParseResult, None]:
     """This function is used to extract redirect links from HTML pages."""
@@ -502,7 +503,7 @@ def parse_rules(
       >>> parse_rules("http://g.co/?utm_source=google")
       'http://g.co/'
     """
-    if skip_local and is_private(url):
+    if skip_local and is_private(urlparse(url).netloc):
         return url
 
     kwargs = locals()
