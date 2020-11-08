@@ -189,8 +189,50 @@ def clear_url(url: URL, **kwargs) ->  URL:
     return cleaned_url
 
 def strip_parameters(value: str) -> str:
-    """This function is used strip parameters from header values."""
+    """This function is used strip parameters from header values.
+
+    Usage:
+      >>> from unalix._utils import strip_parameters
+      >>> strip_parameters('text/html; charset="utf-8"')
+      'text/html'
+    """
     return value.rsplit(";", 1)[0].rstrip(" ")
+
+def remove_fragments(url: str) -> str:
+
+    for pattern, replacement in replacements:
+        url = pattern.sub(replacement, url)
+
+    return url
+
+def remove_invalid_parameters(url: str) -> str:
+    """This function is used to remove invalid parameters from URLs.
+
+    Usage:
+      >>> from unalix._utils import remove_invalid_parameters
+      >>> remove_invalid_parameters("http://example.com/?p1&p2=&p3=p=&&p4=v")
+      'http://example.com/?p4=v'
+    """
+    scheme, netloc, path, params, query, fragment = urlparse(url)
+
+    if not query: return url
+
+    new_query = []
+
+    for param in query.split("&"):
+        try:
+            key, value = param.split("=")
+        except ValueError:
+            continue
+        else:
+            if value:
+                new_query += [param]
+
+    new_url = (
+        scheme, netloc, path, params, "&".join(new_query), fragment
+    )
+
+    return urlunparse(new_url)
 
 def extract_url(url: ParseResult, response: HTTPResponse) -> Union[ParseResult, None]:
     """This function is used to extract redirect links from HTML pages."""
@@ -413,7 +455,8 @@ def parse_rules(
     ignore_raw: bool = False,
     ignore_redirections: bool = False,
     skip_blocked: bool = False,
-    skip_local: bool = False
+    skip_local: bool = False,
+    remove_invalid = True
 ) -> str:
     """Parse compiled regex patterns for the given URL.
 
@@ -445,6 +488,9 @@ def parse_rules(
 
         skip_local (`bool`, *optional*):
             Pass True to skip URLs on local/private hosts (e.g 127.0.0.1, 0.0.0.0, localhost).
+
+        remove_invalid (`bool`, *optional*):
+            Pass True to remove invalid parameters from the given URL.
 
     Notes:
         Note that most of the regex patterns contained in the
@@ -491,8 +537,11 @@ def parse_rules(
                     url = raw.sub("", url)
             original_url = url
 
-    for pattern, replacement in replacements:
-        url = pattern.sub(replacement, url)
+
+    if remove_invalid:
+        url = remove_invalid_parameters(url)
+    else:
+        url = remove_fragments(url)
 
     return url
 
