@@ -1,4 +1,4 @@
-from unalix._utils import parse_url
+from unalix._core import parse_url
 
 def test_parse_url():
 

@@ -1,10 +1,5 @@
 Unalix is a simple code library written in Python. It implements the same regex rule processing mechanism used by the [ClearURLs](https://github.com/ClearURLs/Addon) addon.
 
-#### Features
-
-- **Type-hinted**: All methods are type-hinted, enabling excellent editor support.
-- **Simple**: No extra dependence is required to use this library.
-
 #### Installation
 
 Install using `pip`:

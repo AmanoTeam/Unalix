@@ -40,5 +40,4 @@ def test_clear_url():
     unmodified_url = "http://example.com/?p1&p2=&p3=p=&&p4=v"
 
     assert clear_url(unmodified_url) == "http://example.com/?p4=v"
-    assert clear_url(unmodified_url, remove_invalid=False) == "http://example.com/?p1&p2=&p3=p=&p4=v"
 

@@ -6,12 +6,6 @@ class InvalidURL(Exception):
 
 class InvalidScheme(Exception):
     """URL has a invalid or unknown scheme."""
-    def __init__(self, message: str, url: str) -> None:
-        self.url = url
-        super().__init__(message)
-
-class InvalidList(Exception):
-    """It probably has no items or is not actually an object of the 'list' class."""
     def __init__(self, message: str) -> None:
         super().__init__(message)
 
@@ -28,6 +22,6 @@ class TooManyRedirects(Exception):
 
 class ConnectionError(Exception):
     """An error occurred during the request."""
-    def __init__(self, message: str, reason: str, url: str) -> None:
-        self.reason, self.url = reason, url
+    def __init__(self, message: str, url: str) -> None:
+        self.url = url
         super().__init__(message)

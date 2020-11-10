@@ -20,12 +20,14 @@ ouput_urls = []
 launch_in_browser = options_dict["launch_in_browser"]
 unshort = options_dict["unshort"]
 parse_documents = options_dict["parse_documents"]
+enable_cookies = options_dict["enable_cookies"]
 
 bad_keys = [
     "url",
     "launch_in_browser",
     "unshort",
-    "parse_documents"
+    "parse_documents",
+    "enable_cookies"
 ]
 
 for bad_key in bad_keys:
@@ -42,7 +44,7 @@ def main():
             ouput_urls += [clear_url(url, **kwargs)]
     else:
         for url in input_urls:
-            ouput_urls += [unshort_url(url, parse_documents=parse_documents, **kwargs)]
+            ouput_urls += [unshort_url(url, parse_documents=parse_documents, enable_cookies=enable_cookies, **kwargs)]
     
     if launch_in_browser:
         platform = getoutput("uname -o")

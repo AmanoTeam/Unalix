@@ -15,7 +15,7 @@
             "--unshort"
         ],
         "options": {
-            "help": "Try to unshort the given URL. Only takes effect when -u/--url is used.",
+            "help": "Unshort the given URL.",
             "action": "store_true"
         }
     },
@@ -24,7 +24,16 @@
             "--parse-documents"
         ],
         "options": {
-            "help": "Try to obtain the unshortened URL from the response's body (HTML page). Only takes effect when --unshort is used.",
+            "help": "Follow HTML/JavaScript redirects.",
+            "action": "store_true"
+        }
+    },
+    {
+        "args": [
+            "--enable-cookies"
+        ],
+        "options": {
+            "help": "Handle cookies on HTTP requests.",
             "action": "store_true"
         }
     },
@@ -33,7 +42,7 @@
             "--launch-in-browser"
         ],
         "options": {
-            "help": "Launch cleaned/unshortened URL in default web browser instead of printing it to stdout.",
+            "help": "Launch cleaned/unshortened URL in default web browser.",
             "action": "store_true"
         }
     },
@@ -42,7 +51,7 @@
             "--allow-referral"
         ],
         "options": {
-            "help": "Avoid removing marketing fields.",
+            "help": "Avoid removing marketing fields from the given URL.",
             "action": "store_true"
         }
     },

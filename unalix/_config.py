@@ -22,30 +22,11 @@ paths_redirects = [
     f"{data}/body_redirects.json"
 ]
 
-# Some of these fields may remain in the URL after tracking"s fields
-# removal, so we need to remove or replace them
-replacements = [
-    (r"(?:%26)+", r"%26"),
-    (r"&+", r"&"),
-    (r"(?:%3[fF])+", r"%3f"),
-    (r"(?:%(?:3[fF]|23)|\?|#|&)+$", r""),
-    (r"\?&",  r"?"),
-    (r"(?:%(?:3[fF]|26))", r"%3f")
-]
-
 # Default timeout for HTTP requests
 timeout = 8
 
 # Maximum number of HTTP redirections allowed by default
 max_redirects = 13
-
-# Domain names that points to a local address
-local_domains = [
-    "localhost",
-    "localhost.localdomain",
-    "ip6-localhost",
-    "ip6-loopback"
-]
 
 # List of allowed schemes
 allowed_schemes = ["http", "https"]

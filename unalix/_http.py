@@ -1,9 +1,8 @@
-from http.client import HTTPResponse, HTTPConnection, HTTPSConnection
+from http.client import HTTPConnection, HTTPSConnection
 import os
 from ._exceptions import InvalidScheme, InvalidContentEncoding
 import ssl
-from typing import Union
-from urllib.parse import urlparse, urlunparse, ParseResult
+from urllib.parse import urlparse, urlunparse
 import zlib
 
 from ._config import (
@@ -15,10 +14,10 @@ from ._config import (
     ssl_verify_flags,
     timeout
 )
-from ._types import Connection
+from ._utils import requote_uri
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_decoders.py#L36
-def decode_from_deflate(content: bytes) -> bytes:
+def decode_from_deflate(content):
     """This function is used to decode deflate responses."""
     try:
         return zlib.decompressobj.decompress(content)
@@ -26,13 +25,13 @@ def decode_from_deflate(content: bytes) -> bytes:
         return zlib.decompressobj(-zlib.MAX_WBITS).decompress(content)
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_decoders.py#L65
-def decode_from_gzip(content: bytes) -> bytes:
+def decode_from_gzip(content):
     """This function is used to decode gzip responses."""
     return zlib.decompressobj(zlib.MAX_WBITS|16).decompress(content)
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L98
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L151
-def create_ssl_context() -> ssl.SSLContext:
+def create_ssl_context():
     """This function creates the default SSL context for HTTPS connections.
 
     Usage:
@@ -67,7 +66,7 @@ def create_ssl_context() -> ssl.SSLContext:
 
     return context
 
-def create_connection(scheme: str, netloc: str) -> Connection: # type: ignore
+def create_connection(scheme, netloc):
     """This function is used to create HTTP and HTTPS connections.
     
     Parameters:
@@ -94,7 +93,7 @@ def create_connection(scheme: str, netloc: str) -> Connection: # type: ignore
 
     return connection
 
-def handle_redirects(url: ParseResult, response: HTTPResponse) -> Union[ParseResult, None]:
+def handle_redirects(url, response):
     """This function is used to handle HTTP redirects. It parses the value of the "Location" header."""
     location = response.headers.get("Location")
 
@@ -102,23 +101,21 @@ def handle_redirects(url: ParseResult, response: HTTPResponse) -> Union[ParseRes
         return None
 
     # https://stackoverflow.com/a/27357138
-    location = location.encode("latin1").decode()
+    location = requote_uri(location.encode("latin1").decode('utf-8'))
 
     if location.startswith("http://") or location.startswith("https://"):
-        return urlparse(location)
+        return location
 
-    scheme, netloc, path, params, query, fragment = url
+    scheme, netloc, path, params, query, fragment = urlparse(url)
 
     if location.startswith("/"):
-        redirect_url = urlunparse((scheme, netloc, location, "", "", ""))
-        return urlparse(redirect_url)
+        return urlunparse((scheme, netloc, location, "", "", ""))
 
     path = os.path.join(os.path.dirname(path), location)
-    redirect_url = urlunparse((scheme, netloc, path, "", "", ""))
 
-    return urlparse(redirect_url)
+    return urlunparse((scheme, netloc, path, "", "", ""))
 
-def get_encoded_content(response: HTTPResponse) -> str:
+def get_encoded_content(response):
     """This function is used to decode gzip and deflate responses. It also parses unencoded/plain text responses."""
     content_encoding = response.headers.get("Content-Encoding")
 
@@ -134,24 +131,28 @@ def get_encoded_content(response: HTTPResponse) -> str:
     else:
         raise InvalidContentEncoding(f"Expected 'identity', 'gzip' or 'deflate', but got: {content_encoding}")
 
-    return content_as_bytes.decode()
+    return content_as_bytes.decode("utf-8")
 
-def add_missing_attributes(url: ParseResult, connection: Connection) -> None:
+def add_missing_attributes(url, connection):
 
     try:
-        connection.cookies # type: ignore
+        connection.cookies
     except AttributeError:
-        connection.cookies = {} # type: ignore
+        connection.cookies = {}
 
-    def add_unredirected_header(key: str, val: str) -> None:
-        connection.headers.update({key: val}) # type: ignore
+    def add_unredirected_header(key, value) :
+        connection.headers.update(
+            {
+                key: value
+            }
+        )
 
-    connection.has_header = lambda header_name: False # type: ignore
-    connection.add_unredirected_header = add_unredirected_header # type: ignore
-    connection.get_full_url = lambda: urlunparse(url) # type: ignore
+    connection.has_header = lambda header_name: False
+    connection.add_unredirected_header = add_unredirected_header
+    connection.get_full_url = lambda: url
 
-    connection.unverifiable = True # type: ignore
-    connection.headers = {} # type: ignore
-    connection.origin_req_host = url.netloc # type: ignore
+    connection.unverifiable = True
+    connection.headers = {}
+    connection.origin_req_host = urlparse(url).netloc
 
 context = create_ssl_context()

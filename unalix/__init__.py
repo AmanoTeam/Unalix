@@ -1,1 +1,1 @@
-from ._utils import clear_url, unshort_url
+from ._core import clear_url, unshort_url
