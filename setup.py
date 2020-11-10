@@ -1,9 +1,10 @@
-import os
 import json
+import os
+
 from setuptools import setup
 
 with open("README.md", mode="r", encoding="utf-8") as file_object:
-    long_description = file_object.read()
+    content = file_object.read()
 
 package_data = {
     "unalix": [
@@ -61,13 +62,13 @@ setup(
     author_email="snwmds@amanoteam.com",
     description="A simple module that removes tracking fields from URLs and unshort shortened URLs.",
     license="LGPL-3.0",
-    long_description=long_description,
+    long_description=content,
     long_description_content_type="text/markdown",
     url="https://github.com/AmanoTeam/Unalix",
     packages=["unalix"],
     include_package_data=True,
     package_data=package_data,
-    entry_points={"console_scripts": ["clear_url = unalix._command_line:main"]},
+    entry_points={"console_scripts": ["unalix = unalix._command_line:main"]},
     classifiers=classifiers,
     python_requires=">=3.6",
 )

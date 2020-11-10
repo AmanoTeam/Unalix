@@ -43,7 +43,7 @@ https://deezer.com/track/891177062
 https://bitly.com/pages/pricing
 ```
 
-_**Note**: Unalix also has a command line tool called `clear_url`._
+_**Note**: Unalix also has a command line tool called `unalix`._
 
 #### Contributing
 

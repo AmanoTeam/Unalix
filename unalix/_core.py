@@ -16,7 +16,14 @@ from ._config import (
 )
 from ._exceptions import ConnectionError, InvalidURL, InvalidScheme, TooManyRedirects
 from ._http import add_missing_attributes, create_connection, handle_redirects, get_encoded_content
-from ._utils import is_private, prepend_scheme_if_needed, urldefragauth, strip_parameters, remove_invalid_parameters, requote_uri
+from ._utils import (
+    is_private,
+    prepend_scheme_if_needed,
+    remove_invalid_parameters,
+    requote_uri,
+    strip_parameters,
+    urldefragauth
+)
 
 def parse_url(url):
     """Parse and format the given URL.
@@ -134,7 +141,7 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
             at some redirect loop due to missing cookies.
 
         **kwargs (`bool`, *optional*):
-            Optional arguments that `clear_url` takes.
+            Optional arguments that `parse_rules` takes.
 
     Raises:
         ConnectionError: In case some error occurred during the request.
@@ -152,7 +159,7 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
       >>> unshort_url("https://bitly.is/Pricing-Pop-Up")
       'https://bitly.com/pages/pricing'
     """
-    url = clear_url(url, **kwargs)
+    url = parse_rules(url, **kwargs)
 
     if enable_cookies == None:
         cookies = CookieJar(policy=allow_cookies_if_needed)
@@ -184,8 +191,8 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
         try:
             connection.request("GET", path, headers=headers)
             response = connection.getresponse()
-        except Exception as e:
-            raise ConnectionError(str(e), url)
+        except Exception as exception:
+            raise ConnectionError(str(exception), url)
 
         cookies.extract_cookies(response, connection)
 
@@ -327,9 +334,6 @@ def parse_rules(
         skip_local (`bool`, *optional*):
             Pass True to skip URLs on local/private hosts (e.g 127.0.0.1, 0.0.0.0, localhost).
 
-        remove_invalid (`bool`, *optional*):
-            Pass True to remove invalid parameters from the given URL.
-
     Notes:
         Note that most of the regex patterns contained in the
         "urlPattern", "redirections" and "exceptions" keys expects
@@ -380,7 +384,7 @@ def parse_rules(
                 if not allow_referral:
                     for referral in referrals:
                         query = referral.sub(r"\g<1>", query)
-    
+
             if path:
                 if not ignore_raw:
                     for raw in raws:
