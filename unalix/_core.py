@@ -159,7 +159,7 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
       >>> unshort_url("https://bitly.is/Pricing-Pop-Up")
       'https://bitly.com/pages/pricing'
     """
-    url = parse_rules(url, **kwargs)
+    url = parse_rules(parse_url(url), **kwargs)
 
     if enable_cookies == None:
         cookies = CookieJar(policy=allow_cookies_if_needed)
