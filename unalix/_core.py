@@ -70,6 +70,7 @@ def parse_url(url):
         scheme, netloc, path, params, query, fragment
     ))
 
+
 def extract_url(url, response):
     """This function is used to extract redirect links from HTML pages."""
     content_type = response.headers.get("Content-Type")
@@ -97,6 +98,7 @@ def extract_url(url, response):
 
     return None
 
+
 def clear_url(url, **kwargs):
     """Remove tracking fields from the given URL.
 
@@ -118,6 +120,7 @@ def clear_url(url, **kwargs):
       'https://deezer.com/track/891177062'
     """
     return parse_rules(parse_url(url), **kwargs)
+
 
 def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
     """Try to unshort the given URL (follow http redirects).
@@ -216,6 +219,7 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
 
     return url
 
+
 def compile_rules(files):
 
     compiled_data_as_tuple = []
@@ -267,6 +271,7 @@ def compile_rules(files):
 
     return compiled_data_as_tuple
 
+
 def compile_redirects(files):
 
     compiled_data_as_tuple = []
@@ -292,6 +297,7 @@ def compile_redirects(files):
             ]
 
     return compiled_data_as_tuple
+
 
 def parse_rules(
     url,
@@ -395,6 +401,7 @@ def parse_rules(
             ))
 
     return remove_invalid_parameters(url)
+
 
 patterns = compile_rules(paths_data)
 redirects = compile_redirects(paths_redirects)

@@ -24,6 +24,7 @@ def unquote_unreserved(uri):
             parts[i] = "%" + parts[i]
     return "".join(parts)
 
+
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L594
 def requote_uri(uri):
     """Re-quote the given URI.
@@ -44,6 +45,7 @@ def requote_uri(uri):
         # properly quoted so they do not cause issues elsewhere.
         return quote(uri, safe=safe_without_percent)
 
+
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L894
 def prepend_scheme_if_needed(url, new_scheme):
     """Given a URL that may or may not have a scheme, prepend the given scheme.
@@ -61,6 +63,7 @@ def prepend_scheme_if_needed(url, new_scheme):
         scheme, netloc, path, params, query, fragment
     ))
 
+
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L953
 def urldefragauth(url):
     """Given a url remove the fragment and the authentication part."""
@@ -73,6 +76,7 @@ def urldefragauth(url):
     netloc = netloc.rsplit("@", 1)[-1]
 
     return urlunparse((scheme, netloc, path, params, query, ''))
+
 
 def is_private(netloc):
     """This function checks if the URL's netloc belongs to a local/private network.
@@ -97,6 +101,7 @@ def is_private(netloc):
     else:
         return address.is_private
 
+
 def strip_parameters(value):
     """This function is used strip parameters from header values.
 
@@ -106,6 +111,7 @@ def strip_parameters(value):
       'text/html'
     """
     return value.rsplit(";", 1)[0].rstrip(" ")
+
 
 def remove_invalid_parameters(url):
     """This function is used to remove invalid parameters from URLs.
@@ -145,3 +151,4 @@ def remove_invalid_parameters(url):
     return urlunparse((
         scheme, netloc, path, params, "&".join(new_query_list), fragment
     ))
+

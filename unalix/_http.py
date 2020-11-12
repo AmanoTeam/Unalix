@@ -24,10 +24,12 @@ def decode_from_deflate(content):
     except zlib.error:
         return zlib.decompressobj(-zlib.MAX_WBITS).decompress(content)
 
+
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_decoders.py#L65
 def decode_from_gzip(content):
     """This function is used to decode gzip responses."""
     return zlib.decompressobj(zlib.MAX_WBITS|16).decompress(content)
+
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L98
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L151
@@ -66,6 +68,7 @@ def create_ssl_context():
 
     return context
 
+
 def create_connection(scheme, netloc):
     """This function is used to create HTTP and HTTPS connections.
 
@@ -93,6 +96,7 @@ def create_connection(scheme, netloc):
 
     return connection
 
+
 def handle_redirects(url, response):
     """This function is used to handle HTTP redirects. It parses the value of the "Location" header."""
     location = response.headers.get("Location")
@@ -115,6 +119,7 @@ def handle_redirects(url, response):
 
     return urlunparse((scheme, netloc, path, "", "", ""))
 
+
 def get_encoded_content(response):
     """This function is used to decode gzip and deflate responses. It also parses unencoded/plain text responses."""
     content_encoding = response.headers.get("Content-Encoding")
@@ -132,6 +137,7 @@ def get_encoded_content(response):
         raise InvalidContentEncoding(f"Expected 'identity', 'gzip' or 'deflate', but got: {content_encoding}")
 
     return content_as_bytes.decode("utf-8")
+
 
 def add_missing_attributes(url, connection):
 
@@ -154,5 +160,6 @@ def add_missing_attributes(url, connection):
     connection.unverifiable = True
     connection.headers = {}
     connection.origin_req_host = urlparse(url).netloc
+
 
 context = create_ssl_context()
