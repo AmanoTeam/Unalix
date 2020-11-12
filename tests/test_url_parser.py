@@ -16,5 +16,3 @@ def test_parse_url():
 
     if parse_url(unmodified_url) != "http://xn--i-7iq.ws/":
         raise AssertionError
-
-

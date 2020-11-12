@@ -55,4 +55,3 @@ def test_clear_url():
 
     if clear_url(unmodified_url) != "http://example.com/?p4=v":
         raise AssertionError
-
