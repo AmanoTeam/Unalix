@@ -127,7 +127,7 @@ def clear_url(url, **kwargs):
     return parse_rules(parse_url(url), **kwargs)
 
 
-def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
+def unshort_url(url, parse_documents=False, enable_cookies=None, **kwargs):
     """Try to unshort the given URL (follow http redirects).
 
     Parameters:
@@ -309,13 +309,13 @@ def compile_redirects(files):
 
 def parse_rules(
     url,
-    allow_referral = False,
-    ignore_rules = False,
-    ignore_exceptions = False,
-    ignore_raw = False,
-    ignore_redirections = False,
-    skip_blocked = False,
-    skip_local = False
+    allow_referral=False,
+    ignore_rules=False,
+    ignore_exceptions=False,
+    ignore_raw=False,
+    ignore_redirections=False,
+    skip_blocked=False,
+    skip_local=False
 ):
     """Parse compiled regex patterns for the given URL.
 
