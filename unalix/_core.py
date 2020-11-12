@@ -163,9 +163,9 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
 
     if enable_cookies == None:
         cookies = CookieJar(policy=allow_cookies_if_needed)
-    elif enable_cookies == True:
+    elif enable_cookies is True:
         cookies = CookieJar(policy=allow_all_cookies)
-    elif enable_cookies == False:
+    elif enable_cookies is False:
         cookies = CookieJar(policy=deny_all_cookies)
 
     total_redirects = 0
