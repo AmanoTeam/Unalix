@@ -71,19 +71,19 @@ ssl_ciphers = ":".join([
 
 # Default options for SSL contexts
 ssl_options = (
-    ssl.OP_ALL \
-    | ssl.OP_NO_TLSv1_1 \
-    | ssl.OP_NO_COMPRESSION \
-    | ssl.OP_SINGLE_DH_USE \
+    ssl.OP_ALL
+    | ssl.OP_NO_TLSv1_1
+    | ssl.OP_NO_COMPRESSION
+    | ssl.OP_SINGLE_DH_USE
     | ssl.OP_SINGLE_ECDH_USE
 )
 
 # These options are deprecated since Python 3.7
 if python_version <= 3.6:
     ssl_options |= (
-        ssl.OP_NO_SSLv2 \
-        | ssl.OP_NO_SSLv3 \
-        | ssl.OP_NO_TLSv1 \
+        ssl.OP_NO_SSLv2
+        | ssl.OP_NO_SSLv3
+        | ssl.OP_NO_TLSv1
         | ssl.OP_NO_TICKET
     )
 
@@ -93,8 +93,8 @@ if python_version >= 3.7:
 
 # Default verify flags for SSL contexts
 ssl_verify_flags = (
-    ssl.VERIFY_X509_STRICT \
-    | ssl.VERIFY_X509_TRUSTED_FIRST \
+    ssl.VERIFY_X509_STRICT
+    | ssl.VERIFY_X509_TRUSTED_FIRST
     | ssl.VERIFY_DEFAULT
 )
 
