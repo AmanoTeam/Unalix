@@ -286,7 +286,7 @@ def compile_redirects(files):
 
             for raw_pattern in rule["redirects"]:
                 redirects_list += [
-                    re.compile(f".*{raw_pattern}.*", flags=re.MULTILINE|re.DOTALL)
+                    re.compile(f".*{raw_pattern}.*", flags=re.MULTILINE | re.DOTALL)
                 ]
 
             compiled_data_as_tuple += [

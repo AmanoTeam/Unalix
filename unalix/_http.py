@@ -28,7 +28,7 @@ def decode_from_deflate(content):
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_decoders.py#L65
 def decode_from_gzip(content):
     """This function is used to decode gzip responses."""
-    return zlib.decompressobj(zlib.MAX_WBITS|16).decompress(content)
+    return zlib.decompressobj(zlib.MAX_WBITS | 16).decompress(content)
 
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_config.py#L98
