@@ -146,7 +146,7 @@ def add_missing_attributes(url, connection):
     except AttributeError:
         connection.cookies = {}
 
-    def add_unredirected_header(key, value) :
+    def add_unredirected_header(key, value):
         connection.headers.update(
             {
                 key: value
