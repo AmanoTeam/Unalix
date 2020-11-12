@@ -41,10 +41,14 @@ def main():
 
     if not unshort:
         for url in input_urls:
-            ouput_urls += [clear_url(url, **kwargs)]
+            ouput_urls += [
+				clear_url(url, **kwargs)
+			]
     else:
         for url in input_urls:
-            ouput_urls += [unshort_url(url, parse_documents=parse_documents, enable_cookies=enable_cookies, **kwargs)]
+            ouput_urls += [
+				unshort_url(url, parse_documents=parse_documents, enable_cookies=enable_cookies, **kwargs)
+			]
 
     if launch_in_browser:
         platform = getoutput("uname -o")

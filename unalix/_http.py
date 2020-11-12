@@ -98,7 +98,7 @@ def create_connection(scheme, netloc):
 
 
 def handle_redirects(url, response):
-    """This function is used to handle HTTP redirects. It parses the value of the "Location" header."""
+    """This function is used to handle HTTP redirects."""
     location = response.headers.get("Location")
 
     if location is None:
@@ -121,7 +121,7 @@ def handle_redirects(url, response):
 
 
 def get_encoded_content(response):
-    """This function is used to decode gzip and deflate responses. It also parses unencoded/plain text responses."""
+    """This function is used to decode gzip and deflate responses."""
     content_encoding = response.headers.get("Content-Encoding")
 
     if content_encoding is None:
@@ -134,7 +134,9 @@ def get_encoded_content(response):
     elif content_encoding == "deflate":
         content_as_bytes = decode_from_deflate(response.read())
     else:
-        raise InvalidContentEncoding(f"Expected 'identity', 'gzip' or 'deflate', but got: {content_encoding}")
+        raise InvalidContentEncoding(
+            f"Expected 'identity', 'gzip' or 'deflate', but got: {content_encoding}"
+        )
 
     return content_as_bytes.decode("utf-8")
 

@@ -44,7 +44,7 @@ bad_json_keys = [
 for filename in package_data["unalix"]:
     if not filename.endswith(".json"):
         continue
-    with open(f"{module_path}/unalix/{filename}", mode="r+", encoding="utf-8") as file_object:
+    with open(f"{module_path}/unalix/{filename}", mode="r+") as file_object:
         json_rules = json.loads(file_object.read())
         try:
             for bad_key in bad_json_keys:

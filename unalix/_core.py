@@ -15,7 +15,12 @@ from ._config import (
     paths_redirects
 )
 from ._exceptions import ConnectionError, InvalidURL, InvalidScheme, TooManyRedirects
-from ._http import add_missing_attributes, create_connection, handle_redirects, get_encoded_content
+from ._http import (
+    add_missing_attributes,
+    create_connection,
+    handle_redirects,
+    get_encoded_content
+)
 from ._utils import (
     is_private,
     prepend_scheme_if_needed,
@@ -130,18 +135,19 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
             Shortened URL.
 
         parse_documents (`bool`, *optional*):
-            If True, Unalix will also try to obtain the unshortened URL from the response's body.
+            If True, Unalix will also try to obtain the unshortened URL from the
+            response's body.
 
         enable_cookies (`bool`, *optional*):
             True: Unalix will handle cookies for all requests.
             False: Unalix will not handle cookies.
             None (default): Unalix will handle cookies only if needed.
 
-            In most cases, cookies returned in HTTP responses are useless. They do not need to be stored
-            or sent back to the server. However, there are some cases where they are still required.
+            In most cases, cookies returned in HTTP responses are useless.
+            They do not need to be stored or sent back to the server.
 
-            Keeping this as "None" should be enough for you. Only set this parameter to True if you get stuck
-            at some redirect loop due to missing cookies.
+            Keeping this as "None" should be enough for you. Only set this parameter
+            to True if you get stuck at some redirect loop due to missing cookies.
 
         **kwargs (`bool`, *optional*):
             Optional arguments that `parse_rules` takes.
@@ -155,7 +161,7 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
 
         InvalidScheme: In case the provided *url* has a invalid or unknown scheme.
 
-        InvalidContentEncoding: In case the HTTP response has a invalid "Content-Enconding" header.
+        InvalidContentEncoding: In case the "Content-Enconding" header has a invalid value.
 
     Usage:
       >>> from unalix import unshort_url
@@ -176,7 +182,9 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
     while True:
 
         if total_redirects > max_redirects:
-            raise TooManyRedirects("The request exceeded maximum allowed redirects", url)
+            raise TooManyRedirects(
+                "The request exceeded maximum allowed redirects", url
+            )
 
         scheme, netloc, path, params, query, fragment = urlparse(url)
         connection = create_connection(scheme, netloc)
@@ -338,7 +346,7 @@ def parse_rules(
             Pass True to skip/ignore regex rules for blocked domains.
 
         skip_local (`bool`, *optional*):
-            Pass True to skip URLs on local/private hosts (e.g 127.0.0.1, 0.0.0.0, localhost).
+            Pass True to skip URLs on local/private hosts (e.g. 127.0.0.1, 0.0.0.0).
 
     Notes:
         Note that most of the regex patterns contained in the
@@ -353,7 +361,8 @@ def parse_rules(
     kwargs = locals()
     del kwargs["url"]
 
-    for (pattern, complete, rules, referrals, exceptions, raws, redirections) in patterns:
+    for ( pattern, complete, rules, referrals, \
+            exceptions, raws, redirections ) in patterns:
 
         scheme, netloc, path, params, query, fragment = urlparse(url)
 

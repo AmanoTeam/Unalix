@@ -44,9 +44,9 @@ def test_clear_url():
     if clear_url(unmodified_url, ignore_exceptions=True) != "https://myaccount.google.com/":
         raise AssertionError
 
-    unmodified_url = "http://clickserve.dartsearch.net/link/click?ds_dest_url=https://www.target.com/s/minecraft"
+    unmodified_url = "http://clickserve.dartsearch.net/link/click?ds_dest_url=http://g.co/"
 
-    if clear_url(unmodified_url) != "https://www.target.com/s/minecraft":
+    if clear_url(unmodified_url) != "http://g.co/":
         raise AssertionError
     if clear_url(unmodified_url, skip_blocked=True) != unmodified_url:
         raise AssertionError
