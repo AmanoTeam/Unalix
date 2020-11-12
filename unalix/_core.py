@@ -60,7 +60,7 @@ def parse_url(url):
     scheme, netloc, path, params, query, fragment = urlparse(url)
     
     # We don't want to process URLs with protocols other than those
-    if not scheme in allowed_schemes:
+    if scheme not in allowed_schemes:
         raise InvalidScheme(f"Expecting 'http' or 'https', but got: {scheme}")
 
     # Encode domain name according to IDNA.
@@ -79,7 +79,7 @@ def extract_url(url, response):
 
     mime = strip_parameters(content_type)
 
-    if not mime in allowed_mimes:
+    if mime not in allowed_mimes:
         return None
 
     body = get_encoded_content(response)
