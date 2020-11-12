@@ -68,7 +68,7 @@ def create_ssl_context():
 
 def create_connection(scheme, netloc):
     """This function is used to create HTTP and HTTPS connections.
-    
+
     Parameters:
         scheme (`str`):
             Scheme (must be 'http' or 'https').

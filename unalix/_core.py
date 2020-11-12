@@ -58,7 +58,7 @@ def parse_url(url):
     url = urldefragauth(url)
 
     scheme, netloc, path, params, query, fragment = urlparse(url)
-    
+
     # We don't want to process URLs with protocols other than those
     if scheme not in allowed_schemes:
         raise InvalidScheme(f"Expecting 'http' or 'https', but got: {scheme}")
