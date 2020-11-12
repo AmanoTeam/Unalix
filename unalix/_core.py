@@ -161,7 +161,7 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
     """
     url = parse_rules(parse_url(url), **kwargs)
 
-    if enable_cookies == None:
+    if enable_cookies is None:
         cookies = CookieJar(policy=allow_cookies_if_needed)
     elif enable_cookies is True:
         cookies = CookieJar(policy=allow_all_cookies)
