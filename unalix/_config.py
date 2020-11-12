@@ -12,7 +12,7 @@ data = os.path.join(os.path.dirname(__file__), "package_data")
 
 # JSON files containing regex patterns for tracking fields removal (full paths)
 paths_data = [
-    f"{data}/data.min.json", 
+    f"{data}/data.min.json",
     f"{data}/unalix-data.min.json"
 ]
 

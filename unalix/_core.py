@@ -181,7 +181,7 @@ def unshort_url(url, parse_documents = False, enable_cookies = None, **kwargs):
         scheme, netloc, path, params, query, fragment = urlparse(url)
         connection = create_connection(scheme, netloc)
 
-        add_missing_attributes(url, connection) 
+        add_missing_attributes(url, connection)
 
         if query:
             path = f"{path}?{query}"
