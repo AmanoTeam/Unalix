@@ -43,8 +43,6 @@ https://deezer.com/track/891177062
 https://bitly.com/pages/pricing
 ```
 
-_**Note**: Unalix also has a command line tool called `unalix`._
-
 #### Contributing
 
 If you have discovered a bug in this library and know how to fix it, fork this repository and open a Pull Request.
