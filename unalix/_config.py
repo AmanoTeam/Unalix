@@ -107,10 +107,7 @@ cafile = f"{data}/ca-bundle.crt"
 # CA certs path for server certificate validation
 capath = os.path.dirname(cafile)
 
-# Load "arguments.json" and "cookies_required.json" as dicts
-with open(f"{data}/arguments.json", mode="r", encoding="utf-8") as arguments:
-    arguments = json.loads(arguments.read())
-
+# Load "cookies_required.json" as dict
 with open(f"{data}/cookies_required.json", mode="r") as cookies_required:
     content = cookies_required.read()
     allowed_cookies = json.loads(content)
@@ -128,6 +125,3 @@ allow_cookies_if_needed = DefaultCookiePolicy()
 allow_cookies_if_needed.set_ok = lambda cookie, request: (
     cookie.domain in allowed_cookies
 )
-
-# Description for command-line script
-description = "Remove tracking fields from the given URL and/or unshort it (follow http redirects)."
