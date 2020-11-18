@@ -1,11 +1,11 @@
 from http.cookiejar import DefaultCookiePolicy
 import json
 import os
-import platform
 import ssl
 
-major, minor, micro = platform.python_version_tuple()
-python_version = float(f"{major}.{minor}")
+from ._utils import get_python_version
+
+python_version = get_python_version()
 
 # Path to directory containing the package data (JSON files)
 data = os.path.join(os.path.dirname(__file__), "package_data")
@@ -29,7 +29,10 @@ timeout = 8
 max_redirects = 13
 
 # List of allowed schemes
-allowed_schemes = ["http", "https"]
+allowed_schemes = [
+    "http",
+    "https"
+]
 
 # List of allowed mime types
 allowed_mimes = [
@@ -123,7 +126,7 @@ deny_all_cookies.set_ok = lambda cookie, request: False
 # Default policy for cookies: allow if needed
 allow_cookies_if_needed = DefaultCookiePolicy()
 allow_cookies_if_needed.set_ok = lambda cookie, request: (
-	cookie.domain in allowed_cookies
+    cookie.domain in allowed_cookies
 )
 
 # Description for command-line script

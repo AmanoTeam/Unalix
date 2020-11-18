@@ -1,4 +1,5 @@
 import ipaddress
+import platform
 from urllib.parse import quote, urlparse, urlunparse
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L566
@@ -151,4 +152,17 @@ def remove_invalid_parameters(url):
     return urlunparse((
         scheme, netloc, path, params, "&".join(new_query_list), fragment
     ))
+
+
+def get_python_version():
+    """Get major and minor Python version.
+
+    Usage:
+      >>> from unalix._utils import get_python_version
+      >>> get_python_version()
+      3.9
+    """
+    major, minor, micro = platform.python_version_tuple()
+
+    return float(f"{major}.{minor}")
 

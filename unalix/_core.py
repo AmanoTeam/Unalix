@@ -174,7 +174,7 @@ def unshort_url(url, parse_documents=False, enable_cookies=None, **kwargs):
         cookies = CookieJar(policy=allow_cookies_if_needed)
     elif enable_cookies is True:
         cookies = CookieJar(policy=allow_all_cookies)
-    elif enable_cookies is False:
+    else:
         cookies = CookieJar(policy=deny_all_cookies)
 
     total_redirects = 0
@@ -233,8 +233,8 @@ def compile_rules(files):
     compiled_data_as_tuple = []
 
     for filename in files:
-        with open(filename, mode="r", encoding="utf-8") as file_object:
-            content = file_object.read()
+        with open(filename, mode="r", encoding="utf-8") as file:
+            content = file.read()
             dict_rules = json.loads(content)
 
         for provider in dict_rules["providers"].keys():
@@ -285,8 +285,8 @@ def compile_redirects(files):
     compiled_data_as_tuple = []
 
     for filename in files:
-        with open(filename, mode="r", encoding="utf-8") as file_object:
-            content = file_object.read()
+        with open(filename, mode="r", encoding="utf-8") as file:
+            content = file.read()
             dict_rules = json.loads(content)
 
         for rule in dict_rules:
@@ -364,7 +364,9 @@ def parse_rules(
     for ( pattern, complete, rules, referrals, \
             exceptions, raws, redirections ) in patterns:
 
-        scheme, netloc, path, params, query, fragment = urlparse(url)
+        scheme, netloc, path, params, query, fragment = urlparse(
+            prepend_scheme_if_needed(url, "http")
+        )
 
         if skip_local and is_private(netloc):
             return url
