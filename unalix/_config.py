@@ -82,7 +82,7 @@ ssl_options = (
 )
 
 # These options are deprecated since Python 3.7
-if python_version <= 3.6:
+if python_version == 3.6:
     ssl_options |= (
         ssl.OP_NO_SSLv2
         | ssl.OP_NO_SSLv3

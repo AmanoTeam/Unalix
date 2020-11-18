@@ -15,7 +15,8 @@ print(f"Fetching data from {rules_url}...")
 connection.request("GET", path, headers=default_headers)
 response = connection.getresponse()
 
-rules = json.loads(get_encoded_content(response))
+content = get_encoded_content(response))
+rules = json.loads(content)
 
-with open(rules_path, mode="w+", encoding="utf-8") as file_object:
-    file_object.write(json.dumps(rules, indent=4))
+with open(rules_path, mode="w", encoding="utf-8") as file:
+    file.write(json.dumps(rules, indent=4))
