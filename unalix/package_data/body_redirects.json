@@ -7,5 +7,12 @@
             "sonload\\=\"window\\.location\\s\\=\\s'(https?://.+)'\">",
             "redirecturl\\s\\=\\s'(https?:\\/\\/.+)'"
         ]
+    },
+    {
+    	"name": "Banggood",
+    	"pattern": "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?banggood\\.app\\.link",
+    	"redirects": [
+    		"window\\.top\\.location\\s=\\svalidate\\(\"(https?:\\/\\/.+)\"\\);"
+    	]
     }
 ]
