@@ -138,7 +138,7 @@ def get_encoded_content(response):
             f"Expected 'identity', 'gzip' or 'deflate', but got: {content_encoding}"
         )
 
-    return content_as_bytes.decode("utf-8")
+    return content_as_bytes.decode(errors="ignore")
 
 
 def add_missing_attributes(url, connection):
