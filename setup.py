@@ -51,7 +51,7 @@ for filename in package_data["unalix"]:
         except (KeyError, TypeError):
             pass
         file.seek(0)
-        ffile.write(json.dumps(json_rules))
+        file.write(json.dumps(json_rules))
         file.truncate()
 
 setup(
