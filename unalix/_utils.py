@@ -80,7 +80,7 @@ def urldefragauth(url):
 
 
 def is_private(netloc):
-    """This function checks if the URL's netloc belongs to a local/private network.
+    """This function checks if the netloc belongs to a local/private network.
 
     Usage:
       >>> from unalix._utils import is_private
@@ -104,7 +104,7 @@ def is_private(netloc):
 
 
 def strip_parameters(value):
-    """This function is used strip parameters from header values.
+    """This function is used to strip parameters from header values.
 
     Usage:
       >>> from unalix._utils import strip_parameters
@@ -163,6 +163,5 @@ def get_python_version():
       3.9
     """
     major, minor, micro = platform.python_version_tuple()
-
     return float(f"{major}.{minor}")
 
