@@ -1,3 +1,4 @@
+import html
 from http.cookiejar import CookieJar
 import json
 import re
@@ -99,9 +100,13 @@ def extract_url(url, response):
                 except AttributeError:
                     continue
                 else:
-                    return extracted_url
+                    return parse_extracted_url(extracted_url)
 
     return None
+
+
+def parse_extracted_url(url):
+	return parse_url(requote_uri(html.unescape(url)))
 
 
 def clear_url(url, **kwargs):
