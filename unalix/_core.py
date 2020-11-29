@@ -1,5 +1,4 @@
 import html
-from http.cookiejar import CookieJar
 import json
 import re
 from urllib.parse import unquote, urlparse, urlunparse
@@ -19,6 +18,7 @@ from ._exceptions import ConnectError, InvalidURL, InvalidScheme, TooManyRedirec
 from ._http import (
     add_missing_attributes,
     create_connection,
+    create_cookie_jar,
     handle_redirects,
     get_encoded_content
 )
@@ -132,7 +132,7 @@ def clear_url(url, **kwargs):
     return parse_rules(parse_url(url), **kwargs)
 
 
-def unshort_url(url, parse_documents=False, enable_cookies=None, **kwargs):
+def unshort_url(url, parse_documents=False, cookie_policy="allow_if_needed", **kwargs):
     """Try to unshort the given URL (follow http redirects).
 
     Parameters:
@@ -143,10 +143,10 @@ def unshort_url(url, parse_documents=False, enable_cookies=None, **kwargs):
             If True, Unalix will also try to obtain the unshortened URL from the
             response's body.
 
-        enable_cookies (`bool`, *optional*):
-            True: Unalix will handle cookies for all requests.
-            False: Unalix will not handle cookies.
-            None (default): Unalix will handle cookies only if needed.
+        cookie_policy (`str`, *optional*):
+            "allow_all": Unalix will handle cookies for all requests.
+            "allow_if_needed" (default): Unalix will handle cookies only if needed.
+            "reject_all": Unalix will not handle cookies.
 
             In most cases, cookies returned in HTTP responses are useless.
             They do not need to be stored or sent back to the server.
@@ -175,12 +175,7 @@ def unshort_url(url, parse_documents=False, enable_cookies=None, **kwargs):
     """
     url = parse_rules(parse_url(url), **kwargs)
 
-    if enable_cookies is None:
-        cookies = CookieJar(policy=allow_cookies_if_needed)
-    elif enable_cookies is True:
-        cookies = CookieJar(policy=allow_all_cookies)
-    else:
-        cookies = CookieJar(policy=deny_all_cookies)
+    cookies = create_cookie_jar(policy_type=cookie_policy)
 
     total_redirects = 0
 

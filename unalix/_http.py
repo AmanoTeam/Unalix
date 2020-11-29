@@ -1,4 +1,5 @@
 from http.client import HTTPConnection, HTTPSConnection
+from http.cookiejar import CookieJar, DefaultCookiePolicy
 import os
 from ._exceptions import InvalidScheme, InvalidContentEncoding
 import ssl
@@ -6,6 +7,7 @@ from urllib.parse import urlparse, urlunparse
 import zlib
 
 from ._config import (
+    allowed_cookies,
     cafile,
     capath,
     python_version,
@@ -162,6 +164,24 @@ def add_missing_attributes(url, connection):
     connection.unverifiable = True
     connection.headers = {}
     connection.origin_req_host = urlparse(url).netloc
+
+
+def create_cookie_jar(policy_type=None):
+
+    cookie, policy = CookieJar(), DefaultCookiePolicy()
+
+    if policy_type == "reject_all":
+        policy.set_ok = lambda cookie, request: False
+    elif policy_type == "allow_all":
+        policy.set_ok = lambda cookie, request: True
+    elif policy_type == "allow_if_needed":
+        policy.set_ok = lambda cookie, request: (
+            cookie.domain in allowed_cookies
+        )
+
+    cookie.set_policy(policy)
+
+    return cookie
 
 
 context = create_ssl_context()

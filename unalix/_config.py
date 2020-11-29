@@ -1,4 +1,3 @@
-from http.cookiejar import DefaultCookiePolicy
 import json
 import os
 import ssl
@@ -110,20 +109,6 @@ cafile = f"{data}/ca-bundle.crt"
 capath = os.path.dirname(cafile)
 
 # Load "cookies_required.json" as dict
-with open(f"{data}/cookies_required.json", mode="r") as cookies_required:
-    content = cookies_required.read()
+with open(f"{data}/cookies_required.json", mode="r") as file:
+    content = file.read()
     allowed_cookies = json.loads(content)
-
-# Default policy for cookies: allow all
-allow_all_cookies = DefaultCookiePolicy()
-allow_all_cookies.set_ok = lambda cookie, request: True
-
-# Default policy for cookies: deny all
-deny_all_cookies = DefaultCookiePolicy()
-deny_all_cookies.set_ok = lambda cookie, request: False
-
-# Default policy for cookies: allow if needed
-allow_cookies_if_needed = DefaultCookiePolicy()
-allow_cookies_if_needed.set_ok = lambda cookie, request: (
-    cookie.domain in allowed_cookies
-)
