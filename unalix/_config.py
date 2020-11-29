@@ -36,10 +36,12 @@ allowed_schemes = [
 
 # List of allowed mime types
 allowed_mimes = [
+    "application/ecmascript",
     "application/mathml-content+xml",
     "application/mathml-presentation+xml",
     "application/vnd.dtg.local.html",
     "application/vnd.pwg-xhtml-print+xml",
+    "application/x-ecmascript",
     "application/xhtml+xml",
     "text/html",
     "text/javascript"
