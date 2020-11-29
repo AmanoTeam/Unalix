@@ -1,21 +1,17 @@
 from http.client import HTTPConnection, HTTPSConnection
 from http.cookiejar import CookieJar, DefaultCookiePolicy
 import os
-from ._exceptions import InvalidScheme, InvalidContentEncoding
 import ssl
 from urllib.parse import urlparse, urlunparse
 import zlib
 
 from ._config import (
     allowed_cookies,
-    cafile,
-    capath,
+    data,
     python_version,
-    ssl_ciphers,
-    ssl_options,
-    ssl_verify_flags,
     timeout
 )
+from ._exceptions import InvalidScheme, InvalidContentEncoding
 from ._utils import requote_uri
 
 # https://github.com/encode/httpx/blob/0.16.1/httpx/_decoders.py#L36
@@ -44,29 +40,85 @@ def create_ssl_context():
       <ssl.SSLContext object at 0xad6a9070>
     """
     context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-    context.options = ssl_options
-    context.verify_flags = ssl_verify_flags
+
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.check_hostname = True
+
+    # Ciphers list for HTTPS connections
+    ssl_ciphers = ":".join([
+        "ECDHE+AESGCM",
+        "ECDHE+CHACHA20",
+        "DHE+AESGCM",
+        "DHE+CHACHA20",
+        "ECDH+AESGCM",
+        "DH+AESGCM",
+        "ECDH+AES",
+        "DH+AES",
+        "RSA+AESGCM",
+        "RSA+AES",
+        "!aNULL",
+        "!eNULL",
+        "!MD5",
+        "!DSS"
+    ])
+
     context.set_ciphers(ssl_ciphers)
+
+    # Default options for SSL contexts
+    ssl_options = (
+        ssl.OP_ALL
+        | ssl.OP_NO_COMPRESSION
+        | ssl.OP_SINGLE_DH_USE
+        | ssl.OP_SINGLE_ECDH_USE
+    )
+    
+    # These options are deprecated since Python 3.7
+    if python_version == 3.6:
+        ssl_options |= (
+            ssl.OP_NO_SSLv2
+            | ssl.OP_NO_SSLv3
+            | ssl.OP_NO_TLSv1
+            | ssl.OP_NO_TLSv1_1
+            | ssl.OP_NO_TICKET
+        )
+
+    context.options = ssl_options
+
+    # Default verify flags for SSL contexts
+    ssl_verify_flags = (
+        ssl.VERIFY_X509_STRICT
+        | ssl.VERIFY_X509_TRUSTED_FIRST
+        | ssl.VERIFY_DEFAULT
+    )
+
+    context.verify_flags = ssl_verify_flags
+
+    # CA bundle for server certificate validation
+    cafile = f"{data}/ca-bundle.crt"
+    
+    # CA certs path for server certificate validation
+    capath = os.path.dirname(cafile)
+
+    context.load_verify_locations(cafile=cafile, capath=capath)
 
     if ssl.HAS_ALPN:
         context.set_alpn_protocols(["http/1.1"])
 
-    context.verify_mode = ssl.CERT_REQUIRED
-    context.check_hostname = True
-    context.load_verify_locations(cafile=cafile, capath=capath)
-
     if python_version >= 3.7:
+        # Only available in Python 3.7 or higher
         context.minimum_version = ssl.TLSVersion.TLSv1_2
         context.maximum_version = ssl.TLSVersion.TLSv1_3
 
-    # Signal to server support for PHA in TLS 1.3. Raises an
-    if python_version >= 3.8:
-        context.post_handshake_auth = True
-
-    # Disable using 'commonName' for SSLContext.check_hostname
-    # when the 'subjectAltName' extension isn't available.
-    if python_version >= 3.7:
+        # Disable using 'commonName' for SSLContext.check_hostname
+        # when the 'subjectAltName' extension isn't available.
         context.hostname_checks_common_name = False
+
+        # ssl.OP_NO_RENEGOTIATION is not available on Python versions bellow 3.7
+        ssl_options |= ssl.OP_NO_RENEGOTIATION
+
+    if python_version >= 3.8:
+        # Signal to server support for PHA in TLS 1.3.
+        context.post_handshake_auth = True
 
     return context
 

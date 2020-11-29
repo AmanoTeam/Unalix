@@ -1,6 +1,5 @@
 import json
 import os
-import ssl
 
 from ._utils import get_python_version
 
@@ -54,59 +53,6 @@ default_headers = {
     "Cache-Control": "no-cache, no-store",
     "User-Agent": "Unalix/0.6 (+https://github.com/AmanoTeam/Unalix)"
 }
-
-# Ciphers list for HTTPS connections
-ssl_ciphers = ":".join([
-    "ECDHE+AESGCM",
-    "ECDHE+CHACHA20",
-    "DHE+AESGCM",
-    "DHE+CHACHA20",
-    "ECDH+AESGCM",
-    "DH+AESGCM",
-    "ECDH+AES",
-    "DH+AES",
-    "RSA+AESGCM",
-    "RSA+AES",
-    "!aNULL",
-    "!eNULL",
-    "!MD5",
-    "!DSS"
-])
-
-# Default options for SSL contexts
-ssl_options = (
-    ssl.OP_ALL
-    | ssl.OP_NO_TLSv1_1
-    | ssl.OP_NO_COMPRESSION
-    | ssl.OP_SINGLE_DH_USE
-    | ssl.OP_SINGLE_ECDH_USE
-)
-
-# These options are deprecated since Python 3.7
-if python_version == 3.6:
-    ssl_options |= (
-        ssl.OP_NO_SSLv2
-        | ssl.OP_NO_SSLv3
-        | ssl.OP_NO_TLSv1
-        | ssl.OP_NO_TICKET
-    )
-
-# ssl.OP_NO_RENEGOTIATION is not available on Python versions bellow 3.7
-if python_version >= 3.7:
-    ssl_options |= ssl.OP_NO_RENEGOTIATION
-
-# Default verify flags for SSL contexts
-ssl_verify_flags = (
-    ssl.VERIFY_X509_STRICT
-    | ssl.VERIFY_X509_TRUSTED_FIRST
-    | ssl.VERIFY_DEFAULT
-)
-
-# CA bundle for server certificate validation
-cafile = f"{data}/ca-bundle.crt"
-
-# CA certs path for server certificate validation
-capath = os.path.dirname(cafile)
 
 # Load "cookies_required.json" as dict
 with open(f"{data}/cookies_required.json", mode="r") as file:

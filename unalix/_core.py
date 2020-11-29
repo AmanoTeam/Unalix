@@ -4,9 +4,6 @@ import re
 from urllib.parse import unquote, urlparse, urlunparse
 
 from ._config import (
-    allow_all_cookies,
-    deny_all_cookies,
-    allow_cookies_if_needed,
     allowed_mimes,
     allowed_schemes,
     default_headers,
