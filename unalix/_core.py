@@ -106,7 +106,7 @@ def extract_url(url, response):
 
 
 def parse_extracted_url(url):
-	return parse_url(requote_uri(html.unescape(url)))
+    return parse_url(requote_uri(html.unescape(url)))
 
 
 def clear_url(url, **kwargs):
