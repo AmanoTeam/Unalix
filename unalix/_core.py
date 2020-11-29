@@ -14,7 +14,7 @@ from ._config import (
     paths_data,
     paths_redirects
 )
-from ._exceptions import ConnectionError, InvalidURL, InvalidScheme, TooManyRedirects
+from ._exceptions import ConnectError, InvalidURL, InvalidScheme, TooManyRedirects
 from ._http import (
     add_missing_attributes,
     create_connection,
@@ -153,7 +153,7 @@ def unshort_url(url, parse_documents=False, enable_cookies=None, **kwargs):
             Optional arguments that `parse_rules` takes.
 
     Raises:
-        ConnectionError: In case some error occurred during the request.
+        ConnectError: In case some error occurred during the request.
 
         TooManyRedirects: In case the request exceeded maximum allowed redirects.
 
@@ -203,7 +203,7 @@ def unshort_url(url, parse_documents=False, enable_cookies=None, **kwargs):
             connection.request("GET", path, headers=headers)
             response = connection.getresponse()
         except Exception as exception:
-            raise ConnectionError(str(exception), url)
+            raise ConnectError(str(exception), url)
 
         cookies.extract_cookies(response, connection)
 
@@ -361,7 +361,7 @@ def parse_rules(
     kwargs = locals()
     del kwargs["url"]
 
-    for ( pattern, complete, rules, referrals, \
+    for ( pattern, complete, rules, referrals,
             exceptions, raws, redirections ) in patterns:
 
         scheme, netloc, path, params, query, fragment = urlparse(
@@ -377,7 +377,6 @@ def parse_rules(
         original_url, skip_provider = url, False
 
         if pattern.match(f"{scheme}://{netloc}"):
-
             if not ignore_exceptions:
                 for exception in exceptions:
                     if exception.match(url):

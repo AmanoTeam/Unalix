@@ -1,6 +1,6 @@
 class InvalidURL(Exception):
     """URL is improperly formed or cannot be parsed."""
-    def __init__(self, message: str, url: str) -> None:
+    def __init__(self, message, url):
         self.url = url
         super().__init__(message)
 
@@ -15,14 +15,14 @@ class InvalidContentEncoding(Exception):
 
 class TooManyRedirects(Exception):
     """The request exceeded maximum allowed redirects."""
-    def __init__(self, message: str, url: str) -> None:
+    def __init__(self, message, url):
         self.url = url
         super().__init__(message)
 
 
-class ConnectionError(Exception):
+class ConnectError(Exception):
     """An error occurred during the request."""
-    def __init__(self, message: str, url: str) -> None:
+    def __init__(self, message, url):
         self.url = url
         super().__init__(message)
 
