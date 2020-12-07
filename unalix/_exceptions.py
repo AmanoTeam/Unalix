@@ -7,10 +7,9 @@ class InvalidURL(Exception):
 
 class InvalidScheme(Exception):
     """URL has a invalid or unknown scheme."""
-
-
-class InvalidContentEncoding(Exception):
-    """The 'Content-Encoding' header has an invalid/unknown value."""
+    def __init__(self, message, url):
+        self.url = url
+        super().__init__(message)
 
 
 class TooManyRedirects(Exception):
@@ -22,7 +21,8 @@ class TooManyRedirects(Exception):
 
 class ConnectError(Exception):
     """An error occurred during the request."""
-    def __init__(self, message, url):
+    def __init__(self, message, exception, url):
+        self.exception = exception
         self.url = url
         super().__init__(message)
 

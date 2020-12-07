@@ -1,11 +1,13 @@
 import ipaddress
 import platform
+import string
 from urllib.parse import quote, urlparse, urlunparse
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L566
 # The unreserved URI characters (RFC 3986)
 UNRESERVED_SET = frozenset(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789-._~")
+    string.ascii_uppercase + string.ascii_lowercase + string.digits + "-._~"
+)
 
 # https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L570
 def unquote_unreserved(uri):
@@ -65,20 +67,6 @@ def prepend_scheme_if_needed(url, new_scheme):
     ))
 
 
-# https://github.com/psf/requests/blob/v2.24.0/requests/utils.py#L953
-def urldefragauth(url):
-    """Given a url remove the fragment and the authentication part."""
-    scheme, netloc, path, params, query, fragment = urlparse(url)
-
-    # see func:`prepend_scheme_if_needed`
-    if not netloc:
-        netloc, path = path, netloc
-
-    netloc = netloc.rsplit("@", 1)[-1]
-
-    return urlunparse((scheme, netloc, path, params, query, ''))
-
-
 def is_private(netloc):
     """This function checks if the netloc belongs to a local/private network.
 
@@ -103,17 +91,6 @@ def is_private(netloc):
         return address.is_private
 
 
-def strip_parameters(value):
-    """This function is used to strip parameters from header values.
-
-    Usage:
-      >>> from unalix._utils import strip_parameters
-      >>> strip_parameters('text/html; charset="utf-8"')
-      'text/html'
-    """
-    return value.rsplit(";", 1)[0].rstrip(" ")
-
-
 def remove_invalid_parameters(url):
     """This function is used to remove invalid parameters from URLs.
 
@@ -123,6 +100,9 @@ def remove_invalid_parameters(url):
       'http://example.com/?p4=v'
     """
     scheme, netloc, path, params, query, fragment = urlparse(url)
+
+    if not netloc:
+        query = path
 
     if not query:
         return urlunparse((

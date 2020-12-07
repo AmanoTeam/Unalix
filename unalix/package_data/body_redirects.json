@@ -1,18 +1,44 @@
 [
     {
-        "name": "Global",
-        "pattern": ".*",
+        "name": "global",
+        "patterns": [
+            ".*"
+        ],
+        "domains": [],
         "redirects": [
             "<meta\\shttp-equiv\\=\"refresh\"\\scontent\\=\"[0-9]+;\\s?url\\=(https?:\\/\\/.+)\">",
-            "sonload\\=\"window\\.location\\s\\=\\s'(https?://.+)'\">",
+            "sonload\\=\"window\\.location\\s\\=\\s'(https?://.+)'\">"
+        ]
+    },
+    {
+        "name": "banggood",
+        "patterns": [],
+        "domains": [
+            "banggood.app.link"
+        ],
+        "redirects": [
+            "window\\.top\\.location\\s=\\svalidate\\(\"(https?:\\/\\/.+)\"\\);"
+        ]
+    },
+    {
+        "name": "aws",
+        "patterns": [],
+        "domains": [
+            "email.awscloud.com"
+        ],
+        "redirects": [
             "redirecturl\\s\\=\\s'(https?:\\/\\/.+)'"
         ]
     },
     {
-    	"name": "Banggood",
-    	"pattern": "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?banggood\\.app\\.link",
-    	"redirects": [
-    		"window\\.top\\.location\\s=\\svalidate\\(\"(https?:\\/\\/.+)\"\\);"
-    	]
+        "name": "digitalocean",
+        "patterns": [],
+        "domains": [
+            "pages.news.digitalocean.com",
+            "mkto-ab430114.com"
+        ],
+        "redirects": [
+            "redirecturl\\s\\=\\s'(https?:\\/\\/.+)'"
+        ]
     }
 ]

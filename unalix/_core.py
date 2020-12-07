@@ -1,31 +1,27 @@
 import html
 import json
+import os
+import random
 import re
-from urllib.parse import unquote, urlparse, urlunparse
+from urllib.parse import quote, unquote, urlparse, urlunparse
 
 from ._config import (
-    allowed_mimes,
-    allowed_schemes,
-    default_headers,
-    max_redirects,
-    paths_data,
-    paths_redirects
+    httpopt,
+    data_min,
+    body_redirects
 )
 from ._exceptions import ConnectError, InvalidURL, InvalidScheme, TooManyRedirects
 from ._http import (
     add_missing_attributes,
     create_connection,
     create_cookie_jar,
-    handle_redirects,
-    get_encoded_content
+    handle_redirects
 )
 from ._utils import (
     is_private,
     prepend_scheme_if_needed,
     remove_invalid_parameters,
-    requote_uri,
-    strip_parameters,
-    urldefragauth
+    requote_uri
 )
 
 def parse_url(url):
@@ -35,7 +31,6 @@ def parse_url(url):
 
     - Add the "http://" prefix if the *url* provided does not have a defined scheme.
     - Convert domain names in non-Latin alphabet to punycode.
-    - Remove the fragment and the authentication part (e.g 'user:pass@') from the URL.
 
     Parameters:
         url (`str`):
@@ -52,22 +47,18 @@ def parse_url(url):
       'http://xn--i-7iq.ws/'
     """
     if not isinstance(url, str) or not url:
-        raise InvalidURL("This is not a valid URL", url)
+        raise InvalidURL(message="This is not a valid URL", url=url)
 
-    # If the specified URL does not have a scheme defined, it will be set to 'http'.
-    url = prepend_scheme_if_needed(url, "http")
-
-    # Remove the fragment and the authentication part (e.g 'user:pass@') from the URL.
-    url = urldefragauth(url)
-
-    scheme, netloc, path, params, query, fragment = urlparse(url)
+    scheme, netloc, path, params, query, fragment = urlparse(
+        prepend_scheme_if_needed(url, "http")
+    )
 
     # We don't want to process URLs with protocols other than those
-    if scheme not in allowed_schemes:
-        raise InvalidScheme(f"Expecting 'http' or 'https', but got: {scheme}")
+    if scheme not in ("http", "https"):
+        raise InvalidScheme(message=f"Expecting 'http' or 'https', but got: {scheme}", url=url)
 
     # Encode domain name according to IDNA.
-    netloc = netloc.encode("idna").decode('utf-8')
+    netloc = netloc.encode(encoding="idna").decode(encoding='utf-8')
 
     return urlunparse((
         scheme, netloc, path, params, query, fragment
@@ -76,30 +67,29 @@ def parse_url(url):
 
 def extract_url(url, response):
     """This function is used to extract redirect links from HTML pages."""
-    content_type = response.headers.get("Content-Type")
+    body = response.read()
 
-    if content_type is None:
-        return None
+    scheme, netloc, path, params, query, fragment = urlparse(url)
 
-    mime = strip_parameters(content_type)
+    matched = None
 
-    if mime not in allowed_mimes:
-        return None
+    for patterns, domains, rules in redirects:
+        if netloc in domains:
+            matched = True
+        else:
+            for pattern in patterns:
+                if pattern.match(url):
+                    matched = True
+                    break
 
-    body = get_encoded_content(response)
-
-    for pattern, redirect_list in redirects:
-        if pattern.match(url):
-            for redirect in redirect_list:
-                try:
-                    result = redirect.match(body)
-                    extracted_url = result.group(1)
-                except AttributeError:
+        if matched:
+            for rule in rules:
+                result = rule.match(body.decode())
+                if result is None:
                     continue
                 else:
+                    extracted_url = result.group(1)
                     return parse_extracted_url(extracted_url)
-
-    return None
 
 
 def parse_extracted_url(url):
@@ -163,24 +153,23 @@ def unshort_url(url, parse_documents=False, cookie_policy="allow_if_needed", **k
 
         InvalidScheme: In case the provided *url* has a invalid or unknown scheme.
 
-        InvalidContentEncoding: In case the "Content-Enconding" header has a invalid value.
-
     Usage:
       >>> from unalix import unshort_url
       >>> unshort_url("https://bitly.is/Pricing-Pop-Up")
       'https://bitly.com/pages/pricing'
     """
-    url = parse_rules(parse_url(url), **kwargs)
-
-    cookies = create_cookie_jar(policy_type=cookie_policy)
-
-    total_redirects = 0
+    url, cookies, total_redirects = (
+        parse_rules(parse_url(url), **kwargs),
+        create_cookie_jar(policy_type=cookie_policy),
+        0
+    )
 
     while True:
 
-        if total_redirects > max_redirects:
+        if total_redirects > httpopt.max_redirects:
             raise TooManyRedirects(
-                "The request exceeded maximum allowed redirects", url
+                message="The request exceeded maximum allowed redirects",
+                url=url
             )
 
         scheme, netloc, path, params, query, fragment = urlparse(url)
@@ -193,21 +182,26 @@ def unshort_url(url, parse_documents=False, cookie_policy="allow_if_needed", **k
 
         cookies.add_cookie_header(connection)
 
+        connection.headers.update(httpopt.headers)
+        
         headers = connection.headers
-        headers.update(default_headers)
 
         try:
             connection.request("GET", path, headers=headers)
             response = connection.getresponse()
         except Exception as exception:
-            raise ConnectError(str(exception), url)
+            raise ConnectError(
+                message=str(exception),
+                exception=exception,
+                url=url
+            )
 
         cookies.extract_cookies(response, connection)
 
         redirect_url = handle_redirects(url, response)
 
         if isinstance(redirect_url, str):
-            total_redirects = total_redirects + 1
+            total_redirects += 1
             url = parse_rules(redirect_url, **kwargs)
             continue
 
@@ -229,50 +223,57 @@ def compile_rules(files):
 
     compiled_data_as_tuple = []
 
-    for filename in files:
-        with open(filename, mode="r", encoding="utf-8") as file:
-            content = file.read()
-            dict_rules = json.loads(content)
+    for file in files:
+        with open(file=file, mode="r", encoding="utf-8") as jfile:
+            content = jfile.read()
 
-        for provider in dict_rules["providers"].keys():
-            exceptions, redirections, rules, referrals, raws = [], [], [], [], []
+        ruleset = json.loads(content)["providers"]
 
-            for exception in dict_rules["providers"][provider]["exceptions"]:
-                exceptions += [
-                    re.compile(exception)
-                ]
+        for provider in ruleset:
+            pattern, complete_provider = (
+                re.compile(pattern=ruleset[provider]["urlPattern"]),
+                ruleset[provider]["completeProvider"]
+            )
+            exceptions, redirections, rules, referrals, raws = (
+                [], [], [], [], []
+            )
 
-            for redirection in dict_rules["providers"][provider]["redirections"]:
-                redirections += [
-                    re.compile(f"{redirection}.*")
-                ]
+            for exception in ruleset[provider]["exceptions"]:
+                exceptions.append(
+                    re.compile(pattern=exception)
+                )
 
-            for common in dict_rules["providers"][provider]["rules"]:
-                rules += [
-                    re.compile(rf"(%(?:26|23)|&|#|^){common}(?:(?:=|%3[Dd])[^&]*)")
-                ]
+            for redirection in ruleset[provider]["redirections"]:
+                redirections.append(
+                    re.compile(pattern=f"{redirection}.*")
+                )
 
-            for referral in dict_rules["providers"][provider]["referralMarketing"]:
-                referrals += [
-                    re.compile(rf"(%(?:26|23)|&|#|^){referral}(?:(?:=|%3[Dd])[^&]*)")
-                ]
+            for rule in ruleset[provider]["rules"]:
+                rules.append(
+                    re.compile(pattern=rf"(%(?:26|23)|&|^){rule}(?:(?:=|%3[Dd])[^&]*)")
+                )
 
-            for raw in dict_rules["providers"][provider]["rawRules"]:
-                raws += [
-                    re.compile(raw)
-                ]
+            for referral in ruleset[provider]["referralMarketing"]:
+                referrals.append(
+                    re.compile(pattern=rf"(%(?:26|23)|&|^){referral}(?:(?:=|%3[Dd])[^&]*)")
+                )
 
-            compiled_data_as_tuple += [
+            for raw in ruleset[provider]["rawRules"]:
+                raws.append(
+                    re.compile(pattern=raw)
+                )
+
+            compiled_data_as_tuple.append(
                 (
-                    re.compile(dict_rules["providers"][provider]["urlPattern"]),
-                    dict_rules["providers"][provider]["completeProvider"],
+                    pattern,
+                    complete_provider,
                     rules,
                     referrals,
                     exceptions,
                     raws,
                     redirections
                 )
-            ]
+            )
 
     return compiled_data_as_tuple
 
@@ -281,27 +282,78 @@ def compile_redirects(files):
 
     compiled_data_as_tuple = []
 
-    for filename in files:
-        with open(filename, mode="r", encoding="utf-8") as file:
-            content = file.read()
-            dict_rules = json.loads(content)
+    for file in files:
+        with open(file=file, mode="r", encoding="utf-8") as jfile:
+            content = jfile.read()
 
-        for rule in dict_rules:
-            redirects_list = []
+        ruleset = json.loads(content)
 
-            for raw_pattern in rule["redirects"]:
-                redirects_list += [
-                    re.compile(f".*{raw_pattern}.*", flags=re.MULTILINE | re.DOTALL)
-                ]
+        for rule in ruleset:
+            patterns, domains, redirects = (
+                rule["patterns"],
+                rule["domains"],
+                rule["redirects"]
+            )
+            new_patterns, new_redirects = [], []
 
-            compiled_data_as_tuple += [
-                (
-                    re.compile(rule["pattern"]),
-                    redirects_list
+            for pattern in patterns:
+                new_patterns.append(
+                    re.compile(pattern=pattern)
                 )
-            ]
+
+            for redirect in redirects:
+                new_redirects.append(
+                    re.compile(pattern=f".*{redirect}.*", flags=re.MULTILINE | re.DOTALL)
+                )
+
+            compiled_data_as_tuple.append(
+                (
+                    new_patterns,
+                    domains,
+                    new_redirects
+                )
+            )
 
     return compiled_data_as_tuple
+
+
+def randomize_query(query, rules):
+
+    randomized, not_randomized, query = (
+        {}, {}, query.split(sep="&")
+    )
+
+    for entrie in query:
+        try:
+            key, value = entrie.split(sep="=")
+        except ValueError:
+            continue
+        else:
+            for rule in rules:
+                if rule.match(entrie):
+                    bytes_count = random.randint(3, 7)
+                    randomized.update(
+                        {
+                            key: quote(os.urandom(bytes_count))
+                        }
+                    )
+                    break
+            else:
+                not_randomized.update(
+                    {
+                        key: value
+                    }
+                )
+
+    new_query = []
+
+    for key, value in not_randomized.items():
+        new_query.append(f"{key}={value}")
+
+    for key, value in randomized.items():
+        new_query.append(f"{key}={value}")
+
+    return "&".join(new_query)
 
 
 def parse_rules(
@@ -312,7 +364,8 @@ def parse_rules(
     ignore_raw=False,
     ignore_redirections=False,
     skip_blocked=False,
-    skip_local=False
+    skip_local=False,
+    block_mode="block_everything"
 ):
     """Parse compiled regex patterns for the given URL.
 
@@ -356,7 +409,7 @@ def parse_rules(
       'http://g.co/'
     """
     kwargs = locals()
-    del kwargs["url"]
+    kwargs.pop("url")
 
     for ( pattern, complete, rules, referrals,
             exceptions, raws, redirections ) in patterns:
@@ -392,23 +445,29 @@ def parse_rules(
 
             if query:
                 if not ignore_rules:
-                    for rule in rules:
-                        query = rule.sub(r"\g<1>", query)
+                    if block_mode == "fake_everything":
+                        query = randomize_query(query, rules)
+                    else:
+                        for rule in rules:
+                            query = rule.sub(r"\g<1>", query)
                 if not allow_referral:
-                    for referral in referrals:
-                        query = referral.sub(r"\g<1>", query)
+                    if block_mode == "fake_everything":
+                        query = randomize_query(query, referrals)
+                    else:
+                        for referral in referrals:
+                            query = referral.sub(r"\g<1>", query)
 
             if path:
                 if not ignore_raw:
                     for raw in raws:
                         path = raw.sub("", path)
 
-            url = urlunparse((
-                scheme, netloc, path, params, query, fragment
-            ))
+            url = urlunparse(
+                (scheme, netloc, path, params, query, fragment)
+            )
 
     return remove_invalid_parameters(url)
 
 
-patterns = compile_rules(paths_data)
-redirects = compile_redirects(paths_redirects)
+patterns = compile_rules(data_min)
+redirects = compile_redirects(body_redirects)
