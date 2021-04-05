@@ -1,0 +1,3 @@
+class Int(int):
+	pass
+

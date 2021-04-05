@@ -1,4 +1,4 @@
-Unalix is a simple code library written in Python. It implements the same regex rule processing mechanism used by the [ClearURLs](https://github.com/ClearURLs/Addon) addon.
+Unalix is a small, dependency-free, fast Python 3 package that implements the same regex rule processing mechanism used by the [ClearURLs](https://github.com/ClearURLs/Addon) addon.
 
 #### Installation
 
@@ -19,7 +19,7 @@ Removing tracking fields:
 ```python
 from unalix import clear_url
 
-url = 'https://deezer.com/track/891177062?utm_source=deezer'
+url = "https://deezer.com/track/891177062?utm_source=deezer"
 result = clear_url(url)
 
 print(result)
@@ -30,7 +30,7 @@ Unshortening a shortened URL:
 ```python
 from unalix import unshort_url
 
-url = 'https://bitly.is/Pricing-Pop-Up'
+url = "https://bitly.is/Pricing-Pop-Up"
 result = unshort_url(url)
 
 print(result)
@@ -47,7 +47,7 @@ https://bitly.com/pages/pricing
 
 If you have discovered a bug in this library and know how to fix it, fork this repository and open a Pull Request.
 
-If you found a URL that was not fully cleaned by Unalix (e.g. some tracking fields still remains), report them here or in the [ClearURLs addon repository](https://gitlab.com/anti-tracking/ClearURLs/rules/-/issues/new). We use the list of regex rules maintained by the ClearURLs maintainers, but we also have our [own list](./unalix/package_data/unalix-data.min.json).
+If you found a URL that was not fully cleaned by Unalix (e.g. some tracking fields still remains), report them here or in the [ClearURLs addon repository](https://gitlab.com/anti-tracking/ClearURLs/rules/-/issues). We use the list of regex rules maintained by the ClearURLs maintainers, but we also have our [own list](./unalix/package_data/rulesets/unalix.json).
 
 #### Third party software
 
