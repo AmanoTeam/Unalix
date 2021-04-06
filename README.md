@@ -1,4 +1,4 @@
-Unalix is a small, dependency-free, fast Python 3 package that implements the same regex rule processing mechanism used by the [ClearURLs](https://github.com/ClearURLs/Addon) addon.
+Unalix is a small, dependency-free, fast Python package that implements the same regex rule processing mechanism used by the [ClearURLs](https://github.com/ClearURLs/Addon) addon.
 
 #### Installation
 
