@@ -34,4 +34,8 @@ __locals = locals()
 
 for __name in __all__:
     if not __name.startswith("__"):
-        setattr(__locals[__name], "__module__", "unalix")
+        try:
+            setattr(__locals[__name], "__module__", "unalix")
+        except AttributeError:
+            pass
+
