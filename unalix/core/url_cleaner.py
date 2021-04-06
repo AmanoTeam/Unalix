@@ -143,18 +143,22 @@ def clear_url(
                     for rawRule in ruleset.rawRules:
                         url.path = rawRule.compiled.sub("", url.path)
 
-            striped_params = []
+        url = url.get_url()
 
-            for param in url.query.split(sep="&"):
-                try:
-                    key, value = param.split(sep="=")
-                except ValueError:
-                    continue
-                else:
-                    if value:
-                        striped_params.append(f"{key}={value}")
+    url = types.URL(url)
 
-            url.query = "&".join(striped_params) if striped_params else ""
+    striped_params = []
 
-            return url.get_url()
+    for param in url.query.split(sep="&"):
+        try:
+            key, value = param.split(sep="=")
+        except ValueError:
+            continue
+        else:
+            if value:
+                striped_params.append(f"{key}={value}")
+
+    url.query = "&".join(striped_params) if striped_params else ""
+
+    return url.get_url()
 
