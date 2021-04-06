@@ -10,7 +10,7 @@ pip3 install --force-reinstall \
     --upgrade 'unalix'
 ```
 
-_**Note**: Unalix requires Python 3.7 or higher._
+_**Note**: Unalix requires Python 3.6 or higher._
 
 #### Usage:
 
