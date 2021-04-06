@@ -200,16 +200,6 @@ def create_ssl_context(
     major, minor, micro = platform.python_version_tuple()
     python_version = float(f"{major}.{minor}")
 
-    # These options are deprecated since Python 3.7
-    if python_version == 3.6:
-        ssl_options |= (
-            ssl.OP_NO_SSLv2
-            | ssl.OP_NO_SSLv3
-            | ssl.OP_NO_TLSv1
-            | ssl.OP_NO_TLSv1_1
-            | ssl.OP_NO_TICKET
-        )
-
     context.options = ssl_options
 
     # Default verify flags for SSL contexts
@@ -226,14 +216,13 @@ def create_ssl_context(
     if ssl.HAS_ALPN:
         context.set_alpn_protocols(["http/1.1"])
 
-    if python_version >= 3.7:
-        # Only available in Python 3.7 or higher
-        context.minimum_version = ssl.TLSVersion.TLSv1_2
-        context.maximum_version = ssl.TLSVersion.TLSv1_3
+    # Only available in Python 3.7 or higher
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+    context.maximum_version = ssl.TLSVersion.TLSv1_3
 
-        # Disable using 'commonName' for SSLContext.check_hostname
-        # when the 'subjectAltName' extension isn't available.
-        context.hostname_checks_common_name = False
+    # Disable using 'commonName' for SSLContext.check_hostname
+    # when the 'subjectAltName' extension isn't available.
+    context.hostname_checks_common_name = False
 
     if python_version >= 3.8:
         # Signal to server support for PHA in TLS 1.3.

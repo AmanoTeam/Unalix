@@ -62,7 +62,6 @@ classifiers = [
 	"Topic :: Security",
 	"Development Status :: 5 - Production/Stable",
 	"Intended Audience :: Developers",
-	"Programming Language :: Python :: 3.6",
 	"Programming Language :: Python :: 3.7",
 	"Programming Language :: Python :: 3.8",
 	"Programming Language :: Python :: 3.9"
@@ -109,5 +108,5 @@ setuptools.setup(
 	include_package_data=True,
 	package_data=package_data,
 	classifiers=classifiers,
-	python_requires=">=3.6",
+	python_requires=">=3.7",
 )
