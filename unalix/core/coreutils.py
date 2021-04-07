@@ -234,13 +234,17 @@ def create_ssl_context(
         # Disable using 'commonName' for SSLContext.check_hostname
         # when the 'subjectAltName' extension isn't available.
         try:
-            # Only writable in OpenSSL 1.1.0 or higher
+            # Only writable in OpenSSL v1.1.0+
             context.hostname_checks_common_name = False
         except AttributeError:
             pass
 
     if python_version >= 3.8:
         # Signal to server support for PHA in TLS 1.3.
-        context.post_handshake_auth = True
+        try:
+            # Only writable in OpenSSL v1.1.1+ with TLS 1.3 support.
+            context.post_handshake_auth = True
+        except AttributeError:
+            pass
 
     return context
