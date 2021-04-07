@@ -10,7 +10,7 @@ from . import coreutils
 rulesets = coreutils.rulesets_from_files(config.PATH_RULESETS)
 
 def clear_url(
-    url: typing.Union[str, types.URL],
+    url: typing.Union[str, urllib.parse.ParseResult, types.URL],
     ignoreReferralMarketing: typing.Optional[bool] = False,
     ignoreRules: typing.Optional[bool] = False,
     ignoreExceptions: typing.Optional[bool] = False,
@@ -24,30 +24,37 @@ def clear_url(
     for removing tracking fields and unshortening URLs.
 
     Parameters:
-        
+
         url (str):
             A string representing an HTTP URL.
 
         ignoreReferralMarketing (bool | optional):
             Pass True to instruct Unalix to not remove referral marketing fields from the URL query. Defaults to False.
 
+            This is similar to ClearURLs's "Allow referral marketing" option.
+
         ignoreRules (bool | optional):
-            Pass True to instruct Unalix to not remove generic/common tracking fields from the given URL. Defaults to False.
+            Pass True to instruct Unalix to not remove tracking fields from the given URL. Defaults to False.
 
         ignoreExceptions (bool | optional):
-            Pass True to instruct Unalix to not test the given URL against sets of exception rules. Defaults to False.
+            Pass True to instruct Unalix to ignore exceptions for the given URL. Defaults to False.
 
         ignoreRawRules (bool | optional):
-            Pass True to instruct Unalix to not remove tracking elements found in other parts of the given URL. Defaults to False.
+            Pass True to instruct Unalix to ignore raw rules for the given URL. Defaults to False.
 
         ignoreRedirections (bool | optional):
-            Pass True to instruct Unalix to not extract redirect URLs found in some part of the given URL. Defaults to False.
+            Pass True to instruct Unalix to ignore redirection rules for the given URL. Defaults to False.
 
         skipBlocked (bool | optional):
-            Pass True to instruct Unalix to skip rules processing for blocked URLs. Defaults to False.
+            Pass True to instruct Unalix to not process rules for blocked URLs. Defaults to False.
+
+            This is similar to ClearURLs "Allow domain blocking" option, but instead of blocking access to the URL,
+            we just ignore all rulesets where it's blocked.
 
         skipLocal (bool | optional):
-            Pass True to instruct Unalix to skip rules processing for local URLs. Defaults to False.
+            Pass True to instruct Unalix to not process rules for local URLs. Defaults to False.
+
+            This is similar to ClearURLs's "Skip URLs on local hosts" option.
 
     Usage examples:
 
@@ -90,11 +97,13 @@ def clear_url(
 
     for ruleset in rulesets.iter():
 
-        if not isinstance(url, types.URL):
+        if isinstance(url, (types.URL, urllib.parse.ParseResult)):
+            url = types.URL(url.geturl())
+        else:
             url = types.URL(url)
 
         if skipLocal and url.islocal():
-            continue
+            return url
 
         if skipBlocked and ruleset.completeProvider:
             continue
@@ -143,7 +152,7 @@ def clear_url(
                     for rawRule in ruleset.rawRules:
                         url.path = rawRule.compiled.sub("", url.path)
 
-        url = url.get_url()
+        url = url.geturl()
 
     url = types.URL(url)
 
@@ -160,5 +169,5 @@ def clear_url(
 
     url.query = "&".join(striped_params) if striped_params else ""
 
-    return url.get_url()
+    return url.geturl()
 

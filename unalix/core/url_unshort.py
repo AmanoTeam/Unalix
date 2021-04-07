@@ -19,7 +19,7 @@ from . import coreutils
 body_redirects = coreutils.body_redirects_from_files(config.PATH_BODY_REDIRECTS)
 
 def unshort_url(
-    url: typing.Union[str, types.URL],
+    url: typing.Union[str, urllib.parse.ParseResult, types.URL],
     parse_documents: typing.Optional[bool] = False,
     max_redirects: typing.Union[int, types.Int, None] = None,
     timeout: typing.Union[int, types.Int, None] = None,
@@ -47,6 +47,8 @@ def unshort_url(
         max_redirects (int | optional):
             Max number of HTTP redirects to follow before raising an exception. Defaults to unalix.config.HTTP_MAX_REDIRECTS.
 
+            Redirects followed from the response body also counts.
+
         timeout (int | optional):
             Max number of seconds to wait for a response before raising an exception. Defaults to unalix.config.HTTP_TIMEOUT.
 
@@ -54,13 +56,16 @@ def unshort_url(
             HTTP request headers as {"key": "value"}. Defaults to unalix.config.HTTP_HEADERS.
 
         max_fetch_size (int | optional):
-            How much bytes to fetch from response body. Defaults to unalix.config.HTTP_MAX_FETCH_SIZE.
+            How many bytes to fetch from response body. Defaults to unalix.config.HTTP_MAX_FETCH_SIZE.
 
         cookie_policy (http.cookiejar.DefaultCookiePolicy | optional):
             Custom cookie policy for cookie handling. Defaults to unalix.COOKIE_STRICT_ALLOW.
 
             Note that cookies are not shared between sessions. Each call to unshort_url() will
             create it's own http.cookiejar.CookieJar() instance.
+
+            unalix.COOKIE_STRICT_ALLOW is a strict policy which only allow cookies for sites that where known to not
+            work without them.
 
         context (ssl.SSLContext | optional):
             Custom SSL context for HTTPS connections. Defaults to unalix.SSL_CONTEXT_VERIFIED.
@@ -113,7 +118,9 @@ def unshort_url(
                 url=url
             )
 
-        if not isinstance(url, types.URL):
+        if isinstance(url, (types.URL, urllib.parse.ParseResult)):
+            url = types.URL(url.geturl())
+        else:
             url = types.URL(url)
 
         if url.scheme == "http":

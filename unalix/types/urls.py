@@ -47,7 +47,7 @@ class URL(str):
             return True if address.is_private else False
 
 
-    def get_url(self):
+    def geturl(self):
 
         return urllib.parse.urlunparse((
             self.scheme, self.netloc, self.path,
@@ -61,7 +61,7 @@ class URL(str):
         (
             scheme, netloc, path,
             params, query, fragment
-        ) = urllib.parse.urlparse(self.get_url(), "http")
+        ) = urllib.parse.urlparse(self.geturl(), "http")
 
         if not netloc:
             netloc, path = path, netloc
