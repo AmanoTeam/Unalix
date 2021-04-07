@@ -664,6 +664,18 @@
         "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?allshops\\.me\\/redirect\\/.+to=([^&]*)"
       ],
       "forceRedirection": false
+    },
+    "shareasale": {
+      "urlPattern": "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?shareasale\\.com",
+      "completeProvider": false,
+      "rules": [],
+      "referralMarketing": [],
+      "rawRules": [],
+      "exceptions": [],
+      "redirections": [
+        "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?shareasale\\.com\\/r\\.cfm.+urllink=([^&]*)"
+      ],
+      "forceRedirection": false
     }
   }
 }
