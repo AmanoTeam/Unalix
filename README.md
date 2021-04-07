@@ -25,7 +25,7 @@ result = clear_url(url)
 print(result)
 ```
 
-Unshortening a shortened URL:
+Unshort shortened URL:
 
 ```python
 from unalix import unshort_url
