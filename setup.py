@@ -2,6 +2,7 @@ import json
 import os
 import pathlib
 import re
+
 import setuptools
 
 
@@ -29,21 +30,10 @@ def get_long_description():
 	return content
 
 
-def get_packages():
-	"""
-	Return root package and all sub-packages.
-	"""
-	
-	return [
-		str(path.parent) for path in pathlib.Path("unalix").glob("**/__init__.py")
-	]
-
 module_path = pathlib.Path(__file__).parent
 
 version = get_version()
 long_description = get_long_description()
-
-packages = get_packages()
 
 package_data = {
 	"unalix": [
@@ -80,7 +70,7 @@ for filename in package_data["unalix"]:
 	if not filename.endswith(".json"):
 		continue
 	
-	with open(os.path.join(module_path, "unalix", filename), mode="r+") as file:
+	with open(file=os.path.join(module_path, "unalix", filename), mode="r+") as file:
 		content = file.read()
 		
 		ruleset = json.loads(content)
@@ -100,12 +90,15 @@ setuptools.setup(
 	version=version,
 	author="SnwMds",
 	author_email="snwmds@tutanota.com",
-	description="A simple module that removes tracking fields from URLs and unshort shortened URLs.",
+	description="Small, dependency-free, fast Python package for removing tracking fields from URLs.",
 	license="LGPL-3.0",
 	long_description=long_description,
 	long_description_content_type="text/markdown",
 	url="https://github.com/AmanoTeam/Unalix",
-	packages=packages,
+	project_urls={
+		"Bug Tracker": "https://github.com/AmanoTeam/Unalix/issues",
+    },
+	packages=setuptools.find_packages(),
 	include_package_data=True,
 	package_data=package_data,
 	classifiers=classifiers,
