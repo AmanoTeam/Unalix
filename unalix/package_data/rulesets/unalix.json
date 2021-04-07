@@ -652,6 +652,18 @@
       "exceptions": [],
       "redirections": [],
       "forceRedirection": false
+    },
+    "allshops": {
+      "urlPattern": "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?allshops\\.me",
+      "completeProvider": false,
+      "rules": [],
+      "referralMarketing": [],
+      "rawRules": [],
+      "exceptions": [],
+      "redirections": [
+        "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?allshops\\.me\\/redirect\\/.+to=([^&]*)"
+      ],
+      "forceRedirection": false
     }
   }
 }

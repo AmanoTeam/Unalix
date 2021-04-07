@@ -3,6 +3,7 @@ import http.cookiejar
 import http.client
 import ssl
 import html
+import urllib.parse
 
 from .. import types
 from .. import config
@@ -58,6 +59,9 @@ def unshort_url(
         cookie_policy (http.cookiejar.DefaultCookiePolicy | optional):
             Custom cookie policy for cookie handling. Defaults to unalix.COOKIE_STRICT_ALLOW.
 
+            Note that cookies are not shared between sessions. Each call to unshort_url() will
+            create it's own http.cookiejar.CookieJar() instance.
+
         context (ssl.SSLContext | optional):
             Custom SSL context for HTTPS connections. Defaults to unalix.SSL_CONTEXT_VERIFIED.
 
@@ -105,7 +109,7 @@ def unshort_url(
 
         if total_redirects > (max_redirects if max_redirects is not None else config.HTTP_MAX_REDIRECTS):
             raise exceptions.TooManyRedirectsError(
-                message="Exceeded maximum allowed redirects with URL",
+                message="Exceeded maximum allowed redirects",
                 url=url
             )
 
@@ -133,6 +137,15 @@ def unshort_url(
 
         # Workaround for making http.client's connection objects compatible with the
         # http.cookiejar.CookieJar's extract_cookies() and add_cookie_header() methods.
+
+        connection.unverifiable = True
+
+        connection.has_header = lambda header_name: False
+        connection.get_full_url = lambda: str(url)
+
+        connection.origin_req_host = url.netloc
+
+        connection.headers = {}
         connection.cookies = {}
 
         def add_unredirected_header(key, value):
@@ -140,19 +153,17 @@ def unshort_url(
 
         connection.add_unredirected_header = add_unredirected_header
 
-        connection.has_header = lambda header_name: False
-        connection.get_full_url = lambda: str(url)
-
-        connection.headers = headers if headers is not None else dict(config.HTTP_HEADERS)
-        connection.origin_req_host = url.netloc
-
         cookie_jar.add_cookie_header(connection)
+
+        # Merge headers added by cookie_jar.add_cookie_header() with default headers
+        connection_headers = headers if headers is not None else dict(config.HTTP_HEADERS)
+        connection_headers.update(connection.headers)
 
         try:
             connection.request(
                 method="GET",
                 url=f"{url.path}?{url.query}" if url.query else url.path,
-                headers=headers if headers is not None else dict(config.HTTP_HEADERS)
+                headers=connection_headers
             )
         except Exception as e:
             connection.close()
