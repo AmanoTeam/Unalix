@@ -165,11 +165,10 @@ def unshort_url(
                 url=f"{url.path}?{url.query}" if url.query else url.path,
                 headers=connection_headers
             )
+            response = connection.getresponse()
         except Exception as e:
             connection.close()
             raise exceptions.ConnectError("Connection error", url) from e
-        else:
-            response = connection.getresponse()
 
         # Extract cookies from response
         cookie_jar.extract_cookies(
