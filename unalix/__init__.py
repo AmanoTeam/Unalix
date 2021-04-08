@@ -10,7 +10,8 @@ from .__version__ import __description__, __title__, __version__
 from .exceptions import (
     UnsupportedProtocolError,
     ConnectError,
-    TooManyRedirectsError
+    TooManyRedirectsError,
+    MaxRetriesError
 )
 
 
@@ -23,6 +24,7 @@ __all__ = [
     "UnsupportedProtocolError",
     "ConnectError",
     "TooManyRedirectsError",
+    "MaxRetriesError",
     "COOKIE_REJECT_ALL",
     "COOKIE_ALLOW_ALL",
     "COOKIE_STRICT_ALLOW",

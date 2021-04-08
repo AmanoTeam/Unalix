@@ -1,13 +1,15 @@
 from .http import (
     UnsupportedProtocolError,
     ConnectError,
-    TooManyRedirectsError
+    TooManyRedirectsError,
+    MaxRetriesError
 )
 
 __all__ = [
     "UnsupportedProtocolError",
     "ConnectError",
-    "TooManyRedirectsError"
+    "TooManyRedirectsError",
+    "MaxRetriesError"
 ]
 
 __locals = locals()

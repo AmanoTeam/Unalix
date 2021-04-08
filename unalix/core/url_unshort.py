@@ -4,6 +4,8 @@ import http.client
 import ssl
 import html
 import urllib.parse
+import time
+import datetime
 
 from .. import types
 from .. import config
@@ -19,14 +21,16 @@ from . import coreutils
 body_redirects = coreutils.body_redirects_from_files(config.PATH_BODY_REDIRECTS)
 
 def unshort_url(
-    url: typing.Union[str, urllib.parse.ParseResult, types.URL],
+    url: typing.Union[str, urllib.parse.ParseResult],
     parse_documents: typing.Optional[bool] = False,
-    max_redirects: typing.Union[int, types.Int, None] = None,
-    timeout: typing.Union[int, types.Int, None] = None,
-    headers: typing.Union[dict, types.Dict, None] = None,
-    max_fetch_size: typing.Union[int, types.Int, None] = None,
-    cookie_policy: typing.Union[http.cookiejar.DefaultCookiePolicy, None] = None,
-    context: typing.Union[ssl.SSLContext, None] = None,
+    max_redirects: typing.Optional[int] = None,
+    timeout: typing.Optional[int] = None,
+    headers: typing.Optional[dict] = None,
+    max_fetch_size: typing.Optional[int] = None,
+    cookie_policy: typing.Optional[http.cookiejar.DefaultCookiePolicy] = None,
+    context: typing.Optional[ssl.SSLContext] = None,
+    max_retries:  typing.Optional[int] = None,
+    status_retry:  typing.Optional[typing.Iterable] = None,
     **kwargs
 ):
     """
@@ -64,11 +68,19 @@ def unshort_url(
             Note that cookies are not shared between sessions. Each call to unshort_url() will
             create it's own http.cookiejar.CookieJar() instance.
 
-            unalix.COOKIE_STRICT_ALLOW is a strict policy which only allow cookies for sites that where known to not
+            unalix.COOKIE_STRICT_ALLOW is a strict policy which only allow cookies from sites that where known to not
             work without them.
 
         context (ssl.SSLContext | optional):
             Custom SSL context for HTTPS connections. Defaults to unalix.SSL_CONTEXT_VERIFIED.
+
+        max_retries (int | optional):
+            Max number of times to retry on connection errors. Defaults to unalix.config.HTTP_MAX_RETRIES.
+
+        status_retry (typing.Iterable | optional):
+            List or iterable of http status code to retry on. Defaults to unalix.config.HTTP_STATUS_RETRY.
+
+            Only takes effect when max_retries > 0.
 
         **kwargs (optional):
             Optional keyword arguments that unalix.clear_url() takes.
@@ -109,12 +121,19 @@ def unshort_url(
     )
 
     total_redirects = 0
+    total_retries = 0
 
     while True:
 
         if total_redirects > (max_redirects if max_redirects is not None else config.HTTP_MAX_REDIRECTS):
             raise exceptions.TooManyRedirectsError(
                 message="Exceeded maximum allowed redirects",
+                url=url
+            )
+
+        if total_retries > (max_retries if max_retries is not None else config.HTTP_MAX_RETRIES):
+            raise exceptions.MaxRetriesError(
+                message="Exceeded maximum allowed retries",
                 url=url
             )
 
@@ -173,9 +192,32 @@ def unshort_url(
                 headers=connection_headers
             )
             response = connection.getresponse()
-        except Exception as e:
+        except Exception as exception:
             connection.close()
-            raise exceptions.ConnectError("Connection error", url) from e
+            
+            # Retry based on connection error
+            if (max_retries if max_retries is not None else config.HTTP_MAX_RETRIES) != 0:
+                total_retries += 1
+                continue
+            else:
+                raise exceptions.ConnectError(
+                    message="Connection error",
+                    url=url
+                ) from exception
+        else:
+            # Retry based on status code
+            if (max_retries if max_retries is not None else config.HTTP_MAX_RETRIES) != 0 and response.code in (status_retry if status_retry is not None else config.HTTP_STATUS_RETRY):
+                retry_after = response.headers.get("Retry-After")
+                if retry_after is not None:
+                    if retry_after.isnumeric():
+                        time.sleep(int(retry_after))
+                    else:
+                        http_date = datetime.datetime.strptime(retry_after, "%a, %d %b %Y %H:%M:%S GMT")
+                        time.sleep(int(http_date.timestamp()) - int(time.time()))
+                
+                total_retries += 1
+                
+                continue
 
         # Extract cookies from response
         cookie_jar.extract_cookies(

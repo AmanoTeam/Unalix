@@ -10,7 +10,7 @@ from . import coreutils
 rulesets = coreutils.rulesets_from_files(config.PATH_RULESETS)
 
 def clear_url(
-    url: typing.Union[str, urllib.parse.ParseResult, types.URL],
+    url: typing.Union[str, urllib.parse.ParseResult],
     ignoreReferralMarketing: typing.Optional[bool] = False,
     ignoreRules: typing.Optional[bool] = False,
     ignoreExceptions: typing.Optional[bool] = False,
