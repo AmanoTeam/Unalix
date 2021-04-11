@@ -1,5 +1,6 @@
-from ..__version__ import __version__
+import http
 
+from ..__version__ import __version__
 from .. import types
 
 
@@ -19,9 +20,9 @@ HTTP_MAX_FETCH_SIZE = types.Int(1024 * 1024)
 HTTP_MAX_RETRIES = types.Int(3)
 
 HTTP_STATUS_RETRY = types.Tuple((
-    429,
-    500,
-    502,
-    503,
-    504
+    http.HTTPStatus.TOO_MANY_REQUESTS,
+    http.HTTPStatus.INTERNAL_SERVER_ERROR,
+    http.HTTPStatus.BAD_GATEWAY,
+    http.HTTPStatus.SERVICE_UNAVAILABLE,
+    http.HTTPStatus.GATEWAY_TIMEOUT
 ))

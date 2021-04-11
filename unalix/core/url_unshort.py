@@ -25,12 +25,12 @@ def unshort_url(
     parse_documents: typing.Optional[bool] = False,
     max_redirects: typing.Optional[int] = None,
     timeout: typing.Optional[int] = None,
-    headers: typing.Optional[dict] = None,
+    headers: typing.Optional[typing.Dict[str, str]] = None,
     max_fetch_size: typing.Optional[int] = None,
     cookie_policy: typing.Optional[http.cookiejar.DefaultCookiePolicy] = None,
     context: typing.Optional[ssl.SSLContext] = None,
     max_retries:  typing.Optional[int] = None,
-    status_retry:  typing.Optional[typing.Iterable] = None,
+    status_retry:  typing.Optional[typing.Iterable[typing.Union[int, http.HTTPStatus]]] = None,
     **kwargs
 ):
     """
@@ -129,13 +129,13 @@ def unshort_url(
             raise exceptions.TooManyRedirectsError(
                 message="Exceeded maximum allowed redirects",
                 url=url
-            )
+            ) from None
 
         if total_retries > (max_retries if max_retries is not None else config.HTTP_MAX_RETRIES):
             raise exceptions.MaxRetriesError(
                 message="Exceeded maximum allowed retries",
                 url=url
-            )
+            ) from None
 
         if isinstance(url, (types.URL, urllib.parse.ParseResult)):
             url = types.URL(url.geturl())
@@ -159,7 +159,7 @@ def unshort_url(
             raise exceptions.UnsupportedProtocolError(
                 message="Unsupported or invalid scheme found in URL",
                 url=url
-            )
+            ) from None
 
         # Workaround for making http.client's connection objects compatible with the
         # http.cookiejar.CookieJar's extract_cookies() and add_cookie_header() methods.
@@ -256,19 +256,17 @@ def unshort_url(
             continue
 
         if parse_documents:
-
             content = response.read(
                 max_fetch_size if max_fetch_size is not None else config.HTTP_MAX_FETCH_SIZE
             )
 
-            try:
-                decoded_content = content.decode(encoding="utf-8")
-            except UnicodeDecodeError:
-                connection.close()
-                raise
+            # Close connection after reading response body
+            connection.close()
+
+            # Try to decode the response body using utf-8 as encoding
+            decoded_content = content.decode(encoding="utf-8")
 
             for ruleset in body_redirects.iter():
-
                 match_found = None
 
                 if (
