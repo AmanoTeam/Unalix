@@ -157,7 +157,7 @@ def unshort_url(
             )
         else:
             raise exceptions.UnsupportedProtocolError(
-                message="Unsupported or invalid scheme found in URL",
+                message="Unrecognized URI or unsupported protocol",
                 url=url
             ) from None
 
