@@ -153,7 +153,8 @@
       "exceptions": [],
       "redirections": [
         "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?google(?:\\.[a-z]{2,}){1,}\\/amp\\/s\\/([^&]*)",
-        "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?google(?:\\.[a-z]{2,}){1,}\\/img.+\\?imgurl=([^&]*)"
+        "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?google(?:\\.[a-z]{2,}){1,}\\/img.+(?:\\?|&)imgurl=([^&]*)",
+        "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?google(?:\\.[a-z]{2,}){1,}\\/aclk.+(?:\\?|&)adurl=([^&]*)"
       ],
       "forceRedirection": true
     },
