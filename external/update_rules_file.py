@@ -1,23 +1,18 @@
 import json
 import http.client
 
-from unalix.config.http import (
-	HTTP_HEADERS,
-	HTTP_TIMEOUT
-)
-from unalix.core.ssl_context import SSL_CONTEXT
-from unalix.types import URL
+import unalix
 
 rules_url = "https://rules1.clearurls.xyz/data/data.minify.json"
 rules_path = "unalix/package_data/rulesets/data.min.json"
 
-url = URL(rules_url)
+url = unalix.types.URL(rules_url)
 
 connection = http.client.HTTPSConnection(
 	host=url.netloc,
 	port=url.port,
-	timeout=HTTP_TIMEOUT,
-	context=SSL_CONTEXT
+	timeout=unalix.config.HTTP_TIMEOUT,
+	context=unalix.SSL_CONTEXT_VERIFIED
 )
 
 print(f"Fetching data from {rules_url}...")
@@ -25,7 +20,7 @@ print(f"Fetching data from {rules_url}...")
 connection.request(
 	method="GET",
 	url=url.path,
-	headers=HTTP_HEADERS
+	headers=unalix.config.HTTP_HEADERS
 )
 response = connection.getresponse()
 
