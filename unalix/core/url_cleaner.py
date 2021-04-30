@@ -122,7 +122,13 @@ def clear_url(
 
             if not ignoreRedirections:
                 for redirection in ruleset.redirections:
-                    url = types.URL(redirection.compiled.sub(r"\g<1>", url))
+                    result = redirection.compiled.sub(r"\g<1>", url)
+
+                    # Skip empty URLs
+                    if not result:
+                        continue
+
+                    url = types.URL(result)
 
                     # # https://github.com/ClearURLs/Addon/issues/71
                     url = url.prepend_scheme_if_needed()
