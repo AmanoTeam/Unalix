@@ -24,5 +24,5 @@ class MaxRetriesError(ConnectError):
     pass
 
 
-class TooManyRedirectsError(UnalixException):
+class TooManyRedirectsError(ConnectError):
     pass
