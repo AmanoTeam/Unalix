@@ -48,6 +48,8 @@ package_data = {
 classifiers = [
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Operating System :: Unix",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
     "Topic :: Internet",
     "Topic :: Security",
     "Development Status :: 5 - Production/Stable",
