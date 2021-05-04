@@ -144,7 +144,7 @@ def unshort_url(
         status_retry if status_retry is not None else config.HTTP_STATUS_RETRY
     )
 
-    ssl_context = (
+    tls_context = (
         context if context is not None else ssl_context.SSL_CONTEXT_VERIFIED
     )
 
@@ -178,7 +178,7 @@ def unshort_url(
                 host=url.netloc,
                 port=url.port,
                 timeout=http_timeout,
-                context=ssl_context
+                context=tls_context
             )
         else:
             raise exceptions.UnsupportedProtocolError(
