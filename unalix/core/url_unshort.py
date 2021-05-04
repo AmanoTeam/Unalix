@@ -264,12 +264,12 @@ def unshort_url(
             )
 
             if not redirect_location.startswith(("http://", "https://")):
-                if redirect_location.startswith("/"):
-                    # full path
-                    redirect_location = urllib.parse.urlunparse((url.scheme, url.netloc, redirect_location, "", "", ""))
-                elif redirect_location.startswith("//"):
+                if redirect_location.startswith("//"):
                     # new url
                     redirect_location = urllib.parse.urlunparse((url.scheme, redirect_location.lstrip(chars="/"), "", "", "", ""))
+                elif redirect_location.startswith("/"):
+                    # full path
+                    redirect_location = urllib.parse.urlunparse((url.scheme, url.netloc, redirect_location, "", "", ""))
                 else:
                     # relative path
                     path = os.path.join(os.path.dirname(url.path), redirect_location)
