@@ -1,4 +1,5 @@
 import typing
+import http
 import http.cookiejar
 import http.client
 import ssl
@@ -123,21 +124,45 @@ def unshort_url(
     total_redirects = 0
     total_retries = 0
 
+    http_timeout = (
+        timeout if timeout is not None else config.HTTP_TIMEOUT
+    )
+
+    http_max_redirects = (
+        max_redirects if max_redirects is not None else config.HTTP_MAX_REDIRECTS
+    )
+
+    http_max_retries = (
+        max_retries if max_retries is not None else config.HTTP_MAX_RETRIES
+    )
+
+    http_headers = (
+        headers if headers is not None else config.HTTP_HEADERS
+    )
+
+    http_status_retry = (
+        status_retry if status_retry is not None else config.HTTP_STATUS_RETRY
+    )
+
+    ssl_context = (
+        context if context is not None else ssl_context.SSL_CONTEXT_VERIFIED
+    )
+
     while True:
 
-        if total_redirects > (max_redirects if max_redirects is not None else config.HTTP_MAX_REDIRECTS):
+        if total_redirects > http_max_redirects:
             raise exceptions.TooManyRedirectsError(
                 message="Exceeded maximum allowed redirects",
                 url=url
             ) from None
 
-        if total_retries > (max_retries if max_retries is not None else config.HTTP_MAX_RETRIES):
+        if total_retries > http_max_retries:
             raise exceptions.MaxRetriesError(
                 message="Exceeded maximum allowed retries",
                 url=url
             ) from None
 
-        if isinstance(url, (types.URL, urllib.parse.ParseResult)):
+        if isinstance(url, types.URL_TYPES):
             url = types.URL(url.geturl())
         else:
             url = types.URL(url)
@@ -146,14 +171,14 @@ def unshort_url(
             connection = http.client.HTTPConnection(
                 host=url.netloc,
                 port=url.port,
-                timeout=timeout if timeout is not None else config.HTTP_TIMEOUT
+                timeout=http_timeout
             )
         elif url.scheme == "https":
             connection = http.client.HTTPSConnection(
                 host=url.netloc,
                 port=url.port,
-                timeout=timeout if timeout is not None else config.HTTP_TIMEOUT,
-                context=context if context is not None else ssl_context.SSL_CONTEXT_VERIFIED
+                timeout=http_timeout,
+                context=ssl_context
             )
         else:
             raise exceptions.UnsupportedProtocolError(
@@ -182,13 +207,15 @@ def unshort_url(
         cookie_jar.add_cookie_header(connection)
 
         # Merge headers added by cookie_jar.add_cookie_header() with default headers
-        connection_headers = headers if headers is not None else dict(config.HTTP_HEADERS)
+        connection_headers = dict(http_headers)
         connection_headers.update(connection.headers)
+
+        uri = f"{url.path}?{url.query}" if url.query else url.path
 
         try:
             connection.request(
                 method="GET",
-                url=f"{url.path}?{url.query}" if url.query else url.path,
+                url=uri,
                 headers=connection_headers
             )
             response = connection.getresponse()
@@ -196,17 +223,17 @@ def unshort_url(
             connection.close()
             
             # Retry based on connection error
-            if (max_retries if max_retries is not None else config.HTTP_MAX_RETRIES) != 0:
+            if http_max_retries > 0:
                 total_retries += 1
                 continue
-            else:
-                raise exceptions.ConnectError(
-                    message="Connection error",
-                    url=url
-                ) from exception
+
+            raise exceptions.ConnectError(
+                message="Connection error",
+                url=url
+            ) from exception
         else:
             # Retry based on status code
-            if (max_retries if max_retries is not None else config.HTTP_MAX_RETRIES) != 0 and response.code in (status_retry if status_retry is not None else config.HTTP_STATUS_RETRY):
+            if http_max_retries > 0 and response.code in http_status_retry:
                 retry_after = response.headers.get("Retry-After")
                 if retry_after is not None:
                     if retry_after.isnumeric():
@@ -242,7 +269,7 @@ def unshort_url(
                     redirect_location = urllib.parse.urlunparse((url.scheme, url.netloc, redirect_location, "", "", ""))
                 elif redirect_location.startswith("//"):
                     # new url
-                    redirect_location = urllib.parse.urlunparse((url.scheme, url.netloc.lstrip(chars="/"), redirect_location, "", "", ""))
+                    redirect_location = urllib.parse.urlunparse((url.scheme, redirect_location.lstrip(chars="/"), "", "", "", ""))
                 else:
                     # relative path
                     path = os.path.join(os.path.dirname(url.path), redirect_location)

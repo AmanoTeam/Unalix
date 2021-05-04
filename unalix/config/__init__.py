@@ -31,4 +31,7 @@ __all__ = [
 __locals = locals()
 
 for __name in __all__:
-    setattr(__locals[__name], "__module__", "unalix.config")
+    try:
+        setattr(__locals[__name], "__module__", "unalix.config")
+    except AttributeError:
+        pass

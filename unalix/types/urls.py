@@ -70,3 +70,5 @@ class URL(str):
             urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
         )
 
+
+URL_TYPES = (URL, urllib.parse.ParseResult)

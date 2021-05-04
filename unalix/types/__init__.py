@@ -3,11 +3,7 @@ from .patterns import Pattern, Patterns
 from .rulesets import Ruleset, Rulesets
 from .body_redirects import BodyRedirect, BodyRedirects
 from .domains import Domains
-from .urls import URL
-from .paths import Path
-from .tuples import Tuple
-from .ints import Int
-from .dicts import Dict
+from .urls import URL, URL_TYPES
 
 
 __all__ = [
@@ -22,13 +18,13 @@ __all__ = [
     "BodyRedirects",
     "Domains",
     "URL",
-    "Path",
-    "Tuple",
-    "Int",
-    "Dict"
+    "URL_TYPES"
 ]
 
 __locals = locals()
 
 for __name in __all__:
-    setattr(__locals[__name], "__module__", "unalix.types")
+    try:
+        setattr(__locals[__name], "__module__", "unalix.types")
+    except AttributeError:
+        pass

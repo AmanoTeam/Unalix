@@ -97,7 +97,7 @@ def clear_url(
 
     for ruleset in rulesets.iter():
 
-        if isinstance(url, (types.URL, urllib.parse.ParseResult)):
+        if isinstance(url, types.URL_TYPES):
             url = types.URL(url.geturl())
         else:
             url = types.URL(url)

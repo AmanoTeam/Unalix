@@ -1,3 +1,0 @@
-class Tuple(tuple):
-    pass
-
