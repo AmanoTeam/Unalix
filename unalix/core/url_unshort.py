@@ -32,7 +32,7 @@ def unshort_url(
     context: typing.Optional[ssl.SSLContext] = None,
     max_retries:  typing.Optional[int] = None,
     status_retry:  typing.Optional[typing.Iterable[typing.Union[int, http.HTTPStatus]]] = None,
-    **kwargs
+    **kwargs: typing.Any
 ):
     """
     This method implements a simple HTTP 1.1 client, mainly used to follow HTTP redirects and read responses body.
@@ -142,6 +142,10 @@ def unshort_url(
 
     http_status_retry = (
         status_retry if status_retry is not None else config.HTTP_STATUS_RETRY
+    )
+    
+    http_max_fetch = (
+    	max_fetch_size if max_fetch_size is not None else config.HTTP_MAX_FETCH_SIZE
     )
 
     tls_context = (
@@ -286,9 +290,7 @@ def unshort_url(
             continue
 
         if parse_documents:
-            content = response.read(
-                max_fetch_size if max_fetch_size is not None else config.HTTP_MAX_FETCH_SIZE
-            )
+            content = response.read(max_fetch_size)
 
             # Close connection after reading response body
             connection.close()
