@@ -240,6 +240,9 @@ def unshort_url(
                 if redirect_location.startswith("/"):
                     # full path
                     redirect_location = urllib.parse.urlunparse((url.scheme, url.netloc, redirect_location, "", "", ""))
+                elif redirect_location.startswith("//"):
+                    # new url
+                    redirect_location = urllib.parse.urlunparse((url.scheme, url.netloc.lstrip(chars="/"), redirect_location, "", "", ""))
                 else:
                     # relative path
                     path = os.path.join(os.path.dirname(url.path), redirect_location)
