@@ -10,6 +10,8 @@ HTTP_HEADERS = {
     "User-Agent": f"Unalix/{__version__} (+https://github.com/AmanoTeam/Unalix)"
 }
 
+HTTP_METHOD = "GET"
+
 HTTP_TIMEOUT = 8
 
 HTTP_MAX_REDIRECTS = 13

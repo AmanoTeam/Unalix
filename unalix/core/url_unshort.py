@@ -23,12 +23,14 @@ body_redirects = coreutils.body_redirects_from_files(config.PATH_BODY_REDIRECTS)
 
 def unshort_url(
     url: typing.Union[str, urllib.parse.ParseResult],
+    method: typing.Optional[str] = False,
     parse_documents: typing.Optional[bool] = False,
     max_redirects: typing.Optional[int] = None,
     timeout: typing.Optional[int] = None,
     headers: typing.Optional[typing.Dict[str, str]] = None,
     max_fetch_size: typing.Optional[int] = None,
-    cookie_policy: typing.Optional[http.cookiejar.DefaultCookiePolicy] = None,
+    cookies: typing.Optional[http.cookiejar.CookieJar] = None,
+    cookies_policy: typing.Optional[http.cookiejar.DefaultCookiePolicy] = None,
     context: typing.Optional[ssl.SSLContext] = None,
     max_retries:  typing.Optional[int] = None,
     status_retry:  typing.Optional[typing.Iterable[typing.Union[int, http.HTTPStatus]]] = None,
@@ -41,7 +43,10 @@ def unshort_url(
     Parameters:
 
         url (str):
-            A string representing an HTTP URL.
+            A valid RFC 3986 HTTP URI.
+
+        method (str):
+            A valid RFC 7231 HTTP method. Defaults to unalix.config.HTTP_METHOD.
 
         parse_documents (bool | optional):
             Pass True to instruct Unalix to look for redirect URLs in the response body when there is no HTTP redirects
@@ -63,7 +68,10 @@ def unshort_url(
         max_fetch_size (int | optional):
             How many bytes to fetch from response body. Defaults to unalix.config.HTTP_MAX_FETCH_SIZE.
 
-        cookie_policy (http.cookiejar.DefaultCookiePolicy | optional):
+        cookies (http.cookiejar.CookieJar | optional):
+            Custom CookieJar object.
+
+        cookies_policy (http.cookiejar.DefaultCookiePolicy | optional):
             Custom cookie policy for cookie handling. Defaults to unalix.COOKIE_STRICT_ALLOW.
 
             Note that cookies are not shared between sessions. Each call to unshort_url() will
@@ -94,7 +102,7 @@ def unshort_url(
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> unshort_url(url, cookie_policy=COOKIE_REJECT_ALL)
+            >>> unshort_url(url, cookies_policy=COOKIE_REJECT_ALL)
             'https://bitly.com/pages/pricing'
 
       Allowing all cookies
@@ -103,7 +111,7 @@ def unshort_url(
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> unshort_url(url, cookie_policy=COOKIE_ALLOW_ALL)
+            >>> unshort_url(url, cookies_policy=COOKIE_ALLOW_ALL)
             'https://bitly.com/pages/pricing'
 
       Disabling SSL certificate validation
@@ -116,38 +124,37 @@ def unshort_url(
             'https://bitly.com/pages/pricing'
     """
 
-    cookie_jar = http.cookiejar.CookieJar()
+    # Cookies
+    cookie_jar = (
+        cookies if cookies is not None else http.cookiejar.CookieJar()
+    )
     cookie_jar.set_policy(
-        cookie_policy if cookie_policy is not None else cookie_policies.COOKIE_STRICT_ALLOW
+        cookies_policy if cookies_policy is not None else cookie_policies.COOKIE_STRICT_ALLOW
     )
 
     total_redirects = 0
     total_retries = 0
 
-    http_timeout = (
-        timeout if timeout is not None else config.HTTP_TIMEOUT
+    # HTTP options
+    (
+        http_method,
+        http_timeout,
+        http_max_redirects,
+        http_max_retries,
+        http_headers,
+        http_status_retry,
+        http_max_fetch
+    ) = (
+        method if method is not None else unalix.config.HTTP_METHOD,
+        timeout if timeout is not None else config.HTTP_TIMEOUT,
+        max_redirects if max_redirects is not None else config.HTTP_MAX_REDIRECTS,
+        max_retries if max_retries is not None else config.HTTP_MAX_RETRIES,
+        headers if headers is not None else config.HTTP_HEADERS,
+        status_retry if status_retry is not None else config.HTTP_STATUS_RETRY,
+        max_fetch_size if max_fetch_size is not None else config.HTTP_MAX_FETCH_SIZE
     )
 
-    http_max_redirects = (
-        max_redirects if max_redirects is not None else config.HTTP_MAX_REDIRECTS
-    )
-
-    http_max_retries = (
-        max_retries if max_retries is not None else config.HTTP_MAX_RETRIES
-    )
-
-    http_headers = (
-        headers if headers is not None else config.HTTP_HEADERS
-    )
-
-    http_status_retry = (
-        status_retry if status_retry is not None else config.HTTP_STATUS_RETRY
-    )
-    
-    http_max_fetch = (
-    	max_fetch_size if max_fetch_size is not None else config.HTTP_MAX_FETCH_SIZE
-    )
-
+    # SSL context for HTTPS requests
     tls_context = (
         context if context is not None else ssl_context.SSL_CONTEXT_VERIFIED
     )
@@ -190,22 +197,26 @@ def unshort_url(
                 url=url
             ) from None
 
-        # Workaround for making http.client's connection objects compatible with the
-        # http.cookiejar.CookieJar's extract_cookies() and add_cookie_header() methods.
+        # Workaround for making http.client's connection objects compatible with
+        # CookieJar's extract_cookies() and add_cookie_header() methods.
 
+        # https://docs.python.org/3/library/urllib.request.html#urllib.request.Request.unverifiable
         connection.unverifiable = True
 
+        # https://docs.python.org/3/library/urllib.request.html#urllib.request.Request.has_header
         connection.has_header = lambda header_name: False
+        
+        # https://docs.python.org/3/library/urllib.request.html#urllib.request.Request.get_full_url
         connection.get_full_url = lambda: str(url)
 
+        # https://docs.python.org/3/library/urllib.request.html#urllib.request.Request.origin_req_host
         connection.origin_req_host = url.netloc
 
         connection.headers = {}
         connection.cookies = {}
 
-        def add_unredirected_header(key, value):
-            connection.headers.update({key: value})
-
+        # https://docs.python.org/3/library/urllib.request.html#urllib.request.Request.add_unredirected_header
+        add_unredirected_header = lambda key, value: connection.headers.update({key: value})
         connection.add_unredirected_header = add_unredirected_header
 
         cookie_jar.add_cookie_header(connection)
@@ -218,7 +229,7 @@ def unshort_url(
 
         try:
             connection.request(
-                method="GET",
+                method=http_method,
                 url=uri,
                 headers=connection_headers
             )
@@ -289,7 +300,7 @@ def unshort_url(
 
             continue
 
-        if parse_documents:
+        if parse_documents and http_method != "HEAD":
             content = response.read(max_fetch_size)
 
             # Close connection after reading response body

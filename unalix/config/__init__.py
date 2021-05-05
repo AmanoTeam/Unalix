@@ -11,7 +11,8 @@ from .http import (
     HTTP_MAX_REDIRECTS,
     HTTP_MAX_FETCH_SIZE,
     HTTP_STATUS_RETRY,
-    HTTP_MAX_RETRIES
+    HTTP_MAX_RETRIES,
+    HTTP_METHOD
 )
 
 __all__ = [
@@ -25,7 +26,8 @@ __all__ = [
     "HTTP_MAX_REDIRECTS",
     "HTTP_MAX_FETCH_SIZE",
     "HTTP_STATUS_RETRY",
-    "HTTP_MAX_RETRIES"
+    "HTTP_MAX_RETRIES",
+    "HTTP_METHOD"
 ]
 
 __locals = locals()
