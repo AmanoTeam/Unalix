@@ -2,7 +2,7 @@ import json
 import re
 import typing
 import ssl
-import platform
+import sys
 
 from .. import types
 
@@ -200,11 +200,11 @@ def create_ssl_context(
         | ssl.OP_SINGLE_ECDH_USE
     )
 
-    major, minor, micro = platform.python_version_tuple()
-    python_version = float(f"{major}.{minor}")
+    # https://bootstrap.pypa.io/get-pip.py
+    python_version = sys.version_info[:2]
 
     # These options are deprecated since Python 3.7
-    if python_version == 3.6:
+    if python_version == (3, 6):
         ssl_options |= (
             ssl.OP_NO_SSLv2
             | ssl.OP_NO_SSLv3
@@ -229,7 +229,7 @@ def create_ssl_context(
     if ssl.HAS_ALPN:
         context.set_alpn_protocols(["http/1.1"])
 
-    if python_version >= 3.7:
+    if python_version >= (3, 7):
         # Only available in Python 3.7 or higher
         context.minimum_version = ssl.TLSVersion.TLSv1_2
         context.maximum_version = ssl.TLSVersion.TLSv1_3
@@ -242,7 +242,7 @@ def create_ssl_context(
         except AttributeError:
             pass
 
-    if python_version >= 3.8:
+    if python_version >= (3, 8):
         # Signal to server support for PHA in TLS 1.3.
         try:
             # Only writable in OpenSSL v1.1.1+ with TLS 1.3 support.
