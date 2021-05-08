@@ -4,13 +4,10 @@ import typing
 import ssl
 import platform
 
-from ..types.rulesets import Ruleset, Rulesets
-from ..types.patterns import Pattern, Patterns
-from ..types.domains import Domains
-from ..types.body_redirects import BodyRedirect, BodyRedirects
+from .. import types
 
 
-def rulesets_from_files(iterable_of_paths: typing.Iterable) -> Rulesets:
+def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
 
     iterable_of_dicts = []
 
@@ -20,55 +17,60 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> Rulesets:
 
         iterable_of_dicts.append(json.loads(content))
 
-    rulesets = Rulesets()
+    rulesets = types.Rulesets()
 
     for ruleset in iterable_of_dicts:
 
         for providerName in ruleset["providers"].keys():
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#urlpattern
-            urlPattern = Pattern(ruleset["providers"][providerName]["urlPattern"])
+            urlPattern = types.Pattern(ruleset["providers"][providerName]["urlPattern"])
             urlPattern.compiled = re.compile(urlPattern)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#completeprovider
             completeProvider = ruleset["providers"][providerName].get("completeProvider", False)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#rules
-            rules = Patterns()
+            rules = types.Rules()
+
             for rule in ruleset["providers"][providerName].get("rules", []):
-                pattern = Pattern(rule)
+                pattern = types.Rule(rule)
                 pattern.compiled = re.compile(rf"(%(?:26|23)|&|^){rule}(?:(?:=|%3[Dd])[^&]*)")
 
                 rules.append(pattern)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#rawrules
-            rawRules = Patterns()
+            rawRules = types.RawRules()
+
             for rawRule in ruleset["providers"][providerName].get("rawRules", []):
-                pattern = Pattern(rawRule)
+                pattern = types.RawRule(rawRule)
                 pattern.compiled = re.compile(rawRule)
 
                 rawRules.append(pattern)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#referralmarketing
-            referralMarketing = Patterns()
+            referralMarketing = types.ReferralsMarketing()
+
             for referral in ruleset["providers"][providerName].get("referralMarketing", []):
-                pattern = Pattern(referral)
+                pattern = types.ReferralMarketing(referral)
                 pattern.compiled = re.compile(rf"(%(?:26|23)|&|^){referral}(?:(?:=|%3[Dd])[^&]*)")
 
                 referralMarketing.append(pattern)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#exceptions
-            exceptions = Patterns()
+            exceptions = types.Exceptions()
+
             for exception in ruleset["providers"][providerName].get("exceptions", []):
-                pattern = Pattern(exception)
+                pattern = types.Exception(exception)
                 pattern.compiled = re.compile(exception)
 
                 exceptions.append(pattern)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#redirections
-            redirections = Patterns()
+            redirections = types.Redirections()
+
             for redirection in ruleset["providers"][providerName].get("redirections", []):
-                pattern = Pattern(redirection)
+                pattern = types.Redirection(redirection)
                 pattern.compiled = re.compile(f"{redirection}.*")
 
                 redirections.append(pattern)
@@ -78,7 +80,7 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> Rulesets:
             forceRedirection = ruleset["providers"][providerName].get("forceRedirection", False)
 
             rulesets.add_ruleset(
-                Ruleset(
+                types.Ruleset(
                     providerName=providerName,
                     urlPattern=urlPattern,
                     completeProvider=completeProvider,
@@ -94,9 +96,9 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> Rulesets:
     return rulesets
 
 
-def domains_from_files(iterable_of_paths: typing.Iterable) -> Domains:
+def domains_from_files(iterable_of_paths: typing.Iterable) -> types.Domains:
 
-    domains = Domains()
+    domains = types.Domains()
 
     for path in iterable_of_paths:
         with open(file=path, mode="r") as file:
@@ -108,7 +110,7 @@ def domains_from_files(iterable_of_paths: typing.Iterable) -> Domains:
     return domains
 
 
-def body_redirects_from_files(iterable_of_paths: typing.Iterable) -> BodyRedirects:
+def body_redirects_from_files(iterable_of_paths: typing.Iterable) -> types.BodyRedirects:
 
     iterable_of_lists = []
 
@@ -118,7 +120,7 @@ def body_redirects_from_files(iterable_of_paths: typing.Iterable) -> BodyRedirec
 
         iterable_of_lists.append(json.loads(content))
 
-    body_redirects = BodyRedirects()
+    body_redirects = types.BodyRedirects()
 
     for _ruleset in iterable_of_lists:
 
@@ -129,20 +131,20 @@ def body_redirects_from_files(iterable_of_paths: typing.Iterable) -> BodyRedirec
             if ruleset["urlPattern"] is None:
                 urlPattern = None
             else:
-                urlPattern = Pattern(ruleset["urlPattern"])
+                urlPattern = types.Pattern(ruleset["urlPattern"])
                 urlPattern.compiled = re.compile(urlPattern)
 
-            domains = Domains(ruleset["domains"])
+            domains = types.Domains(ruleset["domains"])
 
-            rules = Patterns()
+            rules = types.Patterns()
             for rule in ruleset["rules"]:
-                pattern = Pattern(rule)
+                pattern = types.Pattern(rule)
                 pattern.compiled = re.compile(rule)
 
                 rules.append(pattern)
 
             body_redirects.add_ruleset(
-                BodyRedirect(
+                types.BodyRedirect(
                     providerName=providerName,
                     urlPattern=urlPattern,
                     domains=domains,

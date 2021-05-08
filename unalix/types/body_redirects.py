@@ -27,5 +27,5 @@ class BodyRedirects(List):
 
     def add_ruleset(self, ruleset: BodyRedirect):
 
-        self._list.append(ruleset)
+        self.base_list.append(ruleset)
 

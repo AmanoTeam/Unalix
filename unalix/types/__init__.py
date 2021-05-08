@@ -1,5 +1,18 @@
 from .objects import Object, Dict, List
-from .patterns import Pattern, Patterns
+from .patterns import (
+    Pattern,
+    Patterns,
+    Rule,
+    Rules,
+    RawRule,
+    RawRules,
+    ReferralMarketing,
+    ReferralsMarketing,
+    Exception,
+    Exceptions,
+    Redirection,
+    Redirections
+)
 from .rulesets import Ruleset, Rulesets
 from .body_redirects import BodyRedirect, BodyRedirects
 from .domains import Domains
@@ -14,6 +27,16 @@ __all__ = [
     "Patterns",
     "Ruleset",
     "Rulesets",
+    "Rule",
+    "Rules",
+    "RawRule",
+    "RawRules",
+    "ReferralMarketing",
+    "ReferralsMarketing",
+    "Exception",
+    "Exceptions",
+    "Redirection",
+    "Redirections",
     "BodyRedirect",
     "BodyRedirects",
     "Domains",

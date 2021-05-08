@@ -33,5 +33,5 @@ class Rulesets(List):
 
     def add_ruleset(self, ruleset: Ruleset):
 
-        self._list.append(ruleset)
+        self.base_list.append(ruleset)
 

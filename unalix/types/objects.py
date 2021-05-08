@@ -5,6 +5,7 @@ import json
 
 # https://github.com/pyrogram/pyrogram/blob/v1.1.0/pyrogram/types/object.py#L26
 class Meta(type, metaclass=type("", (type,), {"__str__": lambda _: "~hi"})):
+
     def __str__(self):
         return f"<class 'unalix.types.{self.__name__}'>"
 
@@ -14,49 +15,86 @@ class Object(metaclass=Meta):
 
 
     @staticmethod
-    def _default(obj):
+    def default(unserialized_object):
 
-        _dict = {}
+        serialized_object = {}
 
-        for attribute in filter(lambda x: not x.startswith("__"), obj.__dict__):
-            object = getattr(obj, attribute)
-            if "_list" in dir(object):
-                _dict.update({attribute: list(object)})
-            elif "_list" in dir(obj):
-                _dict.update({obj.__class__.__name__.lower(): obj._list})
+        code = unserialized_object.__init__.__code__
+        arguments = inspect.getargs(code).args
+
+        arguments.remove("self")
+
+        for argument in arguments:
+
+            attribute = getattr(unserialized_object, argument)
+
+            if isinstance(attribute, List):
+                serialized_object.update(
+                    {
+                        argument: list(attribute)
+                    }
+                )
+            elif isinstance(unserialized_object, List):
+                serialized_object.update(
+                    {
+                        argument: unserialized_object.base_list
+                    }
+                )
             else:
-                _dict.update({attribute: object})
+                serialized_object.update(
+                    {
+                        argument: attribute
+                    }
+                )
 
-        return _dict
+        return serialized_object
 
 
     def __str__(self):
+
         return json.dumps(
-            self, indent=4, default=Object._default, ensure_ascii=False)
+            self,
+            indent=4,
+            default=Object.default,
+            ensure_ascii=False
+        )
 
 
     def __repr__(self):
-        _repr = []
-        for attribute in filter(lambda x: not x.startswith("__"), self.__dict__):
-            object = getattr(self, attribute)
-            if "_list" in dir(object):
-                _repr.append(f"{attribute}={object.__class__.__name__}({repr(object._list)})")
-            elif "_list" in dir(self):
-                _repr.append(repr(self._list))
+
+        code = self.__init__.__code__
+        arguments = inspect.getargs(code).args
+
+        arguments.remove("self")
+
+        data = []
+
+        for argument in arguments:
+            
+            attribute = getattr(self, argument)
+            
+            if isinstance(attribute, List):
+                data.append(f"{argument}={attribute.__class__.__name__}({repr(attribute.base_list)})")
+            elif isinstance(self, List):
+                data.append(repr(self.base_list))
             else:
-                _repr.append(f"{attribute}={repr(object)}")
+                data.append(f"{argument}={repr(attribute)}")
+
         return "unalix.types.{}({})".format(
             self.__class__.__name__,
-            ", ".join(_repr)
+            ", ".join(data)
         )
 
 
     def __eq__(self, other):
-        for attr in self.__dict__:
-            try:
-                if getattr(self, attr) != getattr(other, attr):
-                    return False
-            except AttributeError:
+
+        code = self.__init__.__code__
+        arguments = inspect.getargs(code).args
+
+        arguments.remove("self")
+
+        for argument in arguments:
+            if not hasattr(other, argument) or getattr(self, argument) != getattr(other, argument):
                 return False
 
         return True
@@ -69,23 +107,35 @@ class Dict(Object):
 
         iterables = {}
 
-        attributes = [
-            argument for argument in (
-                inspect.getargs(self.__init__.__code__).args) if (
-                argument != "self" and not argument.startswith("_"))
-        ]
+        code = self.__init__.__code__
+        arguments = inspect.getargs(code).args
 
-        for attribute in attributes:
-            object = getattr(self, attribute)
-            if isinstance(object, (List, list)):
-                iterables.update({attribute: list(object)})
-            elif isinstance(object, (Dict, dict)):
-                iterables.update({attribute: dict(object)})
+        arguments.remove("self")
+
+        for argument in arguments:
+            
+            attribute = getattr(self, argument)
+            
+            if isinstance(attribute, List):
+                iterables.update(
+                    {
+                        argument: list(attribute)
+                    }
+                )
+            elif isinstance(object, Dict):
+                iterables.update(
+                    {
+                        argument: dict(attribute)
+                    }
+                )
             else:
-                iterables.update({attribute: object})
+                iterables.update(
+                    {
+                        argument: attribute
+                    }
+                )
 
-        for key, value in iterables.items():
-            yield (key, value)
+        yield from iterables.items()
 
 
     def __getitem__(self, item):
@@ -103,41 +153,45 @@ class Dict(Object):
 class List(Object):
 
 
-    def __init__(self, _list=None):
-        if _list is None:
-            self._list = []
+    def __init__(self, base_list=None):
+
+        if base_list is None:
+            self.base_list = []
         else:
-            self._list = _list
+            self.base_list = base_list
 
 
     def __iter__(self):
-        items = []
-        for item in self.list():
-            if isinstance(item, (Dict, dict)):
-                items.append(dict(item))
+
+        iterable = []
+
+        for item in self.base_list:
+            if isinstance(item, Dict):
+                iterable.append(dict(item))
             elif isinstance(item, (str, int, float, bool, type(None))):
-                items.append(item)
+                iterable.append(item)
             else:
                 raise TypeError(f"expecting Dict, dict, str, float, bool or NoneType, got {item.__class__.__name__}")
-        return iter(items)
+
+        return iter(iterable)
 
 
     def __getitem__(self, item):
-        return self._list[item]
+        return self.base_list[item]
 
 
     def __len__(self):
-        return len(self._list)
+        return len(self.base_list)
 
 
     def append(self, item):
-        self._list.append(item)
+        self.base_list.append(item)
 
 
     def iter(self):
-        return iter(self._list)
+        return iter(self.base_list)
 
 
     def list(self):
-        return list(self._list)
+        return list(self.base_list)
 
