@@ -31,46 +31,46 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
             completeProvider = ruleset["providers"][providerName].get("completeProvider", False)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#rules
-            rules = types.Rules()
+            rules = types.Patterns()
 
             for rule in ruleset["providers"][providerName].get("rules", []):
-                pattern = types.Rule(rule)
+                pattern = types.Pattern(rule)
                 pattern.compiled = re.compile(rf"(%(?:26|23)|&|^){rule}(?:(?:=|%3[Dd])[^&]*)")
 
                 rules.append(pattern)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#rawrules
-            rawRules = types.RawRules()
+            rawRules = types.Patterns()
 
             for rawRule in ruleset["providers"][providerName].get("rawRules", []):
-                pattern = types.RawRule(rawRule)
+                pattern = types.Pattern(rawRule)
                 pattern.compiled = re.compile(rawRule)
 
                 rawRules.append(pattern)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#referralmarketing
-            referralMarketing = types.ReferralsMarketing()
+            referralMarketing = types.Patterns()
 
             for referral in ruleset["providers"][providerName].get("referralMarketing", []):
-                pattern = types.ReferralMarketing(referral)
+                pattern = types.Pattern(referral)
                 pattern.compiled = re.compile(rf"(%(?:26|23)|&|^){referral}(?:(?:=|%3[Dd])[^&]*)")
 
                 referralMarketing.append(pattern)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#exceptions
-            exceptions = types.Exceptions()
+            exceptions = types.Patterns()
 
             for exception in ruleset["providers"][providerName].get("exceptions", []):
-                pattern = types.Exception(exception)
+                pattern = types.Pattern(exception)
                 pattern.compiled = re.compile(exception)
 
                 exceptions.append(pattern)
 
             # https://docs.clearurls.xyz/1.21.0/specs/rules/#redirections
-            redirections = types.Redirections()
+            redirections = types.Patterns()
 
             for redirection in ruleset["providers"][providerName].get("redirections", []):
-                pattern = types.Redirection(redirection)
+                pattern = types.Pattern(redirection)
                 pattern.compiled = re.compile(f"{redirection}.*")
 
                 redirections.append(pattern)
@@ -137,6 +137,7 @@ def body_redirects_from_files(iterable_of_paths: typing.Iterable) -> types.BodyR
             domains = types.Domains(ruleset["domains"])
 
             rules = types.Patterns()
+
             for rule in ruleset["rules"]:
                 pattern = types.Pattern(rule)
                 pattern.compiled = re.compile(rule)
