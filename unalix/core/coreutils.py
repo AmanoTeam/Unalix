@@ -165,7 +165,14 @@ def create_ssl_context(
     """
     This function creates the default SSL context for HTTPS connections.
     """
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+
+    # https://bootstrap.pypa.io/get-pip.py
+    python_version = sys.version_info[0:2]
+
+    if python_version >= (3, 10):
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    else:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS)
 
     context.verify_mode = ssl.CERT_NONE if unverified else ssl.CERT_REQUIRED
     context.check_hostname = False if unverified else True
@@ -199,9 +206,6 @@ def create_ssl_context(
         | ssl.OP_SINGLE_DH_USE
         | ssl.OP_SINGLE_ECDH_USE
     )
-
-    # https://bootstrap.pypa.io/get-pip.py
-    python_version = sys.version_info[:2]
 
     # These options are deprecated since Python 3.7
     if python_version == (3, 6):
