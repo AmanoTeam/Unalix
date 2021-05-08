@@ -145,7 +145,7 @@ def unshort_url(
         http_status_retry,
         http_max_fetch
     ) = (
-        method if method is not None else unalix.config.HTTP_METHOD,
+        method if method is not None else config.HTTP_METHOD,
         timeout if timeout is not None else config.HTTP_TIMEOUT,
         max_redirects if max_redirects is not None else config.HTTP_MAX_REDIRECTS,
         max_retries if max_retries is not None else config.HTTP_MAX_RETRIES,
