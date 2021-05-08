@@ -23,7 +23,7 @@ body_redirects = coreutils.body_redirects_from_files(config.PATH_BODY_REDIRECTS)
 
 def unshort_url(
     url: typing.Union[str, urllib.parse.ParseResult],
-    method: typing.Optional[str] = False,
+    method: typing.Optional[str] = None,
     parse_documents: typing.Optional[bool] = False,
     max_redirects: typing.Optional[int] = None,
     timeout: typing.Optional[int] = None,
