@@ -159,19 +159,9 @@ def unshort_url(
         context if context is not None else ssl_context.SSL_CONTEXT_VERIFIED
     )
 
+    exception = None
+
     while True:
-
-        if total_redirects > http_max_redirects:
-            raise exceptions.TooManyRedirectsError(
-                message="Exceeded maximum allowed redirects",
-                url=url
-            ) from None
-
-        if total_retries > http_max_retries:
-            raise exceptions.MaxRetriesError(
-                message="Exceeded maximum allowed retries",
-                url=url
-            ) from None
 
         if isinstance(url, types.URL_TYPES):
             url = types.URL(url.geturl())
@@ -240,6 +230,13 @@ def unshort_url(
             # Retry based on connection error
             if http_max_retries > 0:
                 total_retries += 1
+
+                if total_retries > http_max_retries:
+                    raise exceptions.MaxRetriesError(
+                        message="Exceeded maximum allowed retries",
+                        url=url
+                    ) from exception
+
                 continue
 
             raise exceptions.ConnectError(
@@ -259,6 +256,12 @@ def unshort_url(
                 
                 total_retries += 1
                 
+                if total_retries > http_max_retries:
+                    raise exceptions.MaxRetriesError(
+                        message="Exceeded maximum allowed retries",
+                        url=url
+                    ) from None
+
                 continue
 
         # Extract cookies from response
@@ -298,6 +301,12 @@ def unshort_url(
             # Response body is ignored in redirects
             connection.close()
 
+            if total_redirects > http_max_redirects:
+                raise exceptions.TooManyRedirectsError(
+                    message="Exceeded maximum allowed redirects",
+                    url=url
+                ) from None
+
             continue
 
         if parse_documents and http_method != "HEAD":
@@ -307,29 +316,34 @@ def unshort_url(
             connection.close()
 
             # Try to decode the response body using utf-8 as encoding
-            decoded_content = content.decode(encoding="utf-8")
+            decoded_content = content.decode(encoding="utf-8", errors="ignore")
 
             for ruleset in body_redirects.iter():
-                match_found = None
 
-                if (
-                    ruleset.urlPattern is not None and
-                    ruleset.urlPattern.compiled.match(url)
-                ) or url.netloc in ruleset.domains:
+                if (ruleset.urlPattern is not None and ruleset.urlPattern.compiled.match(url) or url.netloc in ruleset.domains):
                     for rule in ruleset.rules.iter():
                         results = rule.compiled.search(decoded_content)
-
                         if isinstance(results, typing.Match):
-                            match_found = True
                             break
+                    else:
+                        continue
 
-                    if match_found:
-                        url = utils.requote_uri(html.unescape(results.group(1)))
-                        total_redirects += 1
-                        break
+                    url = utils.requote_uri(html.unescape(results.group(1)))
 
-        connection.close()
+                    total_redirects += 1
 
-        break
+                    if total_redirects > http_max_redirects:
+                        raise exceptions.TooManyRedirectsError(
+                            message="Exceeded maximum allowed redirects",
+                            url=url
+                        ) from None
 
-    return url
+                    break
+            else:
+                return url
+            
+            continue
+        else:
+            connection.close()
+
+        return url
