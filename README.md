@@ -5,7 +5,7 @@ Unalix is a small, dependency-free, fast Python package that implements the same
 Install using `pip`:
 
 ```bash
-pip3 install --force-reinstall \
+python3 -m pip install --force-reinstall \
     --disable-pip-version-check \
     --upgrade 'unalix'
 ```
@@ -47,18 +47,23 @@ https://bitly.com/pages/pricing
 
 If you have discovered a bug in this library and know how to fix it, fork this repository and open a Pull Request.
 
-If you found a URL that was not fully cleaned by Unalix (e.g. some tracking fields still remains), report them here or in the [ClearURLs addon repository](https://gitlab.com/anti-tracking/ClearURLs/rules/-/issues). We use the list of regex rules maintained by the ClearURLs maintainers, but we also have our [own list](./unalix/package_data/rulesets/unalix.json).
+If you found a URL that was not fully cleaned by Unalix (e.g. some tracking fields still remains), report them here or in the [ClearURLs rules repository](https://gitlab.com/anti-tracking/ClearURLs/rules/-/issues). We use the list of regex rules maintained by the ClearURLs maintainers, but we also have our [own list](./unalix/package_data/rulesets/unalix.json).
 
 #### Third party software
 
-Unalix includes some third party software. See them below:
+Unalix includes some third party software in its codebase. See them below:
 
 - **ClearURLs**
   - Author: Kevin Röbert
   - Repository: [ClearURLs/Rules](https://github.com/ClearURLs/Rules)
   - License: [GNU Lesser General Public License v3.0](https://gitlab.com/ClearURLs/Rules/blob/master/LICENSE)
 
-- **python-requests**
+- **Requests**
   - Author: Kenneth Reitz
   - Repository: [psf/requests](https://github.com/psf/requests)
   - License: [Apache v2.0](https://github.com/psf/requests/blob/master/LICENSE)
+
+- **Pyrogram**
+  - Author: Dan
+  - Repository: [pyrogram/pyrogram](https://github.com/pyrogram/pyrogram)
+  - License: [LGPL-3.0](https://github.com/pyrogram/pyrogram/blob/master/COPYING)
