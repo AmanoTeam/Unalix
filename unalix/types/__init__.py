@@ -1,4 +1,4 @@
-from .objects import Object, Dict, List
+from .objects import Dict, List
 from .patterns import Pattern, Patterns
 from .rulesets import Ruleset, Rulesets
 from .body_redirects import BodyRedirect, BodyRedirects
@@ -7,7 +7,6 @@ from .urls import URL, URL_TYPES
 
 
 __all__ = [
-    "Object",
     "Dict",
     "List",
     "Pattern",

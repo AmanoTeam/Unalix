@@ -4,50 +4,14 @@ import json
 
 
 # https://github.com/pyrogram/pyrogram/blob/v1.1.0/pyrogram/types/object.py#L26
-class Meta(type, metaclass=type("", (type,), {"__str__": lambda _: "~hi"})):
+class MetaClass(type, metaclass=type("", (type,), {"__str__": lambda _: "~hi"})):
 
     def __str__(self):
         return f"<class 'unalix.types.{self.__name__}'>"
 
 
 # https://github.com/pyrogram/pyrogram/blob/v1.1.0/pyrogram/types/object.py#L31
-class Object(metaclass=Meta):
-
-
-    @staticmethod
-    def default(unserialized_object):
-
-        serialized_object = {}
-
-        code = unserialized_object.__init__.__code__
-        arguments = inspect.getargs(code).args
-
-        arguments.remove("self")
-
-        for argument in arguments:
-
-            attribute = getattr(unserialized_object, argument)
-
-            if isinstance(attribute, List):
-                serialized_object.update(
-                    {
-                        argument: list(attribute)
-                    }
-                )
-            elif isinstance(unserialized_object, List):
-                serialized_object.update(
-                    {
-                        argument: unserialized_object.base_list
-                    }
-                )
-            else:
-                serialized_object.update(
-                    {
-                        argument: attribute
-                    }
-                )
-
-        return serialized_object
+class BaseClass(metaclass=MetaClass):
 
 
     def __str__(self):
@@ -55,52 +19,12 @@ class Object(metaclass=Meta):
         return json.dumps(
             self,
             indent=4,
-            default=Object.default,
+            default=self.default,
             ensure_ascii=False
         )
 
 
-    def __repr__(self):
-
-        code = self.__init__.__code__
-        arguments = inspect.getargs(code).args
-
-        arguments.remove("self")
-
-        data = []
-
-        for argument in arguments:
-            
-            attribute = getattr(self, argument)
-            
-            if isinstance(attribute, List):
-                data.append(f"{argument}={attribute.__class__.__name__}({repr(attribute.base_list)})")
-            elif isinstance(self, List):
-                data.append(repr(self.base_list))
-            else:
-                data.append(f"{argument}={repr(attribute)}")
-
-        return "unalix.types.{}({})".format(
-            self.__class__.__name__,
-            ", ".join(data)
-        )
-
-
-    def __eq__(self, other):
-
-        code = self.__init__.__code__
-        arguments = inspect.getargs(code).args
-
-        arguments.remove("self")
-
-        for argument in arguments:
-            if not hasattr(other, argument) or getattr(self, argument) != getattr(other, argument):
-                return False
-
-        return True
-
-
-class Dict(Object):
+class Dict(BaseClass):
 
 
     def __iter__(self):
@@ -122,7 +46,7 @@ class Dict(Object):
                         argument: list(attribute)
                     }
                 )
-            elif isinstance(object, Dict):
+            elif isinstance(attribute, Dict):
                 iterables.update(
                     {
                         argument: dict(attribute)
@@ -150,7 +74,60 @@ class Dict(Object):
         delattr(self, item)
 
 
-class List(Object):
+    def __repr__(self):
+
+        code = self.__init__.__code__
+        arguments = inspect.getargs(code).args
+
+        arguments.remove("self")
+
+        data = []
+
+        for argument in arguments:
+            
+            attribute = getattr(self, argument)
+            
+            if isinstance(attribute, List):
+                data.append(f"{argument}={attribute.__class__.__name__}({repr(attribute.base_list)})")
+            else:
+                data.append(f"{argument}={repr(attribute)}")
+
+        class_name = self.__class__.__name__
+        representation = ", ".join(data)
+
+        return f"unalix.types.{class_name}({representation})"
+
+    @staticmethod
+    def default(obj):
+
+        serialized_object = {}
+
+        code = obj.__init__.__code__
+        arguments = inspect.getargs(code).args
+
+        arguments.remove("self")
+
+        for argument in arguments:
+
+            attribute = getattr(obj, argument)
+
+            if isinstance(attribute, List):
+                serialized_object.update(
+                    {
+                        argument: list(attribute)
+                    }
+                )
+            else:
+                serialized_object.update(
+                    {
+                        argument: attribute
+                    }
+                )
+
+        return serialized_object
+
+
+class List(BaseClass):
 
 
     def __init__(self, base_list=None):
@@ -171,7 +148,7 @@ class List(Object):
             elif isinstance(item, (str, int, float, bool, type(None))):
                 iterable.append(item)
             else:
-                raise TypeError(f"expecting Dict, dict, str, float, bool or NoneType, got {item.__class__.__name__}")
+                raise TypeError
 
         return iter(iterable)
 
@@ -195,3 +172,22 @@ class List(Object):
     def list(self):
         return list(self.base_list)
 
+
+    def __repr__(self):
+
+        class_name = self.__class__.__name__
+        representation = repr(self.base_list)
+
+        return f"unalix.types.{class_name}({representation})"
+
+
+    @staticmethod
+    def default(obj):
+
+        if isinstance(obj, List):
+            return getattr(obj, "base_list")
+
+        if isinstance(obj, Dict):
+            return dict(obj)
+
+        raise TypeError
