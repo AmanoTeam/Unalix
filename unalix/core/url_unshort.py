@@ -159,8 +159,6 @@ def unshort_url(
         context if context is not None else ssl_context.SSL_CONTEXT_VERIFIED
     )
 
-    exception = None
-
     while True:
 
         if isinstance(url, types.URL_TYPES):
