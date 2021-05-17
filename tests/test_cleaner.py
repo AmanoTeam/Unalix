@@ -37,6 +37,16 @@ def test_clear_url():
 	assert clear_url(unmodified_url) == "http://g.co/"
 	assert clear_url(unmodified_url, skipBlocked=True) == unmodified_url
 
-	unmodified_url = "http://example.com/?p1&p2=&p3=p=&&p4=v"
+	unmodified_url = "http://example.com/?p1=&p2="
 
-	assert clear_url(unmodified_url) == "http://example.com/?p4=v"
+	assert clear_url(unmodified_url) == "http://example.com/?p1=&p2="
+	assert clear_url(unmodified_url, stripEmpty=True) == "http://example.com/"
+
+	unmodified_url = "http://example.com/?p1=value&p1=othervalue"
+
+	assert clear_url(unmodified_url) == "http://example.com/?p1=value&p1=othervalue"
+	assert clear_url(unmodified_url, stripDuplicates=True) == "http://example.com/?p1=value"
+
+	unmodified_url = "http://example.com/?&&&&"
+
+	assert clear_url(unmodified_url) == "http://example.com/"
