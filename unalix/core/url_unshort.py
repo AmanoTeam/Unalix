@@ -264,12 +264,13 @@ def unshort_url(
         cookie_jar.extract_cookies(
             response=response, request=connection)
 
-        # Handle possible redirects
-        location = response.headers.get("Location")
-        content_location = response.headers.get("Content-Location")
-
-        # If there is no Location, we will follow Content-Location
-        redirect_location = location or content_location
+        if response.status in config.http.HTTP_STATUS_REDIRECT:
+            # Handle HTTP redirects
+            redirect_location = response.headers.get("Location")
+            assert redirect_location is not None
+        else:
+            # If there is no "Location", we will look for "Content-Location"
+            redirect_location = response.headers.get("Content-Location")
 
         if redirect_location is not None:
             # https://stackoverflow.com/a/27357138
@@ -288,6 +289,10 @@ def unshort_url(
                     # relative path
                     path = os.path.join(os.path.dirname(url.path), redirect_location)
                     redirect_location = urllib.parse.urlunparse((url.scheme, url.netloc, path, "", "", ""))
+
+            # Avoid redirect loops
+            if redirect_location == url:
+                return url
 
             total_redirects += 1
 
