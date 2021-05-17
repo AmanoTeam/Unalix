@@ -677,6 +677,19 @@
         "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?shareasale\\.com\\/r\\.cfm.+urllink=([^&]*)"
       ],
       "forceRedirection": false
+    },
+    "udemy": {
+      "urlPattern": "^https?:\\/\\/(?:[a-z0-9-]+\\.)*?udemy\\.com",
+      "completeProvider": false,
+      "rules": [
+        "ran[A-Za-z]+",
+        "LSNPUBID"
+      ],
+      "referralMarketing": [],
+      "rawRules": [],
+      "exceptions": [],
+      "redirections": [],
+      "forceRedirection": false
     }
   }
 }
