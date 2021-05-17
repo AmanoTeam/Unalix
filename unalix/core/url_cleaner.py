@@ -17,7 +17,9 @@ def clear_url(
     ignoreRawRules: typing.Optional[bool] = False,
     ignoreRedirections: typing.Optional[bool] = False,
     skipBlocked: typing.Optional[bool] = False,
-    skipLocal: typing.Optional[bool] = False
+    skipLocal: typing.Optional[bool] = False,
+    stripDuplicates: typing.Optional[bool] = False,
+    stripEmpty: typing.Optional[bool] = False
 ) -> str:
     """
     This method implements the same specification used in the addon version of ClearURLs (with a few minor exceptions)
@@ -55,6 +57,12 @@ def clear_url(
             Pass True to instruct Unalix to not process rules for local URLs. Defaults to False.
 
             This is similar to ClearURLs's "Skip URLs on local hosts" option.
+
+        stripDuplicates (bool | optional):
+            Pass True to instruct Unalix to strip fields with duplicate names. Defaults to False.
+
+        stripEmpty (bool | optional):
+            Pass True to instruct Unalix to strip fields with empty values. Defaults to False.
 
     Usage examples:
 
@@ -153,6 +161,14 @@ def clear_url(
                     for referral in ruleset.referralMarketing:
                         url.query = referral.compiled.sub(r"\g<1>", url.query)
 
+            if url.fragment:
+                if not ignoreRules:
+                    for rule in ruleset.rules:
+                        url.fragment = rule.compiled.sub(r"\g<1>", url.fragment)
+                if not ignoreReferralMarketing:
+                    for referral in ruleset.referralMarketing:
+                        url.fragment = referral.compiled.sub(r"\g<1>", url.fragment)
+
             if url.path:
                 if not ignoreRawRules:
                     for rawRule in ruleset.rawRules:
@@ -162,18 +178,19 @@ def clear_url(
 
     url = types.URL(url)
 
-    striped_params = []
-
-    for param in url.query.split(sep="&"):
-        try:
-            key, value = param.split(sep="=")
-        except ValueError:
-            continue
-        else:
-            if value:
-                striped_params.append(f"{key}={value}")
-
-    url.query = "&".join(striped_params) if striped_params else ""
-
+    if url.query:
+        url.query = utils.filter_query(
+            url.query,
+            stripEmpty=stripEmpty,
+            stripDuplicates=stripDuplicates
+        )
+    
+    if url.fragment:
+        url.fragment = utils.filter_query(
+            url.fragment,
+            stripEmpty=stripEmpty,
+            stripDuplicates=stripDuplicates
+        )
+    
     return url.geturl()
 

@@ -10,10 +10,8 @@ import datetime
 
 from .. import types
 from .. import config
-
 from .. import utils
 from .. import exceptions
-
 from . import cookie_policies
 from . import ssl_context
 from . import url_cleaner
@@ -313,8 +311,11 @@ def unshort_url(
             # Close connection after reading response body
             connection.close()
 
-            # Try to decode the response body using utf-8 as encoding
-            decoded_content = content.decode(encoding="utf-8", errors="ignore")
+            # Get encoding from Content-Type header
+            encoding = utils.get_encoding_from_headers(response.headers)
+
+            # Try to decode the response body using the value returned by "get_encoding_from_headers" or "utf-8" as encoding
+            decoded_content = content.decode(encoding=(encoding or "utf-8"), errors="ignore")
 
             for ruleset in body_redirects.iter():
 
