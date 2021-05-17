@@ -118,8 +118,6 @@ def clear_url(
                 if exception_matched:
                     continue
 
-            original_url = url
-
             if not ignoreRedirections:
                 for redirection in ruleset.redirections:
                     result = redirection.compiled.sub(r"\g<1>", url)
@@ -128,22 +126,24 @@ def clear_url(
                     if not result:
                         continue
 
-                    url = types.URL(result)
+                    if result == url:
+                        continue
 
-                    # # https://github.com/ClearURLs/Addon/issues/71
+                    url = types.URL(urllib.parse.unquote(result))
+
+                    # https://github.com/ClearURLs/Addon/issues/71
                     url = url.prepend_scheme_if_needed()
 
-                    if url != original_url:
-                        return clear_url(
-                            url=utils.requote_uri(urllib.parse.unquote(url)),
-                            ignoreReferralMarketing=ignoreReferralMarketing,
-                            ignoreRules=ignoreRules,
-                            ignoreExceptions=ignoreExceptions,
-                            ignoreRawRules=ignoreRawRules,
-                            ignoreRedirections=ignoreRedirections,
-                            skipBlocked=skipBlocked,
-                            skipLocal=skipLocal
-                        )
+                    return clear_url(
+                        url=utils.requote_uri(url),
+                        ignoreReferralMarketing=ignoreReferralMarketing,
+                        ignoreRules=ignoreRules,
+                        ignoreExceptions=ignoreExceptions,
+                        ignoreRawRules=ignoreRawRules,
+                        ignoreRedirections=ignoreRedirections,
+                        skipBlocked=skipBlocked,
+                        skipLocal=skipLocal
+                    )
 
             if url.query:
                 if not ignoreRules:
