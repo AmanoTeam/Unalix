@@ -97,29 +97,29 @@ def unshort_url(
 
         Rejecting all cookies
 
-            >>> from unalix import unshort_url, COOKIE_REJECT_ALL
+            >>> import unalix
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> unshort_url(url, cookies_policy=COOKIE_REJECT_ALL)
+            >>> unalix.unshort_url(url, cookies_policy=unalix.COOKIE_REJECT_ALL)
             'https://bitly.com/pages/pricing'
 
       Allowing all cookies
 
-            >>> from unalix import unshort_url, COOKIE_ALLOW_ALL
+            >>> import unalix
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> unshort_url(url, cookies_policy=COOKIE_ALLOW_ALL)
+            >>> unalix.unshort_url(url, cookies_policy=unalix.COOKIE_ALLOW_ALL)
             'https://bitly.com/pages/pricing'
 
       Disabling SSL certificate validation
 
-            >>> from unalix import unshort_url, SSL_CONTEXT_UNVERIFIED
+            >>> import unalix
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> unshort_url(url, context=SSL_CONTEXT_UNVERIFIED)
+            >>> unalix.unshort_url(url, context=unalix.SSL_CONTEXT_UNVERIFIED)
             'https://bitly.com/pages/pricing'
     """
 

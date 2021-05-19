@@ -7,6 +7,7 @@ from .. import utils
 
 from . import coreutils
 
+# Build rulesets object
 rulesets = coreutils.rulesets_from_files(config.PATH_RULESETS)
 
 def clear_url(
@@ -68,38 +69,38 @@ def clear_url(
 
       Common rules (used to remove tracking fields found in the URL query)
     
-            >>> from unalix import clear_url
+            >>> import unalix
             >>> 
             >>> url = "https://deezer.com/track/891177062?utm_source=deezer"
             >>> 
-            >>> clear_url(url)
+            >>> unalix.clear_url(url)
             'https://deezer.com/track/891177062'
 
       Redirection rules (used to extract redirect URLs found in any part of the URL)
 
-            >>> from unalix import clear_url
+            >>> import unalix
             >>> 
             >>> url = "https://www.google.com/url?q=https://pypi.org/project/Unalix"
             >>> 
-            >>> clear_url(url)
+            >>> unalix.clear_url(url)
             'https://pypi.org/project/Unalix'
 
       Raw rules (used to remove tracking elements found in any part of the URL)
 
-            >>> from unalix import clear_url
+            >>> import unalix
             >>> 
             >>> url = "https://www.amazon.com/gp/B08CH7RHDP/ref=as_li_ss_tl"
             >>> 
-            >>> clear_url(url)
+            >>> unalix.clear_url(url)
             'https://www.amazon.com/gp/B08CH7RHDP'
 
       Referral marketing rules (used to remove referral marketing fields found in the URL query)
 
-            >>> from unalix import clear_url
+            >>> import unalix
             >>> 
             >>> url = "https://natura.com.br/p/2458?consultoria=promotop"
             >>> 
-            >>> clear_url(url)
+            >>> unalix.clear_url(url)
             'https://natura.com.br/p/2458'
     """
 
@@ -150,7 +151,9 @@ def clear_url(
                         ignoreRawRules=ignoreRawRules,
                         ignoreRedirections=ignoreRedirections,
                         skipBlocked=skipBlocked,
-                        skipLocal=skipLocal
+                        skipLocal=skipLocal,
+                        stripDuplicates=stripDuplicates,
+                        stripEmpty=stripEmpty
                     )
 
             if url.query:
@@ -161,6 +164,7 @@ def clear_url(
                     for referral in ruleset.referralMarketing:
                         url.query = referral.compiled.sub(r"\g<1>", url.query)
 
+            # The fragment might contains tracking fields as well
             if url.fragment:
                 if not ignoreRules:
                     for rule in ruleset.rules:

@@ -1,13 +1,13 @@
 import http
 
-from ..__version__ import __version__
+from .. import __version__
 
 
 HTTP_HEADERS = {
     "Accept": "*/*",
     "Accept-Encoding": "identity",
     "Connection": "close",
-    "User-Agent": f"Unalix/{__version__} (+https://github.com/AmanoTeam/Unalix)"
+    "User-Agent": f"{__version__.__title__}/{__version__.__version__} (+{__version__.__homepage__})"
 }
 
 HTTP_METHOD = "GET"
