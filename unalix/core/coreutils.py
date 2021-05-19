@@ -23,14 +23,14 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
 
         for providerName in ruleset["providers"].keys():
 
-            # https://docs.clearurls.xyz/1.21.0/specs/rules/#urlpattern
+            # https://docs.clearurls.xyz/latest/specs/rules/#urlpattern
             urlPattern = types.Pattern(ruleset["providers"][providerName]["urlPattern"])
             urlPattern.compiled = re.compile(urlPattern)
 
-            # https://docs.clearurls.xyz/1.21.0/specs/rules/#completeprovider
+            # https://docs.clearurls.xyz/latest/specs/rules/#completeprovider
             completeProvider = ruleset["providers"][providerName].get("completeProvider", False)
 
-            # https://docs.clearurls.xyz/1.21.0/specs/rules/#rules
+            # https://docs.clearurls.xyz/latest/specs/rules/#rules
             rules = types.Patterns()
 
             for rule in ruleset["providers"][providerName].get("rules", []):
@@ -39,7 +39,7 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
 
                 rules.append(pattern)
 
-            # https://docs.clearurls.xyz/1.21.0/specs/rules/#rawrules
+            # https://docs.clearurls.xyz/latest/specs/rules/#rawrules
             rawRules = types.Patterns()
 
             for rawRule in ruleset["providers"][providerName].get("rawRules", []):
@@ -48,7 +48,7 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
 
                 rawRules.append(pattern)
 
-            # https://docs.clearurls.xyz/1.21.0/specs/rules/#referralmarketing
+            # https://docs.clearurls.xyz/latest/specs/rules/#referralmarketing
             referralMarketing = types.Patterns()
 
             for referral in ruleset["providers"][providerName].get("referralMarketing", []):
@@ -57,7 +57,7 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
 
                 referralMarketing.append(pattern)
 
-            # https://docs.clearurls.xyz/1.21.0/specs/rules/#exceptions
+            # https://docs.clearurls.xyz/latest/specs/rules/#exceptions
             exceptions = types.Patterns()
 
             for exception in ruleset["providers"][providerName].get("exceptions", []):
@@ -66,7 +66,7 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
 
                 exceptions.append(pattern)
 
-            # https://docs.clearurls.xyz/1.21.0/specs/rules/#redirections
+            # https://docs.clearurls.xyz/latest/specs/rules/#redirections
             redirections = types.Patterns()
 
             for redirection in ruleset["providers"][providerName].get("redirections", []):
@@ -75,7 +75,7 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
 
                 redirections.append(pattern)
 
-            # https://docs.clearurls.xyz/1.21.0/specs/rules/#forceredirection
+            # https://docs.clearurls.xyz/latest/specs/rules/#forceredirection
             # This field is ignored by Unalix, we are leaving it here just as reference
             forceRedirection = ruleset["providers"][providerName].get("forceRedirection", False)
 
