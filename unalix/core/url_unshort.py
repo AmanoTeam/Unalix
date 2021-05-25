@@ -282,7 +282,7 @@ def unshort_url(
             if not redirect_location.startswith(("http://", "https://")):
                 if redirect_location.startswith("//"):
                     # new url
-                    redirect_location = urllib.parse.urlunparse((url.scheme, redirect_location.lstrip(chars="/"), "", "", "", ""))
+                    redirect_location = urllib.parse.urlunparse((url.scheme, redirect_location.lstrip("/"), "", "", "", ""))
                 elif redirect_location.startswith("/"):
                     # full path
                     redirect_location = urllib.parse.urlunparse((url.scheme, (url.netloc if url.port in (80, 443) else f"{url.netloc}:{url.port}") , redirect_location, "", "", ""))
