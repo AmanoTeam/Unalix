@@ -1,9 +1,9 @@
 import http.server
-import multiprocessing
+import _thread as thread
 
 import unalix
 
-hostname = "127.2.0.1"
+hostname = "127.0.0.1"
 port = 56885
 
 base_url = f"http://{hostname}:{port}"
@@ -33,8 +33,7 @@ class Server(http.server.BaseHTTPRequestHandler):
 
 server = http.server.HTTPServer((hostname, port), Server)
 
-process = multiprocessing.Process(target=server.serve_forever)
-process.start()
+thread.start_new_thread(server.serve_forever, ())
 
 def test_unshort():
 
@@ -54,6 +53,5 @@ def test_unshort():
 
     assert unalix.unshort_url(unmodified_url) == f"{base_url}/ok"
 
-    process.kill()
     server.server_close()
 
