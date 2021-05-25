@@ -29,6 +29,8 @@ class URL(str):
             elif self.scheme == "https":
                 self.port = 443
 
+        self.netloc = parts[0]
+
 
     def islocal(self) -> bool:
 
@@ -50,7 +52,7 @@ class URL(str):
     def geturl(self):
 
         return urllib.parse.urlunparse((
-            self.scheme, self.netloc, self.path,
+            self.scheme, (self.netloc if self.port in (80, 443) else f"{self.netloc}:{self.port}"), self.path,
             self.params, self.query, self.fragment
         ))
 

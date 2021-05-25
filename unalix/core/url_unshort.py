@@ -285,11 +285,11 @@ def unshort_url(
                     redirect_location = urllib.parse.urlunparse((url.scheme, redirect_location.lstrip(chars="/"), "", "", "", ""))
                 elif redirect_location.startswith("/"):
                     # full path
-                    redirect_location = urllib.parse.urlunparse((url.scheme, url.netloc, redirect_location, "", "", ""))
+                    redirect_location = urllib.parse.urlunparse((url.scheme, (url.netloc if url.port in (80, 443) else f"{url.netloc}:{url.port}") , redirect_location, "", "", ""))
                 else:
                     # relative path
                     path = os.path.join(os.path.dirname(url.path), redirect_location)
-                    redirect_location = urllib.parse.urlunparse((url.scheme, url.netloc, path, "", "", ""))
+                    redirect_location = urllib.parse.urlunparse((url.scheme, (url.netloc if url.port in (80, 443) else f"{url.netloc}:{url.port}"), path, "", "", ""))
 
             # Avoid redirect loops
             if redirect_location == url:
