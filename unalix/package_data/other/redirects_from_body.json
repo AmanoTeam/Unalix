@@ -4,39 +4,7 @@
         "urlPattern": ".*",
         "domains": [],
         "rules": [
-            "<meta\\shttp-equiv\\=\"refresh\"\\scontent\\=\"[0-9]+;\\s?url\\=(https?:\\/\\/.+)\">",
-            "sonload\\=\"window\\.location\\s\\=\\s'(https?://.+)'\">"
-        ]
-    },
-    {
-        "providerName": "banggood",
-        "urlPattern": null,
-        "domains": [
-            "banggood.app.link"
-        ],
-        "rules": [
-            "window\\.top\\.location\\s=\\svalidate\\(\"(https?:\\/\\/.+)\"\\);"
-        ]
-    },
-    {
-        "providerName": "aws",
-        "urlPattern": null,
-        "domains": [
-            "email.awscloud.com"
-        ],
-        "rules": [
-            "redirecturl\\s\\=\\s'(https?:\\/\\/.+)'"
-        ]
-    },
-    {
-        "providerName": "digitalocean",
-        "urlPattern": null,
-        "domains": [
-            "pages.news.digitalocean.com",
-            "mkto-ab430114.com"
-        ],
-        "rules": [
-            "redirecturl\\s\\=\\s'(https?:\\/\\/.+)'"
+        	"redirecturl\\s\\=\\s'(https?:\\/\\/.+)'"
         ]
     }
 ]
