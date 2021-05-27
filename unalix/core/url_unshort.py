@@ -333,7 +333,8 @@ def unshort_url(
                     else:
                         continue
 
-                    url = utils.requote_uri(html.unescape(results.group(1)))
+                    # Strip tracking fields from the extracted URL
+                    url = url_cleaner.clear_url(url=utils.requote_uri(html.unescape(results.group(1))), **kwargs)
 
                     total_redirects += 1
 
