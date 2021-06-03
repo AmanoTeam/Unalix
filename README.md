@@ -51,6 +51,8 @@ https://deezer.com/track/891177062
 https://bitly.com/pages/pricing
 ```
 
+_**Tip**: `unshort_url()` will strip tracking fields from any URL before following a redirect, so you don't need to manually call `clear_url()` for it._
+
 #### Contributing
 
 If you have discovered a bug in this library and know how to fix it, fork this repository and open a Pull Request.
