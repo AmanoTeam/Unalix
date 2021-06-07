@@ -51,8 +51,13 @@ class URL(str):
 
     def geturl(self):
 
+        if self.port is not None and self.port not in (80, 443):
+            netloc = f"{self.netloc}:{self.port}"
+        else:
+            netloc = self.netloc
+
         return urllib.parse.urlunparse((
-            self.scheme, (self.netloc if self.port in (80, 443) else f"{self.netloc}:{self.port}"), self.path,
+            self.scheme, netloc, self.path,
             self.params, self.query, self.fragment
         ))
 
@@ -69,7 +74,7 @@ class URL(str):
             netloc, path = path, netloc
 
         return URL(
-            urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
+            urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment)).replace("http:///", "http://")
         )
 
 
