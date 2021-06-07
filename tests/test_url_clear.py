@@ -12,6 +12,9 @@ def test_clear_url():
     assert clear_url(unmodified_url) == "https://pypi.org/project/Unalix"
     assert clear_url(unmodified_url, ignoreRedirections=True) == unmodified_url
     
+    unmodified_url = "https://www.google.com/amp/s/de.statista.com/infografik/amp/22496/anzahl-der-gesamten-positiven-corona-tests-und-positivenrate/"
+    assert clear_url(unmodified_url) == "http://de.statista.com/infografik/amp/22496/anzahl-der-gesamten-positiven-corona-tests-und-positivenrate/"
+
     unmodified_url = "https://www.amazon.com/gp/B08CH7RHDP/ref=as_li_ss_tl"
 
     assert clear_url(unmodified_url) == "https://www.amazon.com/gp/B08CH7RHDP"
