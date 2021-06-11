@@ -117,9 +117,11 @@ def clear_url(
         if skipBlocked and ruleset.completeProvider:
             continue
 
+        # https://docs.clearurls.xyz/latest/specs/rules/#urlpattern
         if ruleset.urlPattern.compiled.match(f"{url.scheme}://{url.netloc}"):
             if not ignoreExceptions:
                 exception_matched = None
+                # https://docs.clearurls.xyz/latest/specs/rules/#exceptions
                 for exception in ruleset.exceptions.iter():
                     if exception.compiled.match(url):
                         exception_matched = True
@@ -128,6 +130,7 @@ def clear_url(
                     continue
 
             if not ignoreRedirections:
+                # https://docs.clearurls.xyz/latest/specs/rules/#redirections
                 for redirection in ruleset.redirections:
                     result = redirection.compiled.sub(r"\g<1>", url)
 
@@ -138,13 +141,13 @@ def clear_url(
                     if result == url:
                         continue
 
-                    url = types.URL(urllib.parse.unquote(result))
+                    url = types.URL(utils.requote_uri(urllib.parse.unquote(result)))
 
-                    # https://github.com/ClearURLs/Addon/issues/71
+                    # Workaround for URLs without scheme (see https://github.com/ClearURLs/Addon/issues/71)
                     url = url.prepend_scheme_if_needed()
 
                     return clear_url(
-                        url=utils.requote_uri(url),
+                        url=url,
                         ignoreReferralMarketing=ignoreReferralMarketing,
                         ignoreRules=ignoreRules,
                         ignoreExceptions=ignoreExceptions,
@@ -158,9 +161,11 @@ def clear_url(
 
             if url.query:
                 if not ignoreRules:
+                    # https://docs.clearurls.xyz/latest/specs/rules/#rules
                     for rule in ruleset.rules:
                         url.query = rule.compiled.sub(r"\g<1>", url.query)
                 if not ignoreReferralMarketing:
+                    # https://docs.clearurls.xyz/latest/specs/rules/#referralmarketing
                     for referral in ruleset.referralMarketing:
                         url.query = referral.compiled.sub(r"\g<1>", url.query)
 
@@ -175,6 +180,7 @@ def clear_url(
 
             if url.path:
                 if not ignoreRawRules:
+                    # https://docs.clearurls.xyz/latest/specs/rules/#rawrules
                     for rawRule in ruleset.rawRules:
                         url.path = rawRule.compiled.sub("", url.path)
 
@@ -184,14 +190,14 @@ def clear_url(
 
     if url.query:
         url.query = utils.filter_query(
-            url.query,
+            query=url.query,
             stripEmpty=stripEmpty,
             stripDuplicates=stripDuplicates
         )
     
     if url.fragment:
         url.fragment = utils.filter_query(
-            url.fragment,
+            query=url.fragment,
             stripEmpty=stripEmpty,
             stripDuplicates=stripDuplicates
         )
