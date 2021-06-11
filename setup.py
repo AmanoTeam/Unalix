@@ -1,4 +1,3 @@
-import json
 import os
 import pathlib
 import re
@@ -11,7 +10,7 @@ def get_version():
     Return package version as listed in `__version__`.
     """
 
-    with open(file=os.path.join(module_path, "unalix", "__version__.py"), mode="r") as file:
+    with open(file=os.path.join(pathlib.Path(__file__).parent, "unalix", "__version__.py"), mode="r") as file:
         content = file.read()
 
     result = re.search('__version__ = "([0-9\.]+)"', content)
@@ -29,8 +28,6 @@ def get_long_description():
 
     return content
 
-
-module_path = pathlib.Path(__file__).parent
 
 version = get_version()
 long_description = get_long_description()
@@ -61,33 +58,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: Implementation :: PyPy"
 ]
-
-bad_keys = (
-    "ClearURLsTest",
-    "ClearURLsTestBlock",
-    "ClearURLsTest2",
-    "ClearURLsTestBlock2"
-)
-
-for filename in package_data["unalix"]:
-
-    if not filename.endswith(".json"):
-        continue
-
-    with open(file=os.path.join(module_path, "unalix", filename), mode="r+") as file:
-        content = file.read()
-
-        ruleset = json.loads(content)
-
-        try:
-            for key in bad_keys:
-                del ruleset["providers"][key]
-        except (KeyError, TypeError):
-            pass
-
-        file.seek(0)
-        file.write(json.dumps(ruleset))
-        file.truncate()
 
 setuptools.setup(
     name="Unalix",

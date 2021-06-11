@@ -8,7 +8,10 @@ from .. import utils
 from . import coreutils
 
 # Build rulesets object
-rulesets = coreutils.rulesets_from_files(config.PATH_RULESETS)
+rulesets = coreutils.rulesets_from_files(
+    config.PATH_RULESETS,
+    ignored_providers=config.IGNORED_PROVIDERS
+)
 
 def clear_url(
     url: typing.Union[str, urllib.parse.ParseResult],

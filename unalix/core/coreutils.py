@@ -7,7 +7,7 @@ import sys
 from .. import types
 
 
-def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
+def rulesets_from_files(iterable_of_paths: typing.Iterable, ignored_providers: typing.Optional[typing.Iterable] = None) -> types.Rulesets:
 
     iterable_of_dicts = []
 
@@ -22,6 +22,9 @@ def rulesets_from_files(iterable_of_paths: typing.Iterable) -> types.Rulesets:
     for ruleset in iterable_of_dicts:
 
         for providerName in ruleset["providers"].keys():
+
+            if ignored_providers is not None and providerName in ignored_providers:
+                continue
 
             # https://docs.clearurls.xyz/latest/specs/rules/#urlpattern
             urlPattern = types.Pattern(ruleset["providers"][providerName]["urlPattern"])

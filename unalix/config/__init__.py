@@ -15,6 +15,7 @@ from .http import (
     HTTP_STATUS_REDIRECT,
     HTTP_METHOD
 )
+from .rulesets import IGNORED_PROVIDERS
 
 __all__ = [
     "PATH_PACKAGE_DATA",
@@ -29,7 +30,8 @@ __all__ = [
     "HTTP_STATUS_RETRY",
     "HTTP_STATUS_REDIRECT",
     "HTTP_MAX_RETRIES",
-    "HTTP_METHOD"
+    "HTTP_METHOD",
+    "IGNORED_PROVIDERS"
 ]
 
 __locals = locals()
