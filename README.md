@@ -7,7 +7,8 @@ Install using `pip`:
 ```bash
 python3 -m pip install --force-reinstall \
     --disable-pip-version-check \
-    --upgrade 'unalix'
+    --upgrade \
+    'unalix'
 ```
 
 The version from git might be broken sometimes, but you can also install from it:
@@ -15,7 +16,8 @@ The version from git might be broken sometimes, but you can also install from it
 ```bash
 python3 -m pip install --force-reinstall \
     --disable-pip-version-check \
-    --upgrade 'git+https://github.com/AmanoTeam/Unalix'
+    --upgrade \
+    'https://codeload.github.com/AmanoTeam/Unalix/tar.gz/refs/heads/master'
 ```
 
 _**Note**: Unalix requires Python 3.6 or higher._
