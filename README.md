@@ -29,8 +29,8 @@ Removing tracking fields:
 ```python
 import unalix
 
-url = "https://deezer.com/track/891177062?utm_source=deezer"
-result = unalix.clear_url(url)
+url: str = "https://deezer.com/track/891177062?utm_source=deezer"
+result: str = unalix.clear_url(url=url)
 
 print(result)
 ```
@@ -40,26 +40,24 @@ Unshort shortened URL:
 ```python
 import unalix
 
-url = "https://bitly.is/Pricing-Pop-Up"
-result = unalix.unshort_url(url)
+url: str = "https://bitly.is/Pricing-Pop-Up"
+result: str = unalix.unshort_url(url=url)
 
 print(result)
 ```
 
 Output from both examples:
 
-```bash
+```
 https://deezer.com/track/891177062
 https://bitly.com/pages/pricing
 ```
 
-_**Tip**: `unshort_url()` will strip tracking fields from any URL before following a redirect, so you don't need to manually call `clear_url()` for it._
+_**Tip**: `unshort_url()` will strip tracking fields from any URL before following a redirect, so you don't need to manually call `clear_url()` for it's return value._
 
 #### Contributing
 
 If you have discovered a bug in this library and know how to fix it, fork this repository and open a Pull Request.
-
-If you found a URL that was not fully cleaned by Unalix (e.g. some tracking fields still remains), report them here or in the [ClearURLs rules repository](https://gitlab.com/anti-tracking/ClearURLs/rules/-/issues). We use the list of regex rules maintained by the ClearURLs maintainers, but we also have our [own list](./unalix/package_data/rulesets/unalix.json).
 
 #### Third party software
 
