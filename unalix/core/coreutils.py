@@ -173,12 +173,22 @@ def create_ssl_context(
     python_version = sys.version_info[0:2]
 
     if python_version >= (3, 10):
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     else:
         context = ssl.SSLContext(ssl.PROTOCOL_TLS)
 
-    context.verify_mode = ssl.CERT_NONE if unverified else ssl.CERT_REQUIRED
-    context.check_hostname = False if unverified else True
+    # Assignment order matters here
+    if python_version == (3, 6):
+        # Python 3.6 expects context.verify_mode to be ssl.CERT_NONE before setting 
+        # context.check_hostname to False, otherwise you will get an ValueError.
+        context.verify_mode = ssl.CERT_NONE if unverified else ssl.CERT_REQUIRED
+        context.check_hostname = False if unverified else True
+    else:
+        # Python 3.7, 3.8 and 3.9 doesn't care about the assignment order.
+        # Python 3.10 and later expects context.check_hostname to be False before setting
+        # context.verify_mode to ssl.CERT_NONE, otherwise you will get an ValueError.
+        context.check_hostname = False if unverified else True
+        context.verify_mode = ssl.CERT_NONE if unverified else ssl.CERT_REQUIRED
 
     # Ciphers list for HTTPS connections
     ssl_ciphers = ":".join(
