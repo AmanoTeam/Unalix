@@ -116,6 +116,7 @@ def filter_query(
         key, *values = param.split(sep="=")
         
         value = "%3D".join(values)
+        value = value.replace("?", "%3F")
         
         # Ignore field with empty value
         if stripEmpty and not value:
