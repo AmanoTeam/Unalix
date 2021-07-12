@@ -32,7 +32,7 @@ import unalix
 url: str = "https://deezer.com/track/891177062?utm_source=deezer"
 result: str = unalix.clear_url(url=url)
 
-print(result)
+assert result == "https://deezer.com/track/891177062"
 ```
 
 Unshort shortened URL:
@@ -43,17 +43,10 @@ import unalix
 url: str = "https://bitly.is/Pricing-Pop-Up"
 result: str = unalix.unshort_url(url=url)
 
-print(result)
+assert result == "https://bitly.com/pages/pricing"
 ```
 
-Output from both examples:
-
-```
-https://deezer.com/track/891177062
-https://bitly.com/pages/pricing
-```
-
-_**Tip**: `unshort_url()` will strip tracking fields from any URL before following a redirect, so you don't need to manually call `clear_url()` for it's return value._
+_**Tip**: The `unshort_url()` method will strip tracking fields from any URL before following a redirect, so you don't need to manually call `clear_url()` for it's return value._
 
 #### Contributing
 
