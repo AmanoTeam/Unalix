@@ -539,7 +539,7 @@ async def aunshort_url(
 
             if parse_documents:
                 received_data = await asyncio.wait_for(
-                    fut=reader.read(n=max_fetch_size),
+                    fut=reader.read(n=http_max_fetch),
                     timeout=http_timeout
                 )
 
@@ -611,11 +611,11 @@ async def aunshort_url(
 
         if response.status_code in config.http.HTTP_STATUS_REDIRECT:
             # Handle HTTP redirects
-            redirect_location = response.headers.get("Location")
+            redirect_location = response.headers.get("Location") or response.headers.get("location")
             assert redirect_location is not None
         else:
             # If there is no "Location", we will look for "Content-Location"
-            redirect_location = response.headers.get("Content-Location")
+            redirect_location = response.headers.get("Content-Location") or response.headers.get("content-location")
 
         if redirect_location is not None:
             # https://stackoverflow.com/a/27357138
