@@ -27,7 +27,7 @@
     If something goes wrong, please open a issue at GitHub.
 """
 from .core.url_cleaner import clear_url
-from .core.url_unshort import unshort_url
+from .core.url_unshort import unshort_url, aunshort_url
 from .core.cookie_policies import (
     COOKIE_REJECT_ALL,
     COOKIE_ALLOW_ALL,
@@ -49,6 +49,7 @@ __all__ = [
     "__version__",
     "clear_url",
     "unshort_url",
+    "aunshort_url",
     "UnsupportedProtocolError",
     "ConnectError",
     "TooManyRedirectsError",
