@@ -38,25 +38,27 @@ thread.start_new_thread(server.serve_forever, ())
 
 def test_unshort():
 
+    loop = asyncio.get_event_loop()
+
     unmodified_url = f"{base_url}/absolute-redirect"
 
     assert unalix.unshort_url(unmodified_url) == f"{base_url}/ok"
-    assert asyncio.run(unalix.aunshort_url(unmodified_url)) == f"{base_url}/ok"
+    assert loop.run_until_complete(unalix.aunshort_url(unmodified_url)) == f"{base_url}/ok"
 
     unmodified_url = f"{base_url}/relative-redirect"
 
     assert unalix.unshort_url(unmodified_url) == f"{base_url}/ok"
-    assert asyncio.run(unalix.aunshort_url(unmodified_url)) == f"{base_url}/ok"
+    assert loop.run_until_complete(unalix.aunshort_url(unmodified_url)) == f"{base_url}/ok"
 
     unmodified_url = f"{base_url}/root-redirect"
 
     assert unalix.unshort_url(unmodified_url) == f"{base_url}/ok"
-    assert asyncio.run(unalix.aunshort_url(unmodified_url)) == f"{base_url}/ok"    
+    assert loop.run_until_complete(unalix.aunshort_url(unmodified_url)) == f"{base_url}/ok"    
 
     unmodified_url = f"{base_url}/i-dont-know-its-name-redirect"
 
     assert unalix.unshort_url(unmodified_url) == f"{base_url}/ok"
-    assert asyncio.run(unalix.aunshort_url(unmodified_url)) == f"{base_url}/ok"
+    assert loop.run_until_complete(unalix.aunshort_url(unmodified_url)) == f"{base_url}/ok"
 
     server.server_close()
 
