@@ -38,7 +38,7 @@ def unshort_url(
 ):
     """
     This method implements a simple HTTP 1.1 client, mainly used to follow HTTP redirects and read responses body.
-    We ensure that all redirect URLs are cleaned before we follow them.
+    We ensure that all redirect URLs are cleaned before following them.
 
     Parameters:
 
@@ -372,7 +372,7 @@ async def aunshort_url(
 ):
     """
     This method implements a simple HTTP 1.1 client, mainly used to follow HTTP redirects and read responses body.
-    We ensure that all redirect URLs are cleaned before we follow them.
+    We ensure that all redirect URLs are cleaned before following them.
 
     Parameters:
 
@@ -543,7 +543,12 @@ async def aunshort_url(
                     timeout=http_timeout
                 )
 
-                headers, body = received_data.decode(encoding="latin-1").split(sep="\r\n\r\n", maxsplit=1)
+                parts = received_data.decode(encoding="latin-1").split(sep="\r\n\r\n", maxsplit=1)
+
+                if len(parts) < 2:
+                    headers, body = parts[0], ""
+                else:
+                    headers, body = parts
             else:
                 received_data = await asyncio.wait_for(
                     fut=reader.readuntil(separator=b"\r\n\r\n"),
@@ -594,10 +599,10 @@ async def aunshort_url(
                 retry_after = response.headers.get("Retry-After")
                 if retry_after is not None:
                     if retry_after.isnumeric():
-                        time.sleep(int(retry_after))
+                        await asyncio.sleep(int(retry_after))
                     else:
                         http_date = datetime.datetime.strptime(retry_after, "%a, %d %b %Y %H:%M:%S GMT")
-                        time.sleep(int(http_date.timestamp()) - int(time.time()))
+                        await asyncio.sleep(int(http_date.timestamp()) - int(time.time()))
 
                 total_retries += 1
 
