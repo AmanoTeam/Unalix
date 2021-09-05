@@ -47,6 +47,7 @@ classifiers = [
     "Operating System :: Unix",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS",
+    "Operating System :: Android",
     "Topic :: Internet",
     "Topic :: Security",
     "Development Status :: 5 - Production/Stable",
