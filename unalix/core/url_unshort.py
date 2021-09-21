@@ -63,10 +63,11 @@ def unshort_url(
             Max number of seconds to wait for a response before raising an exception. Defaults to unalix.config.HTTP_TIMEOUT.
 
         headers (dict | optional):
-            HTTP request headers as {"key": "value"}. Defaults to unalix.config.HTTP_HEADERS.
+            HTTP request headers as {"key": "value"} pairs. Defaults to unalix.config.HTTP_HEADERS.
 
         max_fetch_size (int | optional):
-            How many bytes to fetch from response body. Defaults to unalix.config.HTTP_MAX_FETCH_SIZE.
+            Max number of bytes to fetch from response body. Only takes effect when parse_documents is set to True, as Unalix igores response body by default.
+            Defaults to unalix.config.HTTP_MAX_FETCH_SIZE.
 
         cookies (http.cookiejar.CookieJar | optional):
             Custom CookieJar object.
@@ -87,7 +88,7 @@ def unshort_url(
             Max number of times to retry on connection errors. Defaults to unalix.config.HTTP_MAX_RETRIES.
 
         status_retry (typing.Iterable | optional):
-            List or iterable of http status code to retry on. Defaults to unalix.config.HTTP_STATUS_RETRY.
+            List or iterable of HTTP status code to retry on. Defaults to unalix.config.HTTP_STATUS_RETRY.
 
             Only takes effect when max_retries > 0.
 
@@ -383,7 +384,7 @@ async def aunshort_url(
             A valid RFC 7231 HTTP method. Defaults to unalix.config.HTTP_METHOD.
 
         parse_documents (bool | optional):
-            Pass True to instruct Unalix to look for redirect URLs in the response body when there is no HTTP redirects
+            Pass True to instruct Unalix to look for redirect URLs in the response body when there is no HTTP redirect
             to follow. Defaults to False.
 
             This method is unstable and sometimes can return broken or incomplete URLs. Use with caution.
@@ -400,10 +401,11 @@ async def aunshort_url(
             Max number of seconds to wait for the ssl handshake before raising an exception. Defaults to unalix.config.HTTP_TIMEOUT.
 
         headers (dict | optional):
-            HTTP request headers as {"key": "value"}. Defaults to unalix.config.HTTP_HEADERS.
+            HTTP request headers as {"key": "value"} pairs. Defaults to unalix.config.HTTP_HEADERS.
 
         max_fetch_size (int | optional):
-            How many bytes to fetch from response. Defaults to unalix.config.HTTP_MAX_FETCH_SIZE.
+            Max number of bytes to fetch from response body. Only takes effect when parse_documents is set to True, as Unalix igores response body by default.
+            Defaults to unalix.config.HTTP_MAX_FETCH_SIZE.
 
         context (ssl.SSLContext | optional):
             Custom SSL context for HTTPS connections. Defaults to unalix.SSL_CONTEXT_VERIFIED.
@@ -412,7 +414,7 @@ async def aunshort_url(
             Max number of times to retry on connection errors. Defaults to unalix.config.HTTP_MAX_RETRIES.
 
         status_retry (typing.Iterable | optional):
-            List or iterable of http status code to retry on. Defaults to unalix.config.HTTP_STATUS_RETRY.
+            List or iterable of HTTP status code to retry on. Defaults to unalix.config.HTTP_STATUS_RETRY.
 
             Only takes effect when max_retries > 0.
 
