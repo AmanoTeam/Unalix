@@ -1,4 +1,4 @@
-Unalix is a library written in Python, it follows the same specification used by the [ClearURLs](https://github.com/ClearURLs/Addon) addon for removing tracking fields from URLs.
+Unalix is a library written in Python, it implements the specification used by the [ClearURLs](https://github.com/ClearURLs/Addon) addon for removing tracking fields from URLs.
 
 #### Installation
 
