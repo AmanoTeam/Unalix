@@ -126,7 +126,7 @@ def filter_query(
         if stripDuplicates and key in names:
             continue
         
-        params.append(f"{key}={value}")
+        params.append(f"{key}={value}" if value else key)
         
         names.append(key)
 

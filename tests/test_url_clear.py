@@ -56,3 +56,8 @@ def test_clear_url():
     unmodified_url = "http://example.com/?&&&&"
 
     assert clear_url(unmodified_url) == "http://example.com/"
+    
+    # https://github.com/AmanoTeam/Unalix-nim/issues/5
+    unmodified_url = "https://docs.julialang.org/en/v1/stdlib/REPL/#Key-bindings"
+    assert clear_url(unmodified_url) == unmodified_url
+    
