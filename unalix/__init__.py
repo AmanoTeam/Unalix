@@ -27,7 +27,7 @@
     If something goes wrong, please open a issue at GitHub.
 """
 from .core.url_cleaner import clear_url, clearUrl
-from .core.url_unshort import unshort_url, unshortUrl, aunshort_url
+from .core.url_unshort import unshort_url, unshortUrl, aunshort_url, aunshortUrl
 from .core.cookie_policies import (
     COOKIE_REJECT_ALL,
     COOKIE_ALLOW_ALL,
