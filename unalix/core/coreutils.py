@@ -178,17 +178,11 @@ def create_ssl_context(
         context = ssl.SSLContext(ssl.PROTOCOL_TLS)
 
     # Assignment order matters here
-    if python_version == (3, 6):
-        # Python 3.6 expects context.verify_mode to be ssl.CERT_NONE before setting 
-        # context.check_hostname to False, otherwise you will get an ValueError.
-        context.verify_mode = ssl.CERT_NONE if unverified else ssl.CERT_REQUIRED
-        context.check_hostname = False if unverified else True
-    else:
-        # Python 3.7, 3.8 and 3.9 doesn't care about the assignment order.
-        # Python 3.10 and later expects context.check_hostname to be False before setting
-        # context.verify_mode to ssl.CERT_NONE, otherwise you will get an ValueError.
-        context.check_hostname = False if unverified else True
-        context.verify_mode = ssl.CERT_NONE if unverified else ssl.CERT_REQUIRED
+    # Python 3.7, 3.8 and 3.9 doesn't care about the assignment order.
+    # Python 3.10 and later expects context.check_hostname to be False before setting
+    # context.verify_mode to ssl.CERT_NONE, otherwise you will get an ValueError.
+    context.check_hostname = False if unverified else True
+    context.verify_mode = ssl.CERT_NONE if unverified else ssl.CERT_REQUIRED
 
     # Ciphers list for HTTPS connections
     ssl_ciphers = ":".join(
@@ -219,16 +213,6 @@ def create_ssl_context(
         | ssl.OP_SINGLE_DH_USE
         | ssl.OP_SINGLE_ECDH_USE
     )
-
-    # These options are deprecated since Python 3.7
-    if python_version == (3, 6):
-        ssl_options |= (
-            ssl.OP_NO_SSLv2
-            | ssl.OP_NO_SSLv3
-            | ssl.OP_NO_TLSv1
-            | ssl.OP_NO_TLSv1_1
-            | ssl.OP_NO_TICKET
-        )
 
     context.options = ssl_options
 
