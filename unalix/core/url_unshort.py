@@ -9,7 +9,6 @@ import urllib.parse
 import time
 import datetime
 import os
-import warnings
 
 from .. import types
 from .. import config
@@ -33,50 +32,8 @@ def unshort_url(
     cookies: typing.Optional[http.cookiejar.CookieJar] = None,
     cookies_policy: typing.Optional[http.cookiejar.DefaultCookiePolicy] = None,
     context: typing.Optional[ssl.SSLContext] = None,
-    max_retries: typing.Optional[int] = None,
-    status_retry: typing.Optional[typing.Iterable[typing.Union[int, http.HTTPStatus]]] = None,
-    **kwargs: typing.Any
-) -> str:
-    """
-    Deprecated method, please use unshortUrl() instead
-    """
-    
-    warnings.warn(
-        message = "unshort_url() is deprecated and scheduled to be removed in v1.5, please use unshortUrl() instead",
-        category = DeprecationWarning,
-        stacklevel = 2
-    )
-    
-    return unshortUrl(
-        url=url,
-        method=method,
-        parse_documents=parse_documents,
-        max_redirects=max_redirects,
-        timeout=timeout,
-        headers=headers,
-        max_fetch_size=max_fetch_size,
-        cookies=cookies,
-        cookies_policy=cookies_policy,
-        context=context,
-        max_retries=max_retries,
-        status_retry=status_retry,
-        **kwargs
-    )
-
-
-def unshortUrl(
-    url: typing.Union[str, urllib.parse.ParseResult],
-    method: typing.Optional[str] = None,
-    parse_documents: typing.Optional[bool] = False,
-    max_redirects: typing.Optional[int] = None,
-    timeout: typing.Optional[int] = None,
-    headers: typing.Optional[typing.Dict[str, str]] = None,
-    max_fetch_size: typing.Optional[int] = None,
-    cookies: typing.Optional[http.cookiejar.CookieJar] = None,
-    cookies_policy: typing.Optional[http.cookiejar.DefaultCookiePolicy] = None,
-    context: typing.Optional[ssl.SSLContext] = None,
-    max_retries: typing.Optional[int] = None,
-    status_retry: typing.Optional[typing.Iterable[typing.Union[int, http.HTTPStatus]]] = None,
+    max_retries:  typing.Optional[int] = None,
+    status_retry:  typing.Optional[typing.Iterable[typing.Union[int, http.HTTPStatus]]] = None,
     **kwargs: typing.Any
 ):
     """
@@ -118,7 +75,7 @@ def unshortUrl(
         cookies_policy (http.cookiejar.DefaultCookiePolicy | optional):
             Custom cookie policy for cookie handling. Defaults to unalix.COOKIE_STRICT_ALLOW.
 
-            Note that cookies are not shared between sessions. Each call to unshortUrl() will
+            Note that cookies are not shared between sessions. Each call to unshort_url() will
             create it's own http.cookiejar.CookieJar() instance.
 
             unalix.COOKIE_STRICT_ALLOW is a strict policy which only allow cookies from sites that where known to not
@@ -146,7 +103,7 @@ def unshortUrl(
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> unalix.unshortUrl(url, cookies_policy=unalix.COOKIE_REJECT_ALL)
+            >>> unalix.unshort_url(url, cookies_policy=unalix.COOKIE_REJECT_ALL)
             'https://bitly.com/pages/pricing'
 
       Allowing all cookies
@@ -155,7 +112,7 @@ def unshortUrl(
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> unalix.unshortUrl(url, cookies_policy=unalix.COOKIE_ALLOW_ALL)
+            >>> unalix.unshort_url(url, cookies_policy=unalix.COOKIE_ALLOW_ALL)
             'https://bitly.com/pages/pricing'
 
       Disabling SSL certificate validation
@@ -164,7 +121,7 @@ def unshortUrl(
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> unalix.unshortUrl(url, context=unalix.SSL_CONTEXT_UNVERIFIED)
+            >>> unalix.unshort_url(url, context=unalix.SSL_CONTEXT_UNVERIFIED)
             'https://bitly.com/pages/pricing'
     """
 
@@ -410,46 +367,6 @@ async def aunshort_url(
     headers: typing.Optional[typing.Dict[str, str]] = None,
     max_fetch_size: typing.Optional[int] = None,
     context: typing.Optional[ssl.SSLContext] = None,
-    max_retries: typing.Optional[int] = None,
-    status_retry: typing.Optional[typing.Iterable[typing.Union[int, http.HTTPStatus]]] = None,
-    **kwargs: typing.Any
-) -> str:
-    """
-    Deprecated method, please use aunshortUrl() instead
-    """
-    
-    warnings.warn(
-        message = "aunshort_url() is deprecated and scheduled to be removed in v1.5, please use aunshortUrl() instead",
-        category = DeprecationWarning,
-        stacklevel = 2
-    )
-    
-    return await aunshortUrl(
-        url=url,
-        method=method,
-        parse_documents=parse_documents,
-        max_redirects=max_redirects,
-        timeout=timeout,
-        ssl_handshake_timeout=ssl_handshake_timeout,
-        headers=headers,
-        max_fetch_size=max_fetch_size,
-        context=context,
-        max_retries=max_retries,
-        status_retry=status_retry,
-        **kwargs
-    )
-
-
-async def aunshortUrl(
-    url: typing.Union[str, urllib.parse.ParseResult],
-    method: typing.Optional[str] = None,
-    parse_documents: typing.Optional[bool] = False,
-    max_redirects: typing.Optional[int] = None,
-    timeout: typing.Optional[int] = None,
-    ssl_handshake_timeout: typing.Optional[int] = None,
-    headers: typing.Optional[typing.Dict[str, str]] = None,
-    max_fetch_size: typing.Optional[int] = None,
-    context: typing.Optional[ssl.SSLContext] = None,
     max_retries:  typing.Optional[int] = None,
     status_retry:  typing.Optional[typing.Iterable[typing.Union[int, http.HTTPStatus]]] = None,
     **kwargs: typing.Any
@@ -516,7 +433,7 @@ async def aunshortUrl(
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> loop.run_until_complete(unalix.aunshortUrl(url, cookies_policy=unalix.COOKIE_REJECT_ALL))
+            >>> loop.run_until_complete(unalix.aunshort_url(url, cookies_policy=unalix.COOKIE_REJECT_ALL))
             'https://bitly.com/pages/pricing'
 
       Allowing all cookies
@@ -529,7 +446,7 @@ async def aunshortUrl(
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> loop.run_until_complete(unalix.aunshortUrl(url, cookies_policy=unalix.COOKIE_ALLOW_ALL))
+            >>> loop.run_until_complete(unalix.aunshort_url(url, cookies_policy=unalix.COOKIE_ALLOW_ALL))
             'https://bitly.com/pages/pricing'
 
       Disabling SSL certificate validation
@@ -542,7 +459,7 @@ async def aunshortUrl(
             >>> 
             >>> url = "https://bitly.is/Pricing-Pop-Up'
             >>> 
-            >>> loop.run_until_complete(unalix.aunshortUrl(url, context=unalix.SSL_CONTEXT_UNVERIFIED))
+            >>> loop.run_until_complete(unalix.aunshort_url(url, context=unalix.SSL_CONTEXT_UNVERIFIED))
             'https://bitly.com/pages/pricing'
     """
 

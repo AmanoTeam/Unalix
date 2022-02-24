@@ -10,7 +10,7 @@
         >>> 
         >>> url = "https://deezer.com/track/891177062?utm_source=deezer"
         >>> 
-        >>> unalix.clearUrl(url)
+        >>> unalix.clear_url(url)
         'https://deezer.com/track/891177062'
 
     Unshortening URLs
@@ -26,8 +26,8 @@
 
     If something goes wrong, please open a issue at GitHub.
 """
-from .core.url_cleaner import clear_url, clearUrl
-from .core.url_unshort import unshort_url, unshortUrl, aunshort_url, aunshortUrl
+from .core.url_cleaner import clear_url
+from .core.url_unshort import unshort_url, aunshort_url
 from .core.cookie_policies import (
     COOKIE_REJECT_ALL,
     COOKIE_ALLOW_ALL,
@@ -48,11 +48,8 @@ __all__ = [
     "__title__",
     "__version__",
     "clear_url",
-    "clearUrl",
     "unshort_url",
-    "unshortUrl",
     "aunshort_url",
-    "aunshortUrl",
     "UnsupportedProtocolError",
     "ConnectError",
     "TooManyRedirectsError",

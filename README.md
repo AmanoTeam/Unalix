@@ -27,10 +27,10 @@ _**Note**: Unalix requires Python 3.6 or higher._
 Removing tracking fields:
 
 ```python
-from unalix import clearUrl
+import unalix
 
 url: str = "https://deezer.com/track/891177062?utm_source=deezer"
-result: str = clearUrl(url = url)
+result: str = unalix.clear_url(url=url)
 
 assert result == "https://deezer.com/track/891177062"
 ```
@@ -38,10 +38,10 @@ assert result == "https://deezer.com/track/891177062"
 Unshort shortened URL:
 
 ```python
-from unalix import unshortUrl
+import unalix
 
 url: str = "https://bitly.is/Pricing-Pop-Up"
-result: str = unshortUrl(url = url)
+result: str = unalix.unshort_url(url=url)
 
 assert result == "https://bitly.com/pages/pricing"
 ```
